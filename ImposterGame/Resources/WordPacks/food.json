@@ -1,0 +1,18 @@
+{
+  "category": "Food",
+  "icon": "fork.knife",
+  "description": "Tasty topics, but say the wrong thing and you're toast!",
+  "isPremium": false,
+  "words": [
+    "Sushi", "Barbecue", "Vegan", "Pizza", "Taco",
+    "Croissant", "Pancake", "Waffle", "Burrito", "Ramen",
+    "Dim Sum", "Fondue", "Soufflé", "Paella", "Ceviche",
+    "Cheeseburger", "Hot Dog", "French Fries", "Onion Rings", "Milkshake",
+    "Ice Cream Sundae", "Brownie", "Cheesecake", "Tiramisu", "Crème Brûlée",
+    "Lobster", "Caviar", "Truffle", "Oyster", "Filet Mignon",
+    "Avocado Toast", "Acai Bowl", "Smoothie", "Kale Salad", "Kombucha",
+    "Food Truck", "Buffet", "Doggy Bag", "Tip Jar", "Drive-Through",
+    "Chopsticks", "Fortune Cookie", "Sriracha", "Wasabi", "Maple Syrup",
+    "Peanut Butter", "Nutella", "Sourdough", "Bacon", "Fried Chicken"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "category": "Places",
+  "icon": "map.fill",
+  "description": "From airports to zoos — describe the place without giving it away!",
+  "isPremium": true,
+  "words": [
+    "Airport", "Museum", "Hospital", "Beach", "Casino",
+    "Library", "Zoo", "Amusement Park", "Gym", "Restaurant",
+    "Cemetery", "Prison", "Church", "Stadium", "Mall",
+    "Subway Station", "Lighthouse", "Volcano", "Waterfall", "Desert",
+    "Igloo", "Treehouse", "Skyscraper", "Barn", "Haunted House",
+    "Cruise Ship", "Space Station", "Oil Rig", "Vineyard", "Spa",
+    "Laundromat", "Junkyard", "Rooftop", "Underground Bunker", "Penthouse",
+    "Cabin", "Campsite", "Drive-In Theater", "Bowling Alley", "Arcade",
+    "Car Wash", "Gas Station", "Parking Lot", "Elevator", "Balcony",
+    "Backstage", "Courtroom", "Dentist Office", "Barbershop", "Tattoo Parlor"
+  ]
+}

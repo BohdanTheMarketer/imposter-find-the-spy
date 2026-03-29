@@ -1,0 +1,18 @@
+{
+  "category": "Movies & TV",
+  "icon": "film.fill",
+  "description": "Lights, camera, action! Describe movie things without spoiling it!",
+  "isPremium": true,
+  "words": [
+    "Popcorn", "Director", "Sequel", "Plot Twist", "Cliffhanger",
+    "Red Carpet", "Oscar", "Stunt Double", "Blooper", "End Credits",
+    "Trailer", "Box Office", "Premiere", "Cameo", "Casting Couch",
+    "Green Screen", "Special Effects", "Sound Track", "Opening Scene", "Flashback",
+    "Narrator", "Villain", "Sidekick", "Love Interest", "Anti-Hero",
+    "Jump Scare", "Car Chase", "Explosion", "Montage", "Time Travel",
+    "Zombie", "Alien Invasion", "Heist", "Courtroom Drama", "Musical Number",
+    "Documentary", "Animation", "Noir", "Western", "Superhero",
+    "Binge Watch", "Season Finale", "Spoiler Alert", "Fan Theory", "Reboot",
+    "Spin-Off", "Crossover", "Post-Credits", "Director's Cut", "Film Festival"
+  ]
+}

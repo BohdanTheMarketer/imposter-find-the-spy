@@ -1,0 +1,18 @@
+{
+  "category": "Sports",
+  "icon": "sportscourt.fill",
+  "description": "Goals, fouls, and touchdowns — can you fake your way through sports talk?",
+  "isPremium": true,
+  "words": [
+    "Goalkeeper", "Referee", "Dumbbell", "Slam Dunk", "Penalty Kick",
+    "Marathon", "Boxing Ring", "Surfboard", "Skateboard", "Trampoline",
+    "Wrestling", "Archery", "Fencing", "Javelin", "Hurdles",
+    "Relay Race", "High Jump", "Pole Vault", "Shot Put", "Decathlon",
+    "Touchdown", "Home Run", "Hat Trick", "Hole in One", "Knockout",
+    "Free Throw", "Corner Kick", "Yellow Card", "Offside", "Overtime",
+    "Trophy", "Medal", "Podium", "Victory Lap", "Halftime",
+    "Cheerleader", "Mascot", "Locker Room", "Bench Press", "Treadmill",
+    "Yoga Mat", "Protein Shake", "Warm Up", "Cool Down", "Personal Trainer",
+    "MVP", "Draft Pick", "Trade Deadline", "Playoff", "Championship Ring"
+  ]
+}

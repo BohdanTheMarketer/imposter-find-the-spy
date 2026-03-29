@@ -1,0 +1,18 @@
+{
+  "category": "School & College",
+  "icon": "book.fill",
+  "description": "Relive the chaos of school days — from pop quizzes to prom drama!",
+  "isPremium": false,
+  "words": [
+    "Homework", "Cafeteria", "Principal", "Pop Quiz", "Detention",
+    "Locker", "Chalkboard", "School Bus", "Recess", "Hall Pass",
+    "Valedictorian", "Yearbook", "Prom King", "Cheerleader", "Mascot",
+    "Field Trip", "Science Fair", "Book Report", "Spelling Bee", "Gym Class",
+    "Substitute Teacher", "Honor Roll", "Freshman", "Sorority", "Fraternity",
+    "Dormitory", "Finals Week", "All-Nighter", "Dean", "Scholarship",
+    "Class Clown", "Teacher's Pet", "Truancy", "Graduation Cap", "Student Loan",
+    "Study Group", "Library", "Tutor", "Blackboard", "Eraser",
+    "Backpack", "Lunch Box", "School Nurse", "Fire Drill", "Assembly",
+    "Pledge", "Textbook", "Lab Partner", "Exchange Student", "Homecoming"
+  ]
+}

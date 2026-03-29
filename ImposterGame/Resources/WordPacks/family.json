@@ -1,0 +1,18 @@
+{
+  "category": "Family",
+  "icon": "house.fill",
+  "description": "Family knows you best — but can they still catch you faking it?",
+  "isPremium": false,
+  "words": [
+    "Grandma", "Dinner Table", "Road Trip", "Family Photo", "Bedtime Story",
+    "Sibling Rivalry", "Chores", "Allowance", "Curfew", "Grounding",
+    "Baby Shower", "Thanksgiving", "Christmas Tree", "Birthday Cake", "Family Reunion",
+    "Minivan", "Diaper", "Lullaby", "Babysitter", "High Chair",
+    "Bunk Bed", "Treehouse", "Homework", "Report Card", "School Bus",
+    "Family Pet", "Goldfish", "Backyard BBQ", "Garage Sale", "Attic",
+    "Basement", "Family Album", "Vacation", "Camping", "Board Game Night",
+    "Pillow Fight", "Hide and Seek", "Tooth Fairy", "Santa Claus", "Easter Egg",
+    "Prom Night", "Graduation", "Wedding", "Anniversary", "Retirement",
+    "Inheritance", "Family Recipe", "Sunday Brunch", "Carpool", "Lemonade Stand"
+  ]
+}

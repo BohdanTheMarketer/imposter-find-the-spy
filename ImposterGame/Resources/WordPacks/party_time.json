@@ -1,0 +1,18 @@
+{
+  "category": "Party Time",
+  "icon": "party.popper",
+  "description": "Easygoing fun with laughs and a bit of chaos — perfect for any group vibe!",
+  "isPremium": false,
+  "words": [
+    "DJ", "Karaoke", "Beer Pong", "Dance Floor", "Cocktail",
+    "Disco Ball", "Confetti", "Shot Glass", "Limbo", "Bouncer",
+    "Playlist", "Strobe Light", "Red Cup", "Toast", "Champagne",
+    "Photo Booth", "Balloon", "Costume", "Hangover", "Designated Driver",
+    "Ice Breaker", "Dare", "Spin the Bottle", "Body Shot", "Conga Line",
+    "Foam Party", "VIP Section", "Cover Charge", "Last Call", "Jukebox",
+    "Keg Stand", "Flip Cup", "Glow Stick", "Crowd Surf", "Encore",
+    "Pregame", "Afterparty", "House Party", "Pool Party", "Roof Party",
+    "Toga Party", "Theme Party", "Open Bar", "Punch Bowl", "Bartender",
+    "Smoke Machine", "Laser Show", "Mosh Pit", "Stage Dive", "Rave"
+  ]
+}
