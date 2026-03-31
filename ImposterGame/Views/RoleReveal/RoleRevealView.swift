@@ -4,8 +4,7 @@ struct RoleRevealView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var gameSession: GameSession
     @State private var dragOffset: CGFloat = 0
-    @State private var isRevealed = false
-    @State private var showPassPrompt = false
+    @State private var hasSeenCurrentWord = false
     @State private var currentIndex = 0
 
     private var currentPlayer: Player {
@@ -35,11 +34,7 @@ struct RoleRevealView: View {
             revealColor
                 .ignoresSafeArea()
 
-            if showPassPrompt {
-                passPromptView
-            } else {
-                roleRevealContent
-            }
+            roleRevealContent
         }
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
@@ -47,60 +42,51 @@ struct RoleRevealView: View {
             // Reset state when view appears
             currentIndex = 0
             dragOffset = 0
-            isRevealed = false
-            showPassPrompt = false
+            hasSeenCurrentWord = false
         }
     }
 
     // MARK: - Role Reveal Content
     private var roleRevealContent: some View {
         ZStack {
-            // Secret word underneath
-            VStack {
-                Spacer()
+            // Revealed content underneath the top card.
+            ZStack {
+                (currentPlayer.isImposter ? Color.black : revealColor)
+                    .ignoresSafeArea()
 
-                if currentPlayer.isImposter {
-                    VStack(spacing: 16) {
-                        Text("🕵️")
-                            .font(.system(size: 60))
-                        Text("You are the\nIMPOSTER!")
-                            .font(.system(size: 28, weight: .black))
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
+                VStack {
+                    Spacer()
 
-                        if !currentPlayer.secretWord.isEmpty {
+                    VStack(spacing: 14) {
+                        if currentPlayer.isImposter {
+                            Image(systemName: "person.fill.questionmark")
+                                .font(.system(size: 56, weight: .bold))
+                                .foregroundColor(.white)
+
+                            Text("You are the IMPOSTER")
+                                .font(.system(size: 30, weight: .black))
+                                .foregroundColor(.white)
+                                .multilineTextAlignment(.center)
+                        } else {
+                            Text("Your secret word is:")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(.black.opacity(0.8))
+
                             Text(currentPlayer.secretWord)
-                                .font(.system(size: 16))
-                                .foregroundColor(.white.opacity(0.7))
-                                .padding(.top, 4)
+                                .font(.system(size: 42, weight: .black))
+                                .foregroundColor(.black)
+                                .multilineTextAlignment(.center)
+                                .minimumScaleFactor(0.6)
+                                .lineLimit(2)
                         }
-
-                        Text("Blend in. Don't get caught.")
-                            .font(.system(size: 15))
-                            .foregroundColor(.white.opacity(0.6))
                     }
-                } else {
-                    VStack(spacing: 16) {
-                        Text("Your secret word is:")
-                            .font(.system(size: 16))
-                            .foregroundColor(.white.opacity(0.7))
 
-                        Text(currentPlayer.secretWord)
-                            .font(.system(size: 34, weight: .black))
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                            .minimumScaleFactor(0.6)
-                            .lineLimit(2)
-
-                        Text("Don't say it out loud!")
-                            .font(.system(size: 15))
-                            .foregroundColor(.white.opacity(0.6))
-                    }
+                    Spacer()
                 }
-
-                Spacer()
+                .padding(.horizontal, 24)
+                .padding(.top, UIScreen.main.bounds.height * 0.28)
+                .padding(.bottom, UIScreen.main.bounds.height * 0.18)
             }
-            .padding(.horizontal, 20)
 
             // Cover image (draggable)
             VStack {
@@ -141,19 +127,46 @@ struct RoleRevealView: View {
 
                 Spacer()
 
-                // Swipe instruction
-                VStack(spacing: 8) {
-                    Text("Swipe up to reveal\nthe secret word")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
+                // Bottom prompt / action area
+                VStack(spacing: 10) {
+                    if hasSeenCurrentWord {
+                        if isLastPlayer {
+                            Text("Everyone has seen the word")
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundColor(.black)
+                                .multilineTextAlignment(.center)
+                        } else if let next = nextPlayer {
+                            Text("Pass the phone to \(next.name)")
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundColor(.black)
+                                .multilineTextAlignment(.center)
+                        }
+
+                        Button(action: {
+                            continueTapped()
+                        }) {
+                            Text(isLastPlayer ? "Start Game" : "Continue")
+                                .font(.system(size: 20, weight: .black))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 62)
+                                .background(Color.black)
+                                .clipShape(RoundedRectangle(cornerRadius: 31))
+                        }
+                        .padding(.horizontal, 40)
+                    } else {
+                        Text("Swipe up to reveal\nthe secret word")
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                    }
 
                     Image(systemName: "chevron.up")
                         .font(.system(size: 24, weight: .bold))
                         .foregroundColor(.white)
                         .offset(y: -4)
                 }
-                .padding(.bottom, 50)
+                .padding(.bottom, 36)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(revealColor)
@@ -162,86 +175,34 @@ struct RoleRevealView: View {
                 DragGesture()
                     .onChanged { value in
                         if value.translation.height < 0 {
-                            dragOffset = value.translation.height
+                            // Lift the cover only up to roughly mid-screen while dragging.
+                            let maxLift = -UIScreen.main.bounds.height * 0.5
+                            dragOffset = max(value.translation.height, maxLift)
                         }
                     }
                     .onEnded { value in
-                        if value.translation.height < -150 {
-                            // Reveal
-                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                                dragOffset = -UIScreen.main.bounds.height
-                            }
-                            HapticsManager.impact(.heavy)
-                            isRevealed = true
-
-                            // Auto-show pass prompt after 3 seconds
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-                                withAnimation {
-                                    showPassPrompt = true
-                                }
-                            }
-                        } else {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                dragOffset = 0
-                            }
+                        if value.translation.height < -80 {
+                            HapticsManager.impact(.light)
+                            hasSeenCurrentWord = true
+                        }
+                        // Always return the cover when the finger is released.
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.78)) {
+                            dragOffset = 0
                         }
                     }
             )
         }
     }
 
-    // MARK: - Pass Prompt
-    private var passPromptView: some View {
-        VStack(spacing: 20) {
-            Spacer()
-
-            if isLastPlayer {
-                Text("Everyone has seen\ntheir word!")
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-
-                Text("Let the game begin!")
-                    .font(.system(size: 16))
-                    .foregroundColor(.white.opacity(0.7))
-            } else if let next = nextPlayer {
-                Text("Pass the phone to")
-                    .font(.system(size: 18))
-                    .foregroundColor(.white.opacity(0.7))
-
-                Text(next.name)
-                    .font(.system(size: 32, weight: .bold))
-                    .foregroundColor(.white)
-
-                Text("Don't peek! 👀")
-                    .font(.system(size: 16))
-                    .foregroundColor(.white.opacity(0.6))
-            }
-
-            Spacer()
-
-            Button(action: {
-                HapticsManager.impact(.medium)
-                if isLastPlayer {
-                    gameSession.gamePhase = .playing
-                    router.navigate(to: .gameTimer)
-                } else {
-                    currentIndex += 1
-                    dragOffset = 0
-                    isRevealed = false
-                    showPassPrompt = false
-                }
-            }) {
-                Text(isLastPlayer ? "Start the Game" : "Continue")
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(.black)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 56)
-                    .background(Color.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 28))
-            }
-            .padding(.horizontal, 40)
-            .padding(.bottom, 50)
+    private func continueTapped() {
+        HapticsManager.impact(.medium)
+        if isLastPlayer {
+            gameSession.gamePhase = .playing
+            router.navigate(to: .gameTimer)
+        } else {
+            currentIndex += 1
+            dragOffset = 0
+            hasSeenCurrentWord = false
         }
     }
 }

@@ -21,6 +21,10 @@ struct PlayerSetupView: View {
         return validNames.count >= minPlayers && uniqueNames.count == validNames.count
     }
 
+    private var playerCountLabel: String {
+        "\(players.count) Player\(players.count == 1 ? "" : "s")"
+    }
+
     var body: some View {
         ZStack {
             // Red gradient background with grid
@@ -54,10 +58,36 @@ struct PlayerSetupView: View {
                 .padding(.top, 16)
                 .padding(.bottom, 20)
 
-                // Add player input
+                // Player list
+                ScrollView {
+                    LazyVStack(spacing: 10) {
+                        ForEach(players) { entry in
+                            if let index = players.firstIndex(where: { $0.id == entry.id }) {
+                                PlayerRow(
+                                    name: entry.name,
+                                    index: index,
+                                    canDelete: true,
+                                    onDelete: {
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            players.removeAll { $0.id == entry.id }
+                                        }
+                                        HapticsManager.impact(.light)
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                }
+                .onTapGesture {
+                    isTextFieldFocused = false
+                }
+                .padding(.bottom, 8)
+
+                // Add player input stays under the list
                 HStack(spacing: 12) {
                     TextField("Enter player name", text: $newPlayerName)
-                        .font(.system(size: 17))
+                        .font(.system(size: 17, weight: .semibold))
                         .foregroundColor(.white)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 14)
@@ -83,60 +113,37 @@ struct PlayerSetupView: View {
                 .padding(.horizontal, 20)
                 .padding(.bottom, 16)
 
-                // Player list
-                ScrollView {
-                    LazyVStack(spacing: 10) {
-                        ForEach(players) { entry in
-                            if let index = players.firstIndex(where: { $0.id == entry.id }) {
-                                PlayerRow(
-                                    name: entry.name,
-                                    index: index,
-                                    canDelete: true,
-                                    onDelete: {
-                                        withAnimation(.easeInOut(duration: 0.2)) {
-                                            players.removeAll { $0.id == entry.id }
-                                        }
-                                        HapticsManager.impact(.light)
-                                    }
-                                )
-                            }
-                        }
+                // Bottom continue button with player count
+                Button(action: {
+                    guard canContinue else {
+                        HapticsManager.notification(.warning)
+                        return
                     }
-                    .padding(.horizontal, 20)
-                }
-                .onTapGesture {
-                    isTextFieldFocused = false
-                }
 
-                Spacer()
-
-                // Bottom info / continue
-                if canContinue {
-                    Button(action: {
                         HapticsManager.impact(.medium)
                         isTextFieldFocused = false
                         setupPlayers()
                         router.navigate(to: .categories)
                     }) {
-                        Text("Continue")
+                    HStack(spacing: 14) {
+                        Text("CONTINUE")
                             .font(.system(size: 20, weight: .bold))
                             .foregroundColor(.black)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
-                            .background(Color.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 28))
+                        Rectangle()
+                            .fill(Color.black.opacity(0.35))
+                            .frame(width: 1, height: 26)
+                        Text(playerCountLabel)
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(.black.opacity(0.85))
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 30)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                } else {
-                    Text(players.isEmpty
-                         ? "Add at least \(minPlayers) players to continue"
-                         : "Add \(max(0, minPlayers - players.count)) more player\(minPlayers - players.count == 1 ? "" : "s") to continue")
-                        .font(.system(size: 15))
-                        .foregroundColor(.white.opacity(0.6))
-                        .padding(.bottom, 30)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 56)
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 28))
                 }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 30)
+                .opacity(canContinue ? 1.0 : 0.85)
             }
         }
         .navigationBarHidden(true)
