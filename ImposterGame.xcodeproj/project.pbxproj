@@ -14,6 +14,7 @@
 		1C736260CE1B62B93624F0C5 /* family.json in Resources */ = {isa = PBXBuildFile; fileRef = FBA5AE4EC12E5BCEE5BA6B34 /* family.json */; };
 		1E686607DFEAE0DC0C1EF8AC /* GameEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA27ACED2644C163A72FD40E /* GameEngine.swift */; };
 		23B5B5E6AECC686FCF506E42 /* CategoryLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52B4C73F586F99F9FD593FA9 /* CategoryLoader.swift */; };
+		2476A1B1369B4FE898A3E211 /* CategoryPaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2476A1B0369B4FE898A3E211 /* CategoryPaywallView.swift */; };
 		24AB6D1CF11A6B2DA84440AB /* PlayerSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48266F11CC4F53FB03C3EBC0 /* PlayerSetupView.swift */; };
 		26C7CFC6FE233006E2F173F5 /* sports.json in Resources */ = {isa = PBXBuildFile; fileRef = C0B8E52B2767DF58833BD2E2 /* sports.json */; };
 		3423DFBADC03C1B3F00F1D51 /* work.json in Resources */ = {isa = PBXBuildFile; fileRef = 27F294A47ED935D77A2182B2 /* work.json */; };
@@ -45,6 +46,7 @@
 		038CD78E19C18AC9B1222AF7 /* places.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = places.json; sourceTree = "<group>"; };
 		04D6987D9F8031C588CE8E0A /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
 		1FD3B1E2BC3F96DBDE54AA2D /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
+		2476A1B0369B4FE898A3E211 /* CategoryPaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryPaywallView.swift; sourceTree = "<group>"; };
 		27F294A47ED935D77A2182B2 /* work.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = work.json; sourceTree = "<group>"; };
 		32B68064C5075CB4909F3E8C /* school.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = school.json; sourceTree = "<group>"; };
 		3A0840B6E8D6C2FAC494C35B /* VotingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingView.swift; sourceTree = "<group>"; };
@@ -54,7 +56,7 @@
 		5625DFA74B6BD1E707F2FB62 /* party_time.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = party_time.json; sourceTree = "<group>"; };
 		57B1A59DC496A37029B24E08 /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
 		57BC9CB184283EAE65342ACE /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
-		5A3D39D79EBFEE259F695500 /* ImposterGame.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ImposterGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A3D39D79EBFEE259F695500 /* ImposterGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImposterGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A45FF697C805ABE39A790E9 /* movies.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = movies.json; sourceTree = "<group>"; };
 		5FC8A6DC10ADD0B1DCAA5B16 /* spicy.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = spicy.json; sourceTree = "<group>"; };
 		7024D9671D1CF3A8C2BB08B9 /* CategoriesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoriesView.swift; sourceTree = "<group>"; };
@@ -182,6 +184,7 @@
 		822705CF4CF51CBA67BC86C7 /* Paywall */ = {
 			isa = PBXGroup;
 			children = (
+				2476A1B0369B4FE898A3E211 /* CategoryPaywallView.swift */,
 				B9E4FD5E37DE7F6EC24F1019 /* PaywallView.swift */,
 			);
 			path = Paywall;
@@ -318,9 +321,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1500;
-				TargetAttributes = {
-				};
+				LastUpgradeCheck = 2640;
 			};
 			buildConfigurationList = 97E264728EAC9BC18F364366 /* Build configuration list for PBXProject "ImposterGame" */;
 			developmentRegion = en;
@@ -370,6 +371,7 @@
 				B8DA7F4590E6E7E31C75EDFC /* CategoriesView.swift in Sources */,
 				AA15A141C41971E4D6E7EF70 /* Category.swift in Sources */,
 				23B5B5E6AECC686FCF506E42 /* CategoryLoader.swift in Sources */,
+				2476A1B1369B4FE898A3E211 /* CategoryPaywallView.swift in Sources */,
 				49BBC3FB9C2FE74F3CE77DEA /* DesignSystem.swift in Sources */,
 				1E686607DFEAE0DC0C1EF8AC /* GameEngine.swift in Sources */,
 				E78372EEC1931B91E618EDC7 /* GameSession.swift in Sources */,
@@ -431,6 +433,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -451,6 +454,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.9;
@@ -495,6 +499,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -522,6 +527,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.9;
