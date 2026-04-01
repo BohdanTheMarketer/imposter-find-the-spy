@@ -54,7 +54,6 @@
 		1663BC03E6D507D86CFF5227 /* superpowers.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = superpowers.json; sourceTree = "<group>"; };
 		1FD3B1E2BC3F96DBDE54AA2D /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
 		2476A1B0369B4FE898A3E211 /* CategoryPaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryPaywallView.swift; sourceTree = "<group>"; };
-		27F294A47ED935D77A2182B2 /* work.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = work.json; sourceTree = "<group>"; };
 		32B68064C5075CB4909F3E8C /* school.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = school.json; sourceTree = "<group>"; };
 		3A0840B6E8D6C2FAC494C35B /* VotingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingView.swift; sourceTree = "<group>"; };
 		48266F11CC4F53FB03C3EBC0 /* PlayerSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerSetupView.swift; sourceTree = "<group>"; };
