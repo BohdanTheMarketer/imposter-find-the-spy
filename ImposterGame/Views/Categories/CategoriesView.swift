@@ -59,13 +59,13 @@ struct CategoriesView: View {
                 // Category list
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 12) {
-                        ForEach(categories) { category in
+                        ForEach(Array(categories.enumerated()), id: \.element.id) { index, category in
                             CategoryCard(
                                 category: category,
                                 isSelected: selectedCategoryID == category.id,
-                                isLocked: category.isPremium && !subscriptionManager.isPremium,
+                                isLocked: index != 0,
                                 onTap: {
-                                    if category.isPremium && !subscriptionManager.isPremium {
+                                    if index != 0 {
                                         HapticsManager.notification(.warning)
                                         return
                                     }
