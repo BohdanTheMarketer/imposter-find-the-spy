@@ -2,7 +2,6 @@ import SwiftUI
 
 struct LoaderView: View {
     @EnvironmentObject var router: AppRouter
-    @EnvironmentObject var subscriptionManager: SubscriptionManager
     @State private var logoScale: CGFloat = 0.5
     @State private var logoOpacity: Double = 0
     @State private var pulseScale: CGFloat = 1.0
@@ -35,9 +34,9 @@ struct LoaderView: View {
                         .overlay(
                             VStack(spacing: 4) {
                                 Text("🕵️")
-                                    .font(.system(size: 60))
+                                    .font(.evolventa(size: 60))
                                 Text("❓")
-                                    .font(.system(size: 30))
+                                    .font(.evolventa(size: 30))
                                     .offset(x: 30, y: -20)
                             }
                         )
@@ -66,11 +65,8 @@ struct LoaderView: View {
             }
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                if subscriptionManager.hasCompletedOnboarding {
-                    router.navigate(to: .playerSetup)
-                } else {
-                    router.navigate(to: .onboarding)
-                }
+                // Onboarding is shown on every cold start; paywall / home follow after the flow.
+                router.navigate(to: .onboarding)
             }
         }
     }

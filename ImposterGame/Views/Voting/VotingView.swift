@@ -24,11 +24,11 @@ struct VotingView: View {
                 // Header
                 VStack(spacing: 8) {
                     Text("Who's the Imposter?")
-                        .font(.system(size: 28, weight: .bold))
+                        .font(.evolventa(size: 28, weight: .bold))
                         .foregroundColor(.white)
 
                     Text("Vote for who you think is faking it")
-                        .font(.system(size: 15))
+                        .font(.evolventa(size: 15))
                         .foregroundColor(.white.opacity(0.6))
                 }
                 .padding(.top, 20)
@@ -71,7 +71,7 @@ struct VotingView: View {
                     router.navigate(to: .result)
                 }) {
                     Text("Reveal")
-                        .font(.system(size: 20, weight: .bold))
+                        .font(.evolventa(size: 20, weight: .bold))
                         .foregroundColor(selectedPlayerID != nil ? .black : .white.opacity(0.4))
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
@@ -106,11 +106,11 @@ struct VotingCard: View {
                         .aspectRatio(1.0, contentMode: .fit)
 
                     Text(PlayerAvatars.avatar(for: index))
-                        .font(.system(size: 50))
+                        .font(.evolventa(size: 50))
                 }
 
                 Text(player.name)
-                    .font(.system(size: 15, weight: .semibold))
+                    .font(.evolventa(size: 15, weight: .semibold))
                     .foregroundColor(.white)
                     .lineLimit(1)
             }

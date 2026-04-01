@@ -55,7 +55,7 @@ struct ResultView: View {
                 ForEach(0..<intrigueTexts.count, id: \.self) { index in
                     if index <= intrigueTextIndex {
                         Text(intrigueTexts[index])
-                            .font(.system(size: 48, weight: .black))
+                            .font(.evolventa(size: 48, weight: .black))
                             .foregroundColor(.white)
                             .transition(.opacity.combined(with: .move(edge: .leading)))
                     }
@@ -79,7 +79,7 @@ struct ResultView: View {
 
             VStack(spacing: 0) {
                 Text("Results")
-                    .font(.system(size: 28, weight: .bold))
+                    .font(.evolventa(size: 28, weight: .bold))
                     .foregroundColor(.white)
                     .padding(.top, 20)
                     .padding(.bottom, 24)
@@ -91,19 +91,19 @@ struct ResultView: View {
                             VStack(spacing: 12) {
                                 if didPlayersWin {
                                     Text("Players Win!")
-                                        .font(.system(size: 28, weight: .bold))
+                                        .font(.evolventa(size: 28, weight: .bold))
                                         .foregroundColor(.white)
 
                                     Text("The imposter was caught!")
-                                        .font(.system(size: 15))
+                                        .font(.evolventa(size: 15))
                                         .foregroundColor(.white.opacity(0.7))
                                 } else {
                                     Text("Imposter Wins!")
-                                        .font(.system(size: 28, weight: .bold))
+                                        .font(.evolventa(size: 28, weight: .bold))
                                         .foregroundColor(.white)
 
                                     Text("The imposter got away undetected")
-                                        .font(.system(size: 15))
+                                        .font(.evolventa(size: 15))
                                         .foregroundColor(.white.opacity(0.7))
                                 }
 
@@ -116,11 +116,11 @@ struct ResultView: View {
                                                 .frame(width: 120, height: 120)
 
                                             Text(PlayerAvatars.avatar(for: imposter.avatarIndex))
-                                                .font(.system(size: 60))
+                                                .font(.evolventa(size: 60))
                                         }
 
                                         Text(imposter.name)
-                                            .font(.system(size: 16, weight: .semibold))
+                                            .font(.evolventa(size: 16, weight: .semibold))
                                             .foregroundColor(.white.opacity(0.8))
                                     }
                                 }
@@ -133,11 +133,11 @@ struct ResultView: View {
                             // Secret word card
                             VStack(spacing: 8) {
                                 Text("Secret Word")
-                                    .font(.system(size: 14))
+                                    .font(.evolventa(size: 14))
                                     .foregroundColor(.white.opacity(0.6))
 
                                 Text(gameSession.secretWord)
-                                    .font(.system(size: 26, weight: .bold))
+                                    .font(.evolventa(size: 26, weight: .bold))
                                     .foregroundColor(.white)
                                     .multilineTextAlignment(.center)
                                     .minimumScaleFactor(0.7)
@@ -160,13 +160,13 @@ struct ResultView: View {
                         Button(action: {
                             HapticsManager.impact(.medium)
                             gameSession.resetForNewRound()
-                            router.navigateToCategories()
+                            router.navigateToPlayerSetup()
                         }) {
                             HStack(spacing: 8) {
                                 Text("PLAY AGAIN")
-                                    .font(.system(size: 20, weight: .black))
+                                    .font(.evolventa(size: 20, weight: .black))
                                 Image(systemName: "arrow.counterclockwise")
-                                    .font(.system(size: 18, weight: .bold))
+                                    .font(.evolventa(size: 18, weight: .bold))
                             }
                             .foregroundColor(.black)
                             .frame(maxWidth: .infinity)
@@ -181,7 +181,7 @@ struct ResultView: View {
                             router.navigateToPlayerSetup()
                         }) {
                             Text("New Game")
-                                .font(.system(size: 16, weight: .semibold))
+                                .font(.evolventa(size: 16, weight: .semibold))
                                 .foregroundColor(.white.opacity(0.6))
                         }
                     }

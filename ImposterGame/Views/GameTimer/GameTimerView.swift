@@ -37,7 +37,7 @@ struct GameTimerView: View {
                         pauseTimer()
                     }) {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 18, weight: .semibold))
+                            .font(.evolventa(size: 18, weight: .semibold))
                             .foregroundColor(.white)
                     }
 
@@ -51,11 +51,11 @@ struct GameTimerView: View {
                 // Starting player info
                 VStack(spacing: 4) {
                     Text("\(gameSession.startingPlayerIndex + 1)")
-                        .font(.system(size: 40, weight: .black))
+                        .font(.evolventa(size: 40, weight: .black))
                         .foregroundColor(.white)
 
                     Text("Starts Asking!")
-                        .font(.system(size: 16))
+                        .font(.evolventa(size: 16))
                         .foregroundColor(.white.opacity(0.7))
                 }
 
@@ -64,11 +64,11 @@ struct GameTimerView: View {
                 // Timer display
                 VStack(spacing: 8) {
                     Text("Timer")
-                        .font(.system(size: 20, weight: .bold))
+                        .font(.evolventa(size: 20, weight: .bold))
                         .foregroundColor(.white)
 
                     Text(formattedTime)
-                        .font(.system(size: 72, weight: .black))
+                        .font(.evolventa(size: 72, weight: .black))
                         .foregroundColor(.white)
                         .monospacedDigit()
                 }
@@ -83,7 +83,7 @@ struct GameTimerView: View {
                     pauseTimer()
                 }) {
                     Text("Pause")
-                        .font(.system(size: 18, weight: .bold))
+                        .font(.evolventa(size: 18, weight: .bold))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 52)
@@ -112,7 +112,7 @@ struct GameTimerView: View {
 
                 VStack(spacing: 16) {
                     Text("Game Paused")
-                        .font(.system(size: 24, weight: .bold))
+                        .font(.evolventa(size: 24, weight: .bold))
                         .foregroundColor(.white)
                         .padding(.bottom, 8)
 
@@ -122,7 +122,7 @@ struct GameTimerView: View {
                         resumeTimer()
                     }) {
                         Text("Continue")
-                            .font(.system(size: 18, weight: .bold))
+                            .font(.evolventa(size: 18, weight: .bold))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .frame(height: 52)
@@ -138,7 +138,7 @@ struct GameTimerView: View {
                         router.navigate(to: .voting)
                     }) {
                         Text("Vote Now")
-                            .font(.system(size: 18, weight: .bold))
+                            .font(.evolventa(size: 18, weight: .bold))
                             .foregroundColor(.black)
                             .frame(maxWidth: .infinity)
                             .frame(height: 52)

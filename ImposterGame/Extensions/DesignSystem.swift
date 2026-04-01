@@ -19,6 +19,14 @@ extension Color {
     static let onboardingBlue = Color(red: 0.3, green: 0.7, blue: 0.95)
     static let paywallPurple = Color(red: 0.45, green: 0.2, blue: 0.85)
 
+    // Stitch design guide (DESIGN.md) — onboarding / premium energy
+    /// Electric Purple #8B44FF
+    static let stitchElectricPurple = Color(red: 0.545, green: 0.267, blue: 1.0)
+    /// Deep Onyx #1A1A1A — primary buttons
+    static let stitchDeepOnyx = Color(red: 0.102, green: 0.102, blue: 0.102)
+    /// Dark stage background (navy / purple night)
+    static let stitchNightBase = Color(red: 0.07, green: 0.05, blue: 0.14)
+
     // Role reveal colors
     static let revealOrange = Color(red: 1.0, green: 0.65, blue: 0.0)
     static let revealGreen = Color(red: 0.3, green: 0.8, blue: 0.35)
@@ -71,7 +79,7 @@ struct PrimaryButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 18, weight: .bold))
+            .font(.evolventa(size: 18, weight: .bold))
             .foregroundColor(.white)
             .frame(maxWidth: .infinity)
             .frame(height: 56)
@@ -85,6 +93,20 @@ struct PrimaryButtonStyle: ButtonStyle {
 extension View {
     func cardStyle(backgroundColor: Color = Color(white: 0.15)) -> some View {
         modifier(CardStyle(backgroundColor: backgroundColor))
+    }
+}
+
+// MARK: - Evolventa (bundled TTF; register in Info.plist UIAppFonts)
+
+extension Font {
+    /// Evolventa custom font. Bold weights use `Evolventa-Bold`; all others use `Evolventa-Regular`.
+    static func evolventa(size: CGFloat, weight: Font.Weight = .regular) -> Font {
+        let isBold = weight == .semibold
+            || weight == .bold
+            || weight == .heavy
+            || weight == .black
+        let postScriptName = isBold ? "Evolventa-Bold" : "Evolventa-Regular"
+        return .custom(postScriptName, size: size)
     }
 }
 

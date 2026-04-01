@@ -55,7 +55,7 @@ struct CategoryPaywallView: View {
             Spacer()
             Button(action: { closePaywall() }) {
                 Image(systemName: "xmark")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.evolventa(size: 16, weight: .semibold))
                     .foregroundColor(.white.opacity(0.7))
                     .frame(width: 32, height: 32)
             }
@@ -77,9 +77,9 @@ struct CategoryPaywallView: View {
 
             VStack(spacing: 12) {
                 Text("🕵️‍♂️")
-                    .font(.system(size: 92))
+                    .font(.evolventa(size: 92))
                 Text("🎉🎈✨")
-                    .font(.system(size: 28))
+                    .font(.evolventa(size: 28))
             }
         }
         .padding(.top, 4)
@@ -88,7 +88,7 @@ struct CategoryPaywallView: View {
 
     private var titleBlock: some View {
         Text("Continue to get\nfull access")
-            .font(.system(size: 50, weight: .heavy))
+            .font(.evolventa(size: 50, weight: .heavy))
             .minimumScaleFactor(0.6)
             .multilineTextAlignment(.center)
             .foregroundColor(.white)
@@ -113,7 +113,7 @@ struct CategoryPaywallView: View {
                                 .fill(Color.green)
                                 .frame(width: 28, height: 28)
                             Image(systemName: "checkmark")
-                                .font(.system(size: 14, weight: .bold))
+                                .font(.evolventa(size: 14, weight: .bold))
                                 .foregroundColor(.white)
                         }
                     }
@@ -122,10 +122,10 @@ struct CategoryPaywallView: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(isTrialEnabled ? "Free access enabled" : "Not sure yet?")
-                        .font(.system(size: 15.5, weight: .bold))
+                        .font(.evolventa(size: 15.5, weight: .bold))
                         .foregroundColor(.white)
                     Text(isTrialEnabled ? "No commitment, cancel anytime" : "Enable free access")
-                        .font(.system(size: 13.5, weight: .medium))
+                        .font(.evolventa(size: 13.5, weight: .medium))
                         .foregroundColor(.white.opacity(0.85))
                 }
 
@@ -139,7 +139,7 @@ struct CategoryPaywallView: View {
                     .padding(.leading, 44)
 
                 Text("0 USD due today \u{2022} 3 days FREE")
-                    .font(.system(size: 16, weight: .heavy))
+                    .font(.evolventa(size: 16, weight: .heavy))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.leading, 44)
@@ -159,15 +159,15 @@ struct CategoryPaywallView: View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Yearly")
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.evolventa(size: 16, weight: .bold))
                     .foregroundColor(.white)
                 Text("Just 49,99 USD/year")
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.evolventa(size: 12, weight: .medium))
                     .foregroundColor(.white.opacity(0.85))
             }
             Spacer()
             Text("0,96 USD/week")
-                .font(.system(size: 16.5, weight: .bold))
+                .font(.evolventa(size: 16.5, weight: .bold))
                 .foregroundColor(.white)
         }
         .padding(.horizontal, 16)
@@ -185,15 +185,15 @@ struct CategoryPaywallView: View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Weekly")
-                    .font(.system(size: 16, weight: .bold))
+                    .font(.evolventa(size: 16, weight: .bold))
                     .foregroundColor(.white)
                 Text("Cancel anytime")
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.evolventa(size: 12, weight: .medium))
                     .foregroundColor(.white.opacity(0.85))
             }
             Spacer()
             Text("9,99 USD/week")
-                .font(.system(size: 16.5, weight: .bold))
+                .font(.evolventa(size: 16.5, weight: .bold))
                 .foregroundColor(.white)
         }
         .padding(.horizontal, 16)
@@ -202,7 +202,7 @@ struct CategoryPaywallView: View {
         .clipShape(RoundedRectangle(cornerRadius: 16))
         .overlay(alignment: .topTrailing) {
             Text(badgeText)
-                .font(.system(size: 11, weight: .bold))
+                .font(.evolventa(size: 11, weight: .bold))
                 .foregroundColor(.white)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 4)
@@ -226,11 +226,11 @@ struct CategoryPaywallView: View {
         }) {
             HStack {
                 Text(isTrialEnabled ? "Try it for Free" : "Continue")
-                    .font(.system(size: 19.5, weight: .heavy))
+                    .font(.evolventa(size: 19.5, weight: .heavy))
                     .foregroundColor(.white)
                 Spacer()
                 Image(systemName: "arrow.right")
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.evolventa(size: 18, weight: .bold))
                     .foregroundColor(.white)
             }
             .padding(.horizontal, 26)
@@ -248,7 +248,7 @@ struct CategoryPaywallView: View {
                 subscriptionManager.restorePurchases()
             }
         }
-        .font(.system(size: 12, weight: .medium))
+        .font(.evolventa(size: 12, weight: .medium))
         .foregroundColor(.white.opacity(0.45))
         .padding(.bottom, 6)
     }

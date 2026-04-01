@@ -60,20 +60,20 @@ struct RoleRevealView: View {
                     VStack(spacing: 14) {
                         if currentPlayer.isImposter {
                             Image(systemName: "person.fill.questionmark")
-                                .font(.system(size: 56, weight: .bold))
+                                .font(.evolventa(size: 56, weight: .bold))
                                 .foregroundColor(.white)
 
                             Text("You are the IMPOSTER")
-                                .font(.system(size: 30, weight: .black))
+                                .font(.evolventa(size: 30, weight: .black))
                                 .foregroundColor(.white)
                                 .multilineTextAlignment(.center)
                         } else {
                             Text("Your secret word is:")
-                                .font(.system(size: 18, weight: .semibold))
+                                .font(.evolventa(size: 18, weight: .semibold))
                                 .foregroundColor(.black.opacity(0.8))
 
                             Text(currentPlayer.secretWord)
-                                .font(.system(size: 42, weight: .black))
+                                .font(.evolventa(size: 42, weight: .black))
                                 .foregroundColor(.black)
                                 .multilineTextAlignment(.center)
                                 .minimumScaleFactor(0.6)
@@ -84,7 +84,7 @@ struct RoleRevealView: View {
                     Spacer()
                 }
                 .padding(.horizontal, 24)
-                .padding(.top, UIScreen.main.bounds.height * 0.28)
+                .padding(.top, UIScreen.main.bounds.height * 0.56)
                 .padding(.bottom, UIScreen.main.bounds.height * 0.18)
             }
 
@@ -98,7 +98,7 @@ struct RoleRevealView: View {
                         }
                     }) {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 18, weight: .semibold))
+                            .font(.evolventa(size: 18, weight: .semibold))
                             .foregroundColor(.white)
                     }
                     .opacity(currentIndex == 0 ? 1.0 : 0.0)
@@ -110,7 +110,7 @@ struct RoleRevealView: View {
                 .padding(.top, 16)
 
                 Text("\(currentIndex + 1)")
-                    .font(.system(size: 40, weight: .black))
+                    .font(.evolventa(size: 40, weight: .black))
                     .foregroundColor(.white)
 
                 Spacer()
@@ -122,7 +122,7 @@ struct RoleRevealView: View {
                         .frame(width: 200, height: 200)
 
                     Text(PlayerAvatars.avatar(for: currentIndex))
-                        .font(.system(size: 100))
+                        .font(.evolventa(size: 100))
                 }
 
                 Spacer()
@@ -132,12 +132,12 @@ struct RoleRevealView: View {
                     if hasSeenCurrentWord {
                         if isLastPlayer {
                             Text("Everyone has seen the word")
-                                .font(.system(size: 18, weight: .bold))
+                                .font(.evolventa(size: 18, weight: .bold))
                                 .foregroundColor(.black)
                                 .multilineTextAlignment(.center)
                         } else if let next = nextPlayer {
                             Text("Pass the phone to \(next.name)")
-                                .font(.system(size: 18, weight: .bold))
+                                .font(.evolventa(size: 18, weight: .bold))
                                 .foregroundColor(.black)
                                 .multilineTextAlignment(.center)
                         }
@@ -146,7 +146,7 @@ struct RoleRevealView: View {
                             continueTapped()
                         }) {
                             Text(isLastPlayer ? "Start Game" : "Continue")
-                                .font(.system(size: 20, weight: .black))
+                                .font(.evolventa(size: 20, weight: .black))
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 62)
@@ -156,13 +156,13 @@ struct RoleRevealView: View {
                         .padding(.horizontal, 40)
                     } else {
                         Text("Swipe up to reveal\nthe secret word")
-                            .font(.system(size: 20, weight: .bold))
+                            .font(.evolventa(size: 20, weight: .bold))
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
                     }
 
                     Image(systemName: "chevron.up")
-                        .font(.system(size: 24, weight: .bold))
+                        .font(.evolventa(size: 24, weight: .bold))
                         .foregroundColor(.white)
                         .offset(y: -4)
                 }

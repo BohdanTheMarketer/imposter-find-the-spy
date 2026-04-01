@@ -28,9 +28,9 @@ struct OnboardingPaywallView: View {
 
                     VStack {
                         Text("🕵️‍♂️")
-                            .font(.system(size: 100))
+                            .font(.evolventa(size: 100))
                         Text("🎉🎊🎈")
-                            .font(.system(size: 40))
+                            .font(.evolventa(size: 40))
                     }
                 }
                 .scaleEffect(appearAnimation ? 1.0 : 0.8)
@@ -39,18 +39,18 @@ struct OnboardingPaywallView: View {
 
                 // Title
                 Text("Continue to get\nfull access")
-                    .font(.system(size: 30, weight: .bold))
+                    .font(.evolventa(size: 30, weight: .bold))
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)
                     .padding(.bottom, 16)
 
                 // Description
                 Text("Just 9,99 USD/week. ")
-                    .font(.system(size: 14, weight: .bold))
+                    .font(.evolventa(size: 14, weight: .bold))
                     .foregroundColor(.white)
                 +
                 Text("Full access to 10 themes to match any party! More than 1000 words! Frequent content updates! No extra charge, no commitment. Cancel anytime.")
-                    .font(.system(size: 14))
+                    .font(.evolventa(size: 14))
                     .foregroundColor(.white.opacity(0.85))
 
                 Spacer()
@@ -59,10 +59,10 @@ struct OnboardingPaywallView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Not sure yet?")
-                            .font(.system(size: 15, weight: .semibold))
+                            .font(.evolventa(size: 15, weight: .semibold))
                             .foregroundColor(.white)
                         Text("Enable free trial")
-                            .font(.system(size: 14))
+                            .font(.evolventa(size: 14))
                             .foregroundColor(.white.opacity(0.7))
                     }
 
@@ -89,7 +89,7 @@ struct OnboardingPaywallView: View {
                     router.navigate(to: .playerSetup)
                 }) {
                     Text("Continue")
-                        .font(.system(size: 20, weight: .bold))
+                        .font(.evolventa(size: 20, weight: .bold))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
@@ -102,20 +102,15 @@ struct OnboardingPaywallView: View {
                 // Bottom links
                 HStack(spacing: 24) {
                     Button("Terms") {}
-                        .font(.system(size: 12))
+                        .font(.evolventa(size: 12))
                         .foregroundColor(.white.opacity(0.4))
                     Button("Privacy") {}
-                        .font(.system(size: 12))
+                        .font(.evolventa(size: 12))
                         .foregroundColor(.white.opacity(0.4))
-                    Button("Skip") {
-                        router.navigate(to: .playerSetup)
-                    }
-                    .font(.system(size: 12))
-                    .foregroundColor(.white.opacity(0.4))
                     Button("Restore") {
                         subscriptionManager.restorePurchases()
                     }
-                    .font(.system(size: 12))
+                    .font(.evolventa(size: 12))
                     .foregroundColor(.white.opacity(0.4))
                 }
                 .padding(.bottom, 30)

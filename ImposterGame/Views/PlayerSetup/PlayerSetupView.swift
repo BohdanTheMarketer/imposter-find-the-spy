@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct PlayerEntry: Identifiable {
     let id = UUID()
@@ -10,6 +11,7 @@ struct PlayerSetupView: View {
     @EnvironmentObject var gameSession: GameSession
     @State private var players: [PlayerEntry] = []
     @State private var newPlayerName: String = ""
+    @State private var showOptionsMenu = false
     @FocusState private var isTextFieldFocused: Bool
 
     private let minPlayers = 3
@@ -40,14 +42,17 @@ struct PlayerSetupView: View {
                 HStack {
                     Spacer()
                     Text("Players")
-                        .font(.system(size: 28, weight: .bold))
+                        .font(.evolventa(size: 28, weight: .bold))
                         .foregroundColor(.white)
                     Spacer()
                 }
                 .overlay(alignment: .trailing) {
-                    Button(action: {}) {
+                    Button(action: {
+                        HapticsManager.impact(.light)
+                        showOptionsMenu = true
+                    }) {
                         Image(systemName: "gearshape.fill")
-                            .font(.system(size: 20))
+                            .font(.evolventa(size: 20))
                             .foregroundColor(.white)
                             .frame(width: 44, height: 44)
                             .background(Color(white: 0.15))
@@ -87,7 +92,7 @@ struct PlayerSetupView: View {
                 // Add player input stays under the list
                 HStack(spacing: 12) {
                     TextField("Enter player name", text: $newPlayerName)
-                        .font(.system(size: 17, weight: .semibold))
+                        .font(.evolventa(size: 17, weight: .semibold))
                         .foregroundColor(.white)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 14)
@@ -101,7 +106,7 @@ struct PlayerSetupView: View {
 
                     Button(action: addPlayer) {
                         Image(systemName: "plus")
-                            .font(.system(size: 20, weight: .bold))
+                            .font(.evolventa(size: 20, weight: .bold))
                             .foregroundColor(.white)
                             .frame(width: 50, height: 50)
                             .background(Color(white: 0.15))
@@ -127,13 +132,13 @@ struct PlayerSetupView: View {
                     }) {
                     HStack(spacing: 14) {
                         Text("CONTINUE")
-                            .font(.system(size: 20, weight: .bold))
+                            .font(.evolventa(size: 20, weight: .bold))
                             .foregroundColor(.black)
                         Rectangle()
                             .fill(Color.black.opacity(0.35))
                             .frame(width: 1, height: 26)
                         Text(playerCountLabel)
-                            .font(.system(size: 20, weight: .semibold))
+                            .font(.evolventa(size: 20, weight: .semibold))
                             .foregroundColor(.black.opacity(0.85))
                     }
                     .frame(maxWidth: .infinity)
@@ -149,6 +154,9 @@ struct PlayerSetupView: View {
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
         .animation(.easeInOut(duration: 0.3), value: canContinue)
+        .sheet(isPresented: $showOptionsMenu) {
+            PlayerOptionsSheet(isPresented: $showOptionsMenu)
+        }
     }
 
     private func addPlayer() {
@@ -177,6 +185,163 @@ struct PlayerSetupView: View {
     }
 }
 
+// MARK: - Options sheet (gear on Players screen)
+
+private enum AppUserIdentity {
+    private static let key = "app_anonymous_user_id"
+
+    static var id: String {
+        if let existing = UserDefaults.standard.string(forKey: key) {
+            return existing
+        }
+        let new = UUID().uuidString
+        UserDefaults.standard.set(new, forKey: key)
+        return new
+    }
+}
+
+private enum PlayerOptionsLinks {
+    /// Replace with your App Store support email before release.
+    static let contactEmail = "support@example.com"
+    /// Replace with live URLs when available.
+    static let privacyURL = URL(string: "https://example.com/privacy")
+    static let termsURL = URL(string: "https://example.com/terms")
+}
+
+struct PlayerOptionsSheet: View {
+    @Binding var isPresented: Bool
+    @State private var vibrationOn = HapticsManager.isEnabled
+
+    var body: some View {
+        ZStack {
+            LinearGradient.appRedGradient
+                .ignoresSafeArea()
+                .overlay(
+                    GridPatternView()
+                        .opacity(0.1)
+                )
+
+            VStack(spacing: 0) {
+                Text("Options")
+                    .font(.evolventa(size: 22, weight: .bold))
+                    .foregroundColor(.white)
+                    .padding(.top, 28)
+                    .padding(.bottom, 20)
+
+                VStack(spacing: 0) {
+                    optionRow(title: "Language", systemImage: "globe") {
+                        openURLString(UIApplication.openSettingsURLString)
+                    }
+                    Divider().background(Color.white.opacity(0.2))
+                    optionRow(title: "Contact Us", systemImage: "envelope") {
+                        if let url = URL(string: "mailto:\(PlayerOptionsLinks.contactEmail)") {
+                            UIApplication.shared.open(url)
+                        }
+                    }
+                    Divider().background(Color.white.opacity(0.2))
+                    optionRow(title: "Privacy", systemImage: "shield") {
+                        if let url = PlayerOptionsLinks.privacyURL {
+                            UIApplication.shared.open(url)
+                        }
+                    }
+                    Divider().background(Color.white.opacity(0.2))
+                    optionRow(title: "Terms of Use", systemImage: "doc.text") {
+                        if let url = PlayerOptionsLinks.termsURL {
+                            UIApplication.shared.open(url)
+                        }
+                    }
+                    Divider().background(Color.white.opacity(0.2))
+                    vibrationRow
+                }
+                .background(Color.white.opacity(0.08))
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .padding(.horizontal, 20)
+
+                Text("User ID: \(AppUserIdentity.id)")
+                    .font(.evolventa(size: 11, weight: .regular))
+                    .foregroundColor(.white.opacity(0.55))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+                    .padding(.top, 16)
+                    .textSelection(.enabled)
+
+                Spacer(minLength: 12)
+
+                Button(action: {
+                    HapticsManager.impact(.light)
+                    isPresented = false
+                }) {
+                    Text("Close")
+                        .font(.evolventa(size: 18, weight: .bold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                        .background(Color(white: 0.12))
+                        .clipShape(RoundedRectangle(cornerRadius: 28))
+                }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 24)
+            }
+        }
+        .onAppear {
+            vibrationOn = HapticsManager.isEnabled
+        }
+        .presentationDetents([.fraction(0.62), .large])
+        .presentationDragIndicator(.visible)
+    }
+
+    private var vibrationRow: some View {
+        HStack {
+            Text("Vibration")
+                .font(.evolventa(size: 17, weight: .semibold))
+                .foregroundColor(.white)
+            Spacer()
+            Image(systemName: "iphone.radiowaves.left.and.right")
+                .font(.evolventa(size: 20, weight: .regular))
+                .foregroundColor(.white.opacity(0.9))
+                .padding(.trailing, 8)
+            Toggle("", isOn: $vibrationOn)
+                .labelsHidden()
+                .tint(.green)
+                .onChange(of: vibrationOn) { newValue in
+                    HapticsManager.isEnabled = newValue
+                    if newValue {
+                        HapticsManager.impact(.light)
+                    }
+                }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .contentShape(Rectangle())
+    }
+
+    private func optionRow(title: String, systemImage: String, action: @escaping () -> Void) -> some View {
+        Button(action: {
+            HapticsManager.impact(.light)
+            action()
+        }) {
+            HStack {
+                Text(title)
+                    .font(.evolventa(size: 17, weight: .semibold))
+                    .foregroundColor(.white)
+                Spacer()
+                Image(systemName: systemImage)
+                    .font(.evolventa(size: 20, weight: .regular))
+                    .foregroundColor(.white.opacity(0.9))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func openURLString(_ string: String) {
+        guard let url = URL(string: string) else { return }
+        UIApplication.shared.open(url)
+    }
+}
+
 struct PlayerRow: View {
     let name: String
     let index: Int
@@ -187,13 +352,13 @@ struct PlayerRow: View {
         HStack(spacing: 14) {
             // Avatar
             Text(PlayerAvatars.avatar(for: index))
-                .font(.system(size: 28))
+                .font(.evolventa(size: 28))
                 .frame(width: 44, height: 44)
                 .background(AvatarColors.color(for: index))
                 .clipShape(Circle())
 
             Text(name)
-                .font(.system(size: 17, weight: .medium))
+                .font(.evolventa(size: 17, weight: .medium))
                 .foregroundColor(.white)
                 .lineLimit(1)
 
@@ -202,7 +367,7 @@ struct PlayerRow: View {
             if canDelete {
                 Button(action: onDelete) {
                     Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 22))
+                        .font(.evolventa(size: 22))
                         .foregroundColor(.white.opacity(0.4))
                 }
             }

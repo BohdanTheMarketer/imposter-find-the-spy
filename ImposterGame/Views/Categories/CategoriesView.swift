@@ -28,14 +28,14 @@ struct CategoriesView: View {
                 HStack {
                     Button(action: { router.pop() }) {
                         Image(systemName: "person.2.fill")
-                            .font(.system(size: 18))
+                            .font(.evolventa(size: 18))
                             .foregroundColor(.white)
                     }
 
                     Spacer()
 
                     Text("Categories")
-                        .font(.system(size: 28, weight: .bold))
+                        .font(.evolventa(size: 28, weight: .bold))
                         .foregroundColor(.white)
 
                     Spacer()
@@ -48,7 +48,7 @@ struct CategoriesView: View {
                         }
                     }) {
                         Image(systemName: "info.circle")
-                            .font(.system(size: 24, weight: .semibold))
+                            .font(.evolventa(size: 24, weight: .semibold))
                             .foregroundColor(.white.opacity(0.9))
                     }
                 }
@@ -93,7 +93,7 @@ struct CategoriesView: View {
                 }) {
                     HStack(spacing: 14) {
                         Text("PLAY")
-                            .font(.system(size: 20, weight: .bold))
+                            .font(.evolventa(size: 20, weight: .bold))
                             .foregroundColor(.black)
 
                         Rectangle()
@@ -101,7 +101,7 @@ struct CategoriesView: View {
                             .frame(width: 1, height: 26)
 
                         Text("\(selectedCategoryCount) Category")
-                            .font(.system(size: 20, weight: .semibold))
+                            .font(.evolventa(size: 20, weight: .semibold))
                             .foregroundColor(.black.opacity(0.85))
                     }
                     .frame(maxWidth: .infinity)
@@ -160,18 +160,18 @@ struct CategoryCard: View {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(spacing: 6) {
                         Text(category.name)
-                            .font(.system(size: 22, weight: .bold))
+                            .font(.evolventa(size: 22, weight: .bold))
                             .foregroundColor(.white)
 
                         if isLocked {
                             Image(systemName: "lock.fill")
-                                .font(.system(size: 14))
+                                .font(.evolventa(size: 14))
                                 .foregroundColor(.white.opacity(0.6))
                         }
                     }
 
                     Text(category.description)
-                        .font(.system(size: 13))
+                        .font(.evolventa(size: 13))
                         .foregroundColor(.white.opacity(0.7))
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
@@ -180,7 +180,7 @@ struct CategoryCard: View {
                 Spacer()
 
                 Text(categoryEmoji)
-                    .font(.system(size: 56))
+                    .font(.evolventa(size: 56))
                     .padding(.trailing, 2)
             }
             .padding(16)
@@ -266,14 +266,14 @@ struct CategoryInfoOverlay: View {
 
             VStack(spacing: 0) {
                 Text(steps[currentStep].title)
-                    .font(.system(size: 44, weight: .bold))
+                    .font(.evolventa(size: 44, weight: .bold))
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
                     .foregroundColor(.white)
                     .padding(.top, 42)
 
                 Text(steps[currentStep].subtitle)
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(.evolventa(size: 17, weight: .semibold))
                     .foregroundColor(.white.opacity(0.9))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 30)
@@ -293,7 +293,7 @@ struct CategoryInfoOverlay: View {
 
                 Button(action: nextTapped) {
                     Text(steps[currentStep].buttonTitle)
-                        .font(.system(size: 20, weight: .bold))
+                        .font(.evolventa(size: 20, weight: .bold))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
@@ -320,7 +320,7 @@ struct CategoryInfoOverlay: View {
         switch step.content {
         case .emoji(let text):
             Text(text)
-                .font(.system(size: 60))
+                .font(.evolventa(size: 60))
                 .padding(.horizontal, 20)
 
         case .chips(let chips, let emoji):
@@ -328,7 +328,7 @@ struct CategoryInfoOverlay: View {
                 VStack(alignment: .leading, spacing: 10) {
                     ForEach(chips, id: \.self) { chip in
                         Text(chip)
-                            .font(.system(size: 20, weight: .medium))
+                            .font(.evolventa(size: 20, weight: .medium))
                             .foregroundColor(.white)
                             .padding(.horizontal, 24)
                             .padding(.vertical, 10)
@@ -341,7 +341,7 @@ struct CategoryInfoOverlay: View {
                     }
                 }
                 Text(emoji)
-                    .font(.system(size: 76))
+                    .font(.evolventa(size: 76))
             }
             .padding(.horizontal, 20)
 
@@ -351,7 +351,7 @@ struct CategoryInfoOverlay: View {
                     Text("✅  Guess right - you win")
                     Text("❌  Miss - imposter wins")
                 }
-                .font(.system(size: 18, weight: .semibold))
+                .font(.evolventa(size: 18, weight: .semibold))
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 18)
@@ -364,7 +364,7 @@ struct CategoryInfoOverlay: View {
                 )
 
                 Text("⚠️ If the imposter guesses the word before time runs out, they win instantly")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.evolventa(size: 16, weight: .semibold))
                     .foregroundColor(.white.opacity(0.9))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 10)

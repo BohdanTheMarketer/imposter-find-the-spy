@@ -45,6 +45,11 @@
 		F04E1A30174677770894670B /* HapticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD3B1E2BC3F96DBDE54AA2D /* HapticsManager.swift */; };
 		F6C9306608A448B5BF1E69C8 /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57B1A59DC496A37029B24E08 /* SubscriptionManager.swift */; };
 		FF3FAE15D939F6C7197EF798 /* superpowers.json in Resources */ = {isa = PBXBuildFile; fileRef = 1663BC03E6D507D86CFF5227 /* superpowers.json */; };
+		E1F0A2B3C4D5E6F708091131 /* Evolventa-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E1F0A2B3C4D5E6F708091122 /* Evolventa-Bold.ttf */; };
+		E1F0A2B3C4D5E6F708091132 /* Evolventa-BoldOblique.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E1F0A2B3C4D5E6F708091124 /* Evolventa-BoldOblique.ttf */; };
+		E1F0A2B3C4D5E6F708091133 /* Evolventa-Oblique.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E1F0A2B3C4D5E6F708091123 /* Evolventa-Oblique.ttf */; };
+		E1F0A2B3C4D5E6F708091130 /* Evolventa-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E1F0A2B3C4D5E6F708091121 /* Evolventa-Regular.ttf */; };
+		F2A1B2C3D4E5F60708192022 /* OnboardingHero.png in Resources */ = {isa = PBXBuildFile; fileRef = F2A1B2C3D4E5F60708192021 /* OnboardingHero.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -87,6 +92,11 @@
 		F312ACA34110442A21E2C739 /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		FBA5AE4EC12E5BCEE5BA6B34 /* family.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = family.json; sourceTree = "<group>"; };
 		FE0D3784B68E83A8796B604D /* hobbies.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = hobbies.json; sourceTree = "<group>"; };
+		E1F0A2B3C4D5E6F708091121 /* Evolventa-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Evolventa-Regular.ttf"; sourceTree = "<group>"; };
+		E1F0A2B3C4D5E6F708091122 /* Evolventa-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Evolventa-Bold.ttf"; sourceTree = "<group>"; };
+		E1F0A2B3C4D5E6F708091123 /* Evolventa-Oblique.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Evolventa-Oblique.ttf"; sourceTree = "<group>"; };
+		E1F0A2B3C4D5E6F708091124 /* Evolventa-BoldOblique.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Evolventa-BoldOblique.ttf"; sourceTree = "<group>"; };
+		F2A1B2C3D4E5F60708192021 /* OnboardingHero.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = OnboardingHero.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -164,9 +174,30 @@
 		622494B8AE6D874736411B20 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				E1F0A2B3C4D5E6F708091140 /* Fonts */,
+				F2A1B2C3D4E5F60708192023 /* Onboarding */,
 				DEAF5DF3E26A038DB1CE5C85 /* WordPacks */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		F2A1B2C3D4E5F60708192023 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				F2A1B2C3D4E5F60708192021 /* OnboardingHero.png */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		E1F0A2B3C4D5E6F708091140 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				E1F0A2B3C4D5E6F708091121 /* Evolventa-Regular.ttf */,
+				E1F0A2B3C4D5E6F708091122 /* Evolventa-Bold.ttf */,
+				E1F0A2B3C4D5E6F708091123 /* Evolventa-Oblique.ttf */,
+				E1F0A2B3C4D5E6F708091124 /* Evolventa-BoldOblique.ttf */,
+			);
+			path = Fonts;
 			sourceTree = "<group>";
 		};
 		66BD934E49C5A19D59F11FAE /* Onboarding */ = {
@@ -349,6 +380,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E1F0A2B3C4D5E6F708091131 /* Evolventa-Bold.ttf in Resources */,
+				E1F0A2B3C4D5E6F708091132 /* Evolventa-BoldOblique.ttf in Resources */,
+				E1F0A2B3C4D5E6F708091133 /* Evolventa-Oblique.ttf in Resources */,
+				E1F0A2B3C4D5E6F708091130 /* Evolventa-Regular.ttf in Resources */,
+				F2A1B2C3D4E5F60708192022 /* OnboardingHero.png in Resources */,
 				BBAD266EFEE39D9046030056 /* celebrities.json in Resources */,
 				1C736260CE1B62B93624F0C5 /* family.json in Resources */,
 				02783BF3E33C4CFBBE974DC0 /* food.json in Resources */,
@@ -548,7 +584,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Imposter;
+				INFOPLIST_KEY_UIAppFonts = (
+					"Evolventa-Regular.ttf",
+					"Evolventa-Bold.ttf",
+					"Evolventa-Oblique.ttf",
+					"Evolventa-BoldOblique.ttf",
+				);
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -565,7 +608,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Imposter;
+				INFOPLIST_KEY_UIAppFonts = (
+					"Evolventa-Regular.ttf",
+					"Evolventa-Bold.ttf",
+					"Evolventa-Oblique.ttf",
+					"Evolventa-BoldOblique.ttf",
+				);
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

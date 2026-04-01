@@ -23,10 +23,10 @@ struct GameSettingsView: View {
                 VStack(spacing: 14) {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("Configure Your Lobby")
-                            .font(.system(size: 40, weight: .black))
+                            .font(.evolventa(size: 40, weight: .black))
                             .foregroundColor(.white)
                         Text("Fine-tune the gameplay mechanics before starting the session.")
-                            .font(.system(size: 15, weight: .medium))
+                            .font(.evolventa(size: 15, weight: .medium))
                             .foregroundColor(.white.opacity(0.7))
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -36,18 +36,18 @@ struct GameSettingsView: View {
                         HStack(alignment: .top) {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Imposters")
-                                    .font(.system(size: 22, weight: .bold))
+                                    .font(.evolventa(size: 22, weight: .bold))
                                     .foregroundColor(.white)
                                 Text("How many players should be secret imposters?")
-                                    .font(.system(size: 13, weight: .medium))
+                                    .font(.evolventa(size: 13, weight: .medium))
                                     .foregroundColor(.white.opacity(0.62))
                                 Text("Recommended for \(gameSession.players.count) players: \(maxImposters > 1 ? "1-\(maxImposters)" : "1")")
-                                    .font(.system(size: 12, weight: .semibold))
+                                    .font(.evolventa(size: 12, weight: .semibold))
                                     .foregroundColor(.white.opacity(0.5))
                             }
                             Spacer()
                             Image(systemName: "person.3.fill")
-                                .font(.system(size: 20, weight: .semibold))
+                                .font(.evolventa(size: 20, weight: .semibold))
                                 .foregroundColor(Color(red: 1.0, green: 0.55, blue: 0.60))
                                 .frame(width: 44, height: 44)
                                 .background(Color(red: 1.0, green: 0.55, blue: 0.60).opacity(0.18))
@@ -68,7 +68,7 @@ struct GameSettingsView: View {
                             }
 
                             Text("\(imposterCount)")
-                                .font(.system(size: 46, weight: .bold))
+                                .font(.evolventa(size: 46, weight: .bold))
                                 .foregroundColor(.white)
                                 .frame(minWidth: 70)
                                 .padding(.horizontal, 18)
@@ -89,15 +89,15 @@ struct GameSettingsView: View {
                         HStack(alignment: .top) {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("Round Duration")
-                                    .font(.system(size: 22, weight: .bold))
+                                    .font(.evolventa(size: 22, weight: .bold))
                                     .foregroundColor(.white)
                                 Text("How long should each discussion round last?")
-                                    .font(.system(size: 13, weight: .medium))
+                                    .font(.evolventa(size: 13, weight: .medium))
                                     .foregroundColor(.white.opacity(0.62))
                             }
                             Spacer()
                             Image(systemName: "clock.fill")
-                                .font(.system(size: 20, weight: .semibold))
+                                .font(.evolventa(size: 20, weight: .semibold))
                                 .foregroundColor(Color(red: 1.0, green: 0.55, blue: 0.60))
                                 .frame(width: 44, height: 44)
                                 .background(Color(red: 1.0, green: 0.55, blue: 0.60).opacity(0.18))
@@ -121,7 +121,7 @@ struct GameSettingsView: View {
                             }
 
                             Text(GameSettings.durationLabel(roundDuration))
-                                .font(.system(size: 46, weight: .bold))
+                                .font(.evolventa(size: 46, weight: .bold))
                                 .foregroundColor(.white)
                                 .frame(minWidth: 120)
                                 .padding(.horizontal, 6)
@@ -163,10 +163,10 @@ struct GameSettingsView: View {
 
                     VStack(alignment: .leading, spacing: 6) {
                         Text("PRO TIP")
-                            .font(.system(size: 18, weight: .black))
+                            .font(.evolventa(size: 18, weight: .black))
                             .foregroundColor(.white)
                         Text("Lower round durations increase intensity and favor the imposters.")
-                            .font(.system(size: 13, weight: .semibold))
+                            .font(.evolventa(size: 13, weight: .semibold))
                             .foregroundColor(.white.opacity(0.92))
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -192,7 +192,7 @@ struct GameSettingsView: View {
             HStack {
                 Button(action: { router.pop() }) {
                     Image(systemName: "chevron.left")
-                        .font(.system(size: 20, weight: .semibold))
+                        .font(.evolventa(size: 20, weight: .semibold))
                         .foregroundColor(.white)
                         .frame(width: 44, height: 44)
                 }
@@ -215,7 +215,7 @@ struct GameSettingsView: View {
                     }
                     if gameSession.players.count > 3 {
                         Text("+\(gameSession.players.count - 3)")
-                            .font(.system(size: 10, weight: .black))
+                            .font(.evolventa(size: 10, weight: .black))
                             .foregroundColor(Color(red: 1.0, green: 0.55, blue: 0.60))
                             .frame(width: 30, height: 30)
                             .background(Color.white.opacity(0.08))
@@ -237,9 +237,9 @@ struct GameSettingsView: View {
                 }) {
                     HStack(spacing: 8) {
                         Text("PLAY")
-                            .font(.system(size: 20, weight: .black))
+                            .font(.evolventa(size: 20, weight: .black))
                         Image(systemName: "play.fill")
-                            .font(.system(size: 14, weight: .black))
+                            .font(.evolventa(size: 14, weight: .black))
                     }
                     .foregroundColor(.black)
                     .padding(.horizontal, 22)
@@ -269,7 +269,7 @@ struct GameSettingsView: View {
     private func stepperButton(icon: String, disabled: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: icon)
-                .font(.system(size: 30, weight: .bold))
+                .font(.evolventa(size: 30, weight: .bold))
                 .foregroundColor(.white)
                 .frame(width: 64, height: 64)
                 .background(Color.white.opacity(0.07))
@@ -310,22 +310,22 @@ struct GameSettingsView: View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(title)
-                        .font(.system(size: 16, weight: .bold))
+                        .font(.evolventa(size: 16, weight: .bold))
                         .foregroundColor(.white)
                     Text(subtitle)
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.evolventa(size: 11, weight: .medium))
                         .foregroundColor(.white.opacity(0.58))
                         .lineLimit(2)
                 }
                 Spacer()
                 Image(systemName: icon)
-                    .font(.system(size: 18, weight: .semibold))
+                    .font(.evolventa(size: 18, weight: .semibold))
                     .foregroundColor(Color(red: 1.0, green: 0.55, blue: 0.60).opacity(0.9))
             }
 
             HStack(spacing: 0) {
                 Text(isOn ? "ON" : "OFF")
-                    .font(.system(size: 11, weight: .black))
+                    .font(.evolventa(size: 11, weight: .black))
                     .foregroundColor(.black)
                     .frame(maxWidth: .infinity)
                     .frame(height: 34)

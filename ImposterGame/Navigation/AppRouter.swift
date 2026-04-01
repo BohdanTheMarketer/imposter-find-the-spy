@@ -30,12 +30,10 @@ class AppRouter: ObservableObject {
         }
     }
 
-    /// Navigate back to player setup (new game)
+    /// Navigate back to player setup (new game / play again)
     func navigateToPlayerSetup() {
         path = NavigationPath()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-            self.path.append(AppScreen.playerSetup)
-        }
+        path.append(AppScreen.playerSetup)
     }
 
     /// Navigate back to categories (play again with same players)
