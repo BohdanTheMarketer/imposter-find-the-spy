@@ -94,7 +94,7 @@ struct CategoriesView: View {
                                 onTap: {
                                     if index != 0 {
                                         HapticsManager.notification(.warning)
-                                        router.navigate(to: .categoryPaywall)
+                                        router.navigate(to: .paywall)
                                         return
                                     }
                                     HapticsManager.selection()
@@ -167,10 +167,33 @@ struct CategoriesView: View {
         .navigationBarBackButtonHidden(true)
         .onAppear {
             categories = CategoryLoader.loadCategories()
-            if selectedCategoryID == nil, let first = categories.first {
-                selectedCategoryID = first.id
-                gameSession.selectedCategory = first
-            }
+            restoreSelection()
+        }
+    }
+
+    private func restoreSelection() {
+        guard !categories.isEmpty else {
+            selectedCategoryID = nil
+            gameSession.selectedCategory = nil
+            return
+        }
+
+        if let selectedCategoryID,
+           let selectedCategory = categories.first(where: { $0.id == selectedCategoryID }) {
+            gameSession.selectedCategory = selectedCategory
+            return
+        }
+
+        if let previousCategory = gameSession.selectedCategory,
+           let restoredCategory = categories.first(where: { $0.name == previousCategory.name }) {
+            selectedCategoryID = restoredCategory.id
+            gameSession.selectedCategory = restoredCategory
+            return
+        }
+
+        if let firstCategory = categories.first {
+            selectedCategoryID = firstCategory.id
+            gameSession.selectedCategory = firstCategory
         }
     }
 }
