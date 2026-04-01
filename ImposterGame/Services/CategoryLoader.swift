@@ -3,8 +3,22 @@ import Foundation
 enum CategoryLoader {
     static func loadCategories() -> [Category] {
         let fileNames = [
-            "party_time", "food", "family", "school", "places",
-            "sports", "spicy", "movies", "animals", "work"
+            "party_time",
+            "food",
+            "celebrities",
+            "hobbies",
+            "family",
+            "school",
+            "spicy",
+            "sports",
+            "travel",
+            "work_life",
+            "movies",
+            "shopping",
+            "tech",
+            "superpowers",
+            "music",
+            "places"
         ]
 
         var categories: [Category] = []
@@ -18,6 +32,7 @@ enum CategoryLoader {
                     icon: wordPack.icon,
                     description: wordPack.description,
                     words: wordPack.words,
+                    imposterHints: wordPack.imposterHints ?? [],
                     isPremium: wordPack.isPremium
                 )
                 categories.append(category)

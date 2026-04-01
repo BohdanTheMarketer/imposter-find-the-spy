@@ -19,7 +19,11 @@ class GameEngine {
         for i in players.indices {
             if imposterIndices.contains(i) {
                 players[i].isImposter = true
-                players[i].secretWord = hintsEnabled ? "Category: \(category.name)" : ""
+                if hintsEnabled {
+                    players[i].secretWord = category.imposterHints.randomElement() ?? "Category: \(category.name)"
+                } else {
+                    players[i].secretWord = ""
+                }
             } else {
                 players[i].isImposter = false
                 players[i].secretWord = word
