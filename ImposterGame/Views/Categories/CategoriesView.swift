@@ -67,6 +67,7 @@ struct CategoriesView: View {
                                 onTap: {
                                     if category.isPremium && !subscriptionManager.isPremium {
                                         HapticsManager.notification(.warning)
+                                        router.navigate(to: .categoryPaywall)
                                         return
                                     }
                                     HapticsManager.selection()
