@@ -3,6 +3,7 @@ import SwiftUI
 enum AppScreen: Hashable {
     case onboarding
     case paywall
+    case categoryPaywall
     case playerSetup
     case categories
     case gameSettings

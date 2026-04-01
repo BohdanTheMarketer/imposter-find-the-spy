@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct PaywallView: View {
+struct OnboardingPaywallView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @State private var enableFreeTrial = false

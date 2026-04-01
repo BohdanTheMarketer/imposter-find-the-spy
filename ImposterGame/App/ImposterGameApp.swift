@@ -15,7 +15,9 @@ struct ImposterGameApp: App {
                         case .onboarding:
                             OnboardingView()
                         case .paywall:
-                            PaywallView()
+                            OnboardingPaywallView()
+                        case .categoryPaywall:
+                            CategoryPaywallView()
                         case .playerSetup:
                             PlayerSetupView()
                         case .categories:
