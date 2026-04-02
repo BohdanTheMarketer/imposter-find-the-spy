@@ -32,6 +32,8 @@ class GameSession: ObservableObject {
         selectedCategory = nil
         votedPlayerIndices = []
         gameResult = nil
+        secretWord = ""
+        startingPlayerIndex = 0
         for i in players.indices {
             players[i].isImposter = false
             players[i].secretWord = ""

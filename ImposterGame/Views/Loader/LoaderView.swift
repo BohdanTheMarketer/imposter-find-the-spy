@@ -2,6 +2,8 @@ import SwiftUI
 
 struct LoaderView: View {
     @EnvironmentObject var router: AppRouter
+    /// Avoid re-running the post-splash navigation when the root loader briefly reappears (e.g. empty `NavigationPath`).
+    private static var didScheduleInitialNavigation = false
     @State private var logoScale: CGFloat = 0.5
     @State private var logoOpacity: Double = 0
     @State private var pulseScale: CGFloat = 1.0
@@ -64,6 +66,8 @@ struct LoaderView: View {
                 pulseScale = 1.15
             }
 
+            guard !Self.didScheduleInitialNavigation else { return }
+            Self.didScheduleInitialNavigation = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                 // Onboarding is shown on every cold start; paywall / home follow after the flow.
                 router.navigate(to: .onboarding)

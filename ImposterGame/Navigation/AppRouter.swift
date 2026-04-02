@@ -32,18 +32,16 @@ class AppRouter: ObservableObject {
 
     /// Navigate back to player setup (new game / play again)
     func navigateToPlayerSetup() {
-        path = NavigationPath()
-        path.append(AppScreen.playerSetup)
+        var next = NavigationPath()
+        next.append(AppScreen.playerSetup)
+        path = next
     }
 
-    /// Navigate back to categories (play again with same players)
+    /// Player setup → categories (same players; new game / pick category again)
     func navigateToCategories() {
-        path = NavigationPath()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-            self.path.append(AppScreen.playerSetup)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                self.path.append(AppScreen.categories)
-            }
-        }
+        var next = NavigationPath()
+        next.append(AppScreen.playerSetup)
+        next.append(AppScreen.categories)
+        path = next
     }
 }
