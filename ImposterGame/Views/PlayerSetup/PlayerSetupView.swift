@@ -154,6 +154,9 @@ struct PlayerSetupView: View {
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
         .animation(.easeInOut(duration: 0.3), value: canContinue)
+        .onAppear {
+            syncLocalPlayersFromSession()
+        }
         .sheet(isPresented: $showOptionsMenu) {
             PlayerOptionsSheet(isPresented: $showOptionsMenu)
         }
@@ -182,6 +185,12 @@ struct PlayerSetupView: View {
         gameSession.players = players.enumerated().map { index, entry in
             Player(name: entry.name, avatarIndex: index)
         }
+    }
+
+    /// `PlayerSetupView` keeps its own list until Continue; when returning from Categories or after Play Again, repopulate from the session.
+    private func syncLocalPlayersFromSession() {
+        guard !gameSession.players.isEmpty else { return }
+        players = gameSession.players.map { PlayerEntry(name: $0.name) }
     }
 }
 

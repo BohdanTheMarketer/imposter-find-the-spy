@@ -156,34 +156,22 @@ struct ResultView: View {
 
                 // Buttons
                 if showContent {
-                    VStack(spacing: 12) {
-                        Button(action: {
-                            HapticsManager.impact(.medium)
-                            gameSession.resetForNewRound()
-                            router.navigateToPlayerSetup()
-                        }) {
-                            HStack(spacing: 8) {
-                                Text("PLAY AGAIN")
-                                    .font(.evolventa(size: 20, weight: .black))
-                                Image(systemName: "arrow.counterclockwise")
-                                    .font(.evolventa(size: 18, weight: .bold))
-                            }
-                            .foregroundColor(.black)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
-                            .background(Color.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 28))
+                    Button(action: {
+                        HapticsManager.impact(.medium)
+                        gameSession.resetForNewRound()
+                        router.navigateToCategories()
+                    }) {
+                        HStack(spacing: 8) {
+                            Text("PLAY AGAIN")
+                                .font(.evolventa(size: 20, weight: .black))
+                            Image(systemName: "arrow.counterclockwise")
+                                .font(.evolventa(size: 18, weight: .bold))
                         }
-
-                        Button(action: {
-                            HapticsManager.impact(.light)
-                            gameSession.resetFull()
-                            router.navigateToPlayerSetup()
-                        }) {
-                            Text("New Game")
-                                .font(.evolventa(size: 16, weight: .semibold))
-                                .foregroundColor(.white.opacity(0.6))
-                        }
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                        .background(Color.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 28))
                     }
                     .padding(.horizontal, 20)
                     .padding(.bottom, 30)
