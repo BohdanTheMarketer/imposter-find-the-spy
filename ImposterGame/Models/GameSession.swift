@@ -22,7 +22,7 @@ class GameSession: ObservableObject {
     @Published var currentPlayerIndex: Int = 0
     @Published var gamePhase: GamePhase = .setup
     @Published var secretWord: String = ""
-    @Published var votedPlayerIndex: Int?
+    @Published var votedPlayerIndices: [Int] = []
     @Published var gameResult: GameResult?
     @Published var startingPlayerIndex: Int = 0
 
@@ -30,7 +30,7 @@ class GameSession: ObservableObject {
         currentPlayerIndex = 0
         gamePhase = .setup
         selectedCategory = nil
-        votedPlayerIndex = nil
+        votedPlayerIndices = []
         gameResult = nil
         for i in players.indices {
             players[i].isImposter = false

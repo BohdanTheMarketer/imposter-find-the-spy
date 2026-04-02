@@ -42,11 +42,18 @@ class GameEngine {
         return selected
     }
 
-    func checkResult(votedPlayerIndex: Int, players: [Player]) -> GameResult {
-        guard votedPlayerIndex >= 0, votedPlayerIndex < players.count else {
+    func checkResult(votedPlayerIndices: [Int], players: [Player]) -> GameResult {
+        guard !votedPlayerIndices.isEmpty else {
             return .imposterWins
         }
-        if players[votedPlayerIndex].isImposter {
+
+        let uniqueIndices = Array(Set(votedPlayerIndices))
+        guard uniqueIndices.allSatisfy({ $0 >= 0 && $0 < players.count }) else {
+            return .imposterWins
+        }
+
+        let actualImposterIndices = Set(players.indices.filter { players[$0].isImposter })
+        if Set(uniqueIndices) == actualImposterIndices {
             return .playersWin
         } else {
             return .imposterWins
