@@ -20,7 +20,7 @@ class GameEngine {
             if imposterIndices.contains(i) {
                 players[i].isImposter = true
                 if hintsEnabled {
-                    players[i].secretWord = category.imposterHints.randomElement() ?? "Category: \(category.name)"
+                    players[i].secretWord = hint(for: word, in: category)
                 } else {
                     players[i].secretWord = ""
                 }
@@ -84,5 +84,17 @@ class GameEngine {
 
     func resetUsedWords() {
         usedWords = [:]
+    }
+
+    private func hint(for word: String, in category: Category) -> String {
+        if let index = category.words.firstIndex(of: word), index < category.imposterHints.count {
+            let hint = category.imposterHints[index].trimmingCharacters(in: .whitespacesAndNewlines)
+            if !hint.isEmpty {
+                return hint
+            }
+        }
+
+        // Keep a deterministic fallback if hints are missing or out of sync.
+        return "Category: \(category.name)"
     }
 }

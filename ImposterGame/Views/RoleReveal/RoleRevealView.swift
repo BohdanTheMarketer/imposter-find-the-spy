@@ -28,6 +28,12 @@ struct RoleRevealView: View {
         AvatarColors.color(for: currentIndex)
     }
 
+    private var currentImposterHint: String? {
+        guard currentPlayer.isImposter else { return nil }
+        let hint = currentPlayer.secretWord.trimmingCharacters(in: .whitespacesAndNewlines)
+        return hint.isEmpty ? nil : hint
+    }
+
     var body: some View {
         ZStack {
             // Background color
@@ -69,12 +75,12 @@ struct RoleRevealView: View {
                                 .multilineTextAlignment(.center)
 
                                 // Show the imposter hint only after the swipe-up reveal interaction.
-                                if gameSession.settings.hintsEnabled, hasSeenCurrentWord {
+                                if hasSeenCurrentWord, let hint = currentImposterHint {
                                     VStack(spacing: 6) {
                                         Text("Imposter hint")
                                             .font(.evolventa(size: 16, weight: .bold))
                                             .foregroundColor(.white.opacity(0.92))
-                                        Text(currentPlayer.secretWord)
+                                        Text(hint)
                                             .font(.evolventa(size: 18, weight: .semibold))
                                             .foregroundColor(.white)
                                             .multilineTextAlignment(.center)
@@ -193,13 +199,16 @@ struct RoleRevealView: View {
                             // Lift the cover only up to roughly mid-screen while dragging.
                             let maxLift = -UIScreen.main.bounds.height * 0.5
                             dragOffset = max(value.translation.height, maxLift)
+
+                            // Mark as revealed as soon as swipe crosses the threshold,
+                            // so hint/role content is visible during the first reveal swipe.
+                            if !hasSeenCurrentWord, value.translation.height < -80 {
+                                HapticsManager.impact(.light)
+                                hasSeenCurrentWord = true
+                            }
                         }
                     }
                     .onEnded { value in
-                        if value.translation.height < -80 {
-                            HapticsManager.impact(.light)
-                            hasSeenCurrentWord = true
-                        }
                         // Always return the cover when the finger is released.
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.78)) {
                             dragOffset = 0
