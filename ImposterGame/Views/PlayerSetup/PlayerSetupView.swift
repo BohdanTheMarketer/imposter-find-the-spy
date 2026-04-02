@@ -12,19 +12,102 @@ struct PlayerSetupView: View {
     @State private var players: [PlayerEntry] = []
     @State private var newPlayerName: String = ""
     @State private var showOptionsMenu = false
-    @FocusState private var isTextFieldFocused: Bool
+    /// Bumped to programmatically focus the UIKit name field (see `PlayerNameEntryField`).
+    @State private var nameFieldFocusToken = 0
 
     private let minPlayers = 3
     private let maxPlayers = 15
 
+    private var validPlayerNames: [String] {
+        players.map { $0.name.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+    }
+
+    private var validPlayerCount: Int { validPlayerNames.count }
+
     var canContinue: Bool {
-        let validNames = players.map { $0.name.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
-        let uniqueNames = Set(validNames.map { $0.lowercased() })
-        return validNames.count >= minPlayers && uniqueNames.count == validNames.count
+        let uniqueNames = Set(validPlayerNames.map { $0.lowercased() })
+        return validPlayerCount >= minPlayers && uniqueNames.count == validPlayerCount
     }
 
     private var playerCountLabel: String {
         "\(players.count) Player\(players.count == 1 ? "" : "s")"
+    }
+
+    @ViewBuilder
+    private var bottomChrome: some View {
+        VStack(spacing: 16) {
+            if players.count < maxPlayers {
+                HStack(spacing: 12) {
+                    PlayerNameEntryField(
+                        text: $newPlayerName,
+                        placeholder: "Enter player name",
+                        onCommit: addPlayer,
+                        focusToken: nameFieldFocusToken
+                    )
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 14)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(Color(white: 0.15))
+                    .clipShape(RoundedRectangle(cornerRadius: 25))
+
+                    Button(action: addPlayer) {
+                        Image(systemName: "plus")
+                            .font(.evolventa(size: 20, weight: .bold))
+                            .foregroundColor(.white)
+                            .frame(width: 50, height: 50)
+                            .background(Color(white: 0.15))
+                            .clipShape(Circle())
+                    }
+                    .disabled(newPlayerName.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .opacity(newPlayerName.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1.0)
+                }
+                .padding(.horizontal, 20)
+            }
+
+            Group {
+                if validPlayerCount >= minPlayers {
+                    Button(action: {
+                        guard canContinue else {
+                            HapticsManager.notification(.warning)
+                            return
+                        }
+
+                        HapticsManager.impact(.medium)
+                        PlayerSetupKeyboard.dismiss()
+                        setupPlayers()
+                        router.navigate(to: .categories)
+                    }) {
+                        HStack(spacing: 14) {
+                            Text("CONTINUE")
+                                .font(.evolventa(size: 20, weight: .bold))
+                                .foregroundColor(.black)
+                            Rectangle()
+                                .fill(Color.black.opacity(0.35))
+                                .frame(width: 1, height: 26)
+                            Text(playerCountLabel)
+                                .font(.evolventa(size: 20, weight: .semibold))
+                                .foregroundColor(.black.opacity(0.85))
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                        .background(Color.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 28))
+                    }
+                    .opacity(canContinue ? 1.0 : 0.85)
+                } else {
+                    Text("Minimum 3 players to start a game")
+                        .font(.evolventa(size: 15, weight: .medium))
+                        .foregroundColor(.white.opacity(0.75))
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                }
+            }
+            .padding(.horizontal, 20)
+        }
+        .padding(.top, 12)
+        .padding(.bottom, 16)
     }
 
     var body: some View {
@@ -63,102 +146,74 @@ struct PlayerSetupView: View {
                 .padding(.top, 16)
                 .padding(.bottom, 20)
 
-                // Player list
-                ScrollView {
-                    LazyVStack(spacing: 10) {
-                        ForEach(players) { entry in
-                            if let index = players.firstIndex(where: { $0.id == entry.id }) {
-                                PlayerRow(
-                                    name: entry.name,
-                                    index: index,
-                                    canDelete: true,
-                                    onDelete: {
-                                        withAnimation(.easeInOut(duration: 0.2)) {
-                                            players.removeAll { $0.id == entry.id }
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        LazyVStack(spacing: 10) {
+                            ForEach(players) { entry in
+                                if let index = players.firstIndex(where: { $0.id == entry.id }) {
+                                    PlayerRow(
+                                        name: entry.name,
+                                        index: index,
+                                        canDelete: true,
+                                        onDelete: {
+                                            withAnimation(.easeInOut(duration: 0.2)) {
+                                                players.removeAll { $0.id == entry.id }
+                                            }
+                                            HapticsManager.impact(.light)
                                         }
-                                        HapticsManager.impact(.light)
-                                    }
-                                )
+                                    )
+                                    .id(entry.id)
+                                }
                             }
                         }
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 8)
                     }
-                    .padding(.horizontal, 20)
-                }
-                .onTapGesture {
-                    isTextFieldFocused = false
-                }
-                .padding(.bottom, 8)
-
-                // Add player input stays under the list
-                HStack(spacing: 12) {
-                    TextField("Enter player name", text: $newPlayerName)
-                        .font(.evolventa(size: 17, weight: .semibold))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 14)
-                        .background(Color(white: 0.15))
-                        .clipShape(RoundedRectangle(cornerRadius: 25))
-                        .focused($isTextFieldFocused)
-                        .onSubmit {
-                            addPlayer()
-                        }
-                        .submitLabel(.done)
-
-                    Button(action: addPlayer) {
-                        Image(systemName: "plus")
-                            .font(.evolventa(size: 20, weight: .bold))
-                            .foregroundColor(.white)
-                            .frame(width: 50, height: 50)
-                            .background(Color(white: 0.15))
-                            .clipShape(Circle())
+                    .scrollDismissesKeyboard(.interactively)
+                    .onTapGesture {
+                        PlayerSetupKeyboard.dismiss()
                     }
-                    .disabled(newPlayerName.trimmingCharacters(in: .whitespaces).isEmpty || players.count >= maxPlayers)
-                    .opacity(newPlayerName.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1.0)
-                }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 16)
-
-                // Bottom continue button with player count
-                Button(action: {
-                    guard canContinue else {
-                        HapticsManager.notification(.warning)
-                        return
+                    .frame(maxHeight: .infinity)
+                    .onChange(of: players.count) { _ in
+                        scrollToLastPlayer(using: proxy)
                     }
-
-                        HapticsManager.impact(.medium)
-                        isTextFieldFocused = false
-                        setupPlayers()
-                        router.navigate(to: .categories)
-                    }) {
-                    HStack(spacing: 14) {
-                        Text("CONTINUE")
-                            .font(.evolventa(size: 20, weight: .bold))
-                            .foregroundColor(.black)
-                        Rectangle()
-                            .fill(Color.black.opacity(0.35))
-                            .frame(width: 1, height: 26)
-                        Text(playerCountLabel)
-                            .font(.evolventa(size: 20, weight: .semibold))
-                            .foregroundColor(.black.opacity(0.85))
+                    .onAppear {
+                        scrollToLastPlayer(using: proxy)
                     }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 56)
-                    .background(Color.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 28))
                 }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 30)
-                .opacity(canContinue ? 1.0 : 0.85)
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                bottomChrome
             }
         }
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
+        .animation(.easeInOut(duration: 0.3), value: validPlayerCount)
         .animation(.easeInOut(duration: 0.3), value: canContinue)
         .onAppear {
             syncLocalPlayersFromSession()
+            let shouldShowKeyboard = players.count < maxPlayers
+            guard shouldShowKeyboard else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                nameFieldFocusToken &+= 1
+            }
         }
         .sheet(isPresented: $showOptionsMenu) {
             PlayerOptionsSheet(isPresented: $showOptionsMenu)
+        }
+        .onChange(of: players.count) { _ in
+            if players.count >= maxPlayers {
+                PlayerSetupKeyboard.dismiss()
+            }
+        }
+    }
+
+    private func scrollToLastPlayer(using proxy: ScrollViewProxy) {
+        guard let lastId = players.last?.id else { return }
+        DispatchQueue.main.async {
+            withAnimation(.easeOut(duration: 0.25)) {
+                proxy.scrollTo(lastId, anchor: .bottom)
+            }
         }
     }
 
@@ -178,7 +233,6 @@ struct PlayerSetupView: View {
         }
         newPlayerName = ""
         HapticsManager.impact(.light)
-        isTextFieldFocused = true
     }
 
     private func setupPlayers() {
@@ -191,6 +245,72 @@ struct PlayerSetupView: View {
     private func syncLocalPlayersFromSession() {
         guard !gameSession.players.isEmpty else { return }
         players = gameSession.players.map { PlayerEntry(name: $0.name) }
+    }
+}
+
+// MARK: - Name field (UIKit for reliable keyboard in safeAreaInset)
+
+private enum PlayerSetupKeyboard {
+    static func dismiss() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+}
+
+private struct PlayerNameEntryField: UIViewRepresentable {
+    @Binding var text: String
+    var placeholder: String
+    var onCommit: () -> Void
+    var focusToken: Int
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+
+    func makeUIView(context: Context) -> UITextField {
+        let tf = UITextField()
+        tf.textColor = .white
+        tf.tintColor = .white
+        tf.font = UIFont(name: "Evolventa-Bold", size: 17) ?? .systemFont(ofSize: 17, weight: .semibold)
+        tf.attributedPlaceholder = NSAttributedString(
+            string: placeholder,
+            attributes: [.foregroundColor: UIColor.white.withAlphaComponent(0.45)]
+        )
+        tf.borderStyle = .none
+        tf.backgroundColor = .clear
+        tf.returnKeyType = .done
+        tf.autocorrectionType = .no
+        tf.autocapitalizationType = .words
+        tf.delegate = context.coordinator
+        tf.addTarget(context.coordinator, action: #selector(Coordinator.editingChanged), for: .editingChanged)
+        return tf
+    }
+
+    func updateUIView(_ uiView: UITextField, context: Context) {
+        context.coordinator.parent = self
+        if uiView.text != text {
+            uiView.text = text
+        }
+        if context.coordinator.lastFocusToken != focusToken {
+            context.coordinator.lastFocusToken = focusToken
+            DispatchQueue.main.async {
+                uiView.becomeFirstResponder()
+            }
+        }
+    }
+
+    final class Coordinator: NSObject, UITextFieldDelegate {
+        var parent: PlayerNameEntryField!
+        /// Starts aligned with `nameFieldFocusToken` so the initial `0` does not auto-focus.
+        var lastFocusToken: Int = 0
+
+        @objc func editingChanged(_ sender: UITextField) {
+            parent.text = sender.text ?? ""
+        }
+
+        func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+            parent.onCommit()
+            return false
+        }
     }
 }
 
