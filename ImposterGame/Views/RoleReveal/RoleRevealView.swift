@@ -67,6 +67,21 @@ struct RoleRevealView: View {
                                 .font(.evolventa(size: 30, weight: .black))
                                 .foregroundColor(.white)
                                 .multilineTextAlignment(.center)
+
+                                // Show the imposter hint only after the swipe-up reveal interaction.
+                                if gameSession.settings.hintsEnabled, hasSeenCurrentWord {
+                                    VStack(spacing: 6) {
+                                        Text("Imposter hint")
+                                            .font(.evolventa(size: 16, weight: .bold))
+                                            .foregroundColor(.white.opacity(0.92))
+                                        Text(currentPlayer.secretWord)
+                                            .font(.evolventa(size: 18, weight: .semibold))
+                                            .foregroundColor(.white)
+                                            .multilineTextAlignment(.center)
+                                            .lineLimit(3)
+                                    }
+                                    .padding(.top, 6)
+                                }
                         } else {
                             Text("Your secret word is:")
                                 .font(.evolventa(size: 18, weight: .semibold))
