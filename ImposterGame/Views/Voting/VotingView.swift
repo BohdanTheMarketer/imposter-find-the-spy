@@ -3,16 +3,23 @@ import SwiftUI
 struct VotingView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var gameSession: GameSession
-    @State private var selectedPlayerID: UUID? = nil
+    @State private var selectedPlayerIDs: Set<UUID> = []
 
     private let columns = [
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible(), spacing: 12)
     ]
 
-    private var selectedIndex: Int? {
-        guard let id = selectedPlayerID else { return nil }
-        return gameSession.players.firstIndex { $0.id == id }
+    private var maxSelections: Int {
+        max(1, gameSession.settings.imposterCount)
+    }
+
+    private var selectedIndices: [Int] {
+        gameSession.players.indices.filter { selectedPlayerIDs.contains(gameSession.players[$0].id) }
+    }
+
+    private var hasRequiredSelectionCount: Bool {
+        selectedPlayerIDs.count == maxSelections
     }
 
     var body: some View {
@@ -27,7 +34,7 @@ struct VotingView: View {
                         .font(.evolventa(size: 28, weight: .bold))
                         .foregroundColor(.white)
 
-                    Text("Vote for who you think is faking it")
+                    Text("Select \(maxSelections) player\(maxSelections == 1 ? "" : "s") you think are faking it")
                         .font(.evolventa(size: 15))
                         .foregroundColor(.white.opacity(0.6))
                 }
@@ -42,11 +49,15 @@ struct VotingView: View {
                             VotingCard(
                                 player: player,
                                 index: index,
-                                isSelected: selectedPlayerID == player.id,
+                                isSelected: selectedPlayerIDs.contains(player.id),
                                 onTap: {
                                     HapticsManager.selection()
                                     withAnimation(.easeInOut(duration: 0.2)) {
-                                        selectedPlayerID = player.id
+                                        if selectedPlayerIDs.contains(player.id) {
+                                            selectedPlayerIDs.remove(player.id)
+                                        } else if selectedPlayerIDs.count < maxSelections {
+                                            selectedPlayerIDs.insert(player.id)
+                                        }
                                     }
                                 }
                             )
@@ -59,34 +70,35 @@ struct VotingView: View {
                 Spacer()
 
                 // Reveal button
-                Button(action: {
-                    guard let selected = selectedIndex else { return }
-                    HapticsManager.impact(.heavy)
-                    gameSession.votedPlayerIndex = selected
-                    let engine = GameEngine()
-                    gameSession.gameResult = engine.checkResult(
-                        votedPlayerIndex: selected,
-                        players: gameSession.players
-                    )
-                    router.navigate(to: .result)
-                }) {
-                    Text("Reveal")
-                        .font(.evolventa(size: 20, weight: .bold))
-                        .foregroundColor(selectedPlayerID != nil ? .black : .white.opacity(0.4))
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(selectedPlayerID != nil ? Color.white : Color(white: 0.2))
-                        .clipShape(RoundedRectangle(cornerRadius: 28))
+                if hasRequiredSelectionCount {
+                    Button(action: {
+                        HapticsManager.impact(.heavy)
+                        let selected = selectedIndices
+                        gameSession.votedPlayerIndices = selected
+                        let engine = GameEngine()
+                        gameSession.gameResult = engine.checkResult(
+                            votedPlayerIndices: selected,
+                            players: gameSession.players
+                        )
+                        router.navigate(to: .result)
+                    }) {
+                        Text("Reveal")
+                            .font(.evolventa(size: 20, weight: .bold))
+                            .foregroundColor(.black)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 56)
+                            .background(Color.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 28))
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 30)
                 }
-                .disabled(selectedPlayerID == nil)
-                .padding(.horizontal, 20)
-                .padding(.bottom, 30)
             }
         }
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
         .onAppear {
-            selectedPlayerID = nil
+            selectedPlayerIDs = []
         }
     }
 }
