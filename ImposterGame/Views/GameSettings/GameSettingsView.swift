@@ -68,7 +68,7 @@ struct GameSettingsView: View {
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
         .onAppear {
-            imposterCount = min(gameSession.settings.imposterCount, maxImposters)
+            imposterCount = maxImposters
             roundDuration = gameSession.settings.roundDuration
             hintsEnabled = gameSession.settings.hintsEnabled
         }
