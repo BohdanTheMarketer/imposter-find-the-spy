@@ -1,10 +1,23 @@
 name: ImposterGame
+packages:
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    from: 11.0.0
 options:
   bundleIdPrefix: com.imposter
   deploymentTarget:
     iOS: "16.0"
   xcodeVersion: "15.0"
   generateEmptyDirectories: true
+schemes:
+  ImposterGame:
+    build:
+      targets:
+        ImposterGame: all
+    run:
+      config: Debug
+      commandLineArguments:
+        "-FIRDebugEnabled": true
 settings:
   base:
     SWIFT_VERSION: "5.9"
@@ -24,8 +37,23 @@ targets:
       - path: ImposterGame
         excludes:
           - "Resources/Fonts"
+    dependencies:
+      - package: Firebase
+        product: FirebaseAnalytics
+      - package: Firebase
+        product: FirebaseCrashlytics
+    postBuildScripts:
+      - name: Firebase Crashlytics
+        basedOnDependencyAnalysis: false
+        script: |
+          "${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run"
+        inputFiles:
+          - ${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}
+          - $(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)
     resources:
       - path: ImposterGame/Resources/WordPacks
+        buildPhase: resources
+      - path: ImposterGame/GoogleService-Info.plist
         buildPhase: resources
     settings:
       base:
@@ -33,3 +61,6 @@ targets:
         INFOPLIST_KEY_CFBundleDisplayName: "Imposter"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+      configs:
+        Release:
+          DEBUG_INFORMATION_FORMAT: dwarf-with-dsym

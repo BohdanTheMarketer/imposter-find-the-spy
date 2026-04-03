@@ -215,6 +215,8 @@ struct OnboardingView: View {
             }
         } else {
             subscriptionManager.hasCompletedOnboarding = true
+            let next = subscriptionManager.isPremium ? "player_setup" : "paywall"
+            AnalyticsService.logEvent("onboarding_complete", parameters: ["next": next])
             if subscriptionManager.isPremium {
                 router.navigate(to: .playerSetup)
             } else {

@@ -1,7 +1,12 @@
+import FirebaseCore
 import SwiftUI
 
 @main
 struct ImposterGameApp: App {
+    init() {
+        FirebaseApp.configure()
+    }
+
     @StateObject private var router = AppRouter()
     @StateObject private var gameSession = GameSession()
     @StateObject private var subscriptionManager = SubscriptionManager()

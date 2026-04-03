@@ -37,6 +37,9 @@ struct ResultView: View {
             phase = .intrigue
             intrigueTextIndex = 0
             showContent = false
+            if let result = gameSession.gameResult {
+                AnalyticsService.logEvent("round_result", parameters: ["outcome": result.analyticsValue])
+            }
             startIntrigueSequence()
         }
     }

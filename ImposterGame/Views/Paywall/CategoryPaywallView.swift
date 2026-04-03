@@ -48,6 +48,9 @@ struct CategoryPaywallView: View {
         }
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
+        .onAppear {
+            AnalyticsService.logEvent("paywall_show", parameters: ["context": "category"])
+        }
     }
 
     private var topBar: some View {

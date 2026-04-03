@@ -14,12 +14,12 @@
 		1C736260CE1B62B93624F0C5 /* family.json in Resources */ = {isa = PBXBuildFile; fileRef = FBA5AE4EC12E5BCEE5BA6B34 /* family.json */; };
 		1E686607DFEAE0DC0C1EF8AC /* GameEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA27ACED2644C163A72FD40E /* GameEngine.swift */; };
 		23B5B5E6AECC686FCF506E42 /* CategoryLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52B4C73F586F99F9FD593FA9 /* CategoryLoader.swift */; };
-		2476A1B1369B4FE898A3E211 /* CategoryPaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2476A1B0369B4FE898A3E211 /* CategoryPaywallView.swift */; };
 		24AB6D1CF11A6B2DA84440AB /* PlayerSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48266F11CC4F53FB03C3EBC0 /* PlayerSetupView.swift */; };
 		24B5595CDB8F71D7177CA84C /* music.json in Resources */ = {isa = PBXBuildFile; fileRef = 8E7956E43973E4945E852F34 /* music.json */; };
 		26C7CFC6FE233006E2F173F5 /* sports.json in Resources */ = {isa = PBXBuildFile; fileRef = C0B8E52B2767DF58833BD2E2 /* sports.json */; };
 		46E0108931F0555A7A17C613 /* LoaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6F40320211814B166363656 /* LoaderView.swift */; };
 		49BBC3FB9C2FE74F3CE77DEA /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04D6987D9F8031C588CE8E0A /* DesignSystem.swift */; };
+		4B45873C322DAC732859D437 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8BE02C67520C3F41F354FFC4 /* GoogleService-Info.plist */; };
 		55BE5F5AC83E295982878890 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = F312ACA34110442A21E2C739 /* Player.swift */; };
 		56D2AA90912B97D89F371971 /* AppRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5E6668A898BCA70D1F2E53A /* AppRouter.swift */; };
 		5BF897FD703C7DDC14F783D2 /* RoleRevealView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0014E12B1193C34A72CFC8DA /* RoleRevealView.swift */; };
@@ -28,6 +28,8 @@
 		6688279E07BB7B937B5AB2AD /* travel.json in Resources */ = {isa = PBXBuildFile; fileRef = A6D9874BB67E73D89AC0EDD2 /* travel.json */; };
 		6D64142C3DE79B9C337D6A7A /* work_life.json in Resources */ = {isa = PBXBuildFile; fileRef = F0B134E6E41FA1B6CF210BD9 /* work_life.json */; };
 		7B0C50426FBA67D4653DAB72 /* party_time.json in Resources */ = {isa = PBXBuildFile; fileRef = 5625DFA74B6BD1E707F2FB62 /* party_time.json */; };
+		93D558B5712E107B8A798489 /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB41651CAAFA80CFD091161B /* AnalyticsService.swift */; };
+		9404F92E7776D1663BD6F608 /* CategoryPaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16290548E5CB15614AEC125E /* CategoryPaywallView.swift */; };
 		97971494481F8B745B8EF99F /* GameSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2FEAFC938D219B05704FA71 /* GameSettings.swift */; };
 		9E6C49E880BEF67AEF6D2A06 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E4FD5E37DE7F6EC24F1019 /* PaywallView.swift */; };
 		A7E1E27765119707E2033D19 /* tech.json in Resources */ = {isa = PBXBuildFile; fileRef = 51BEE2357CA596C887FCC5C6 /* tech.json */; };
@@ -38,28 +40,26 @@
 		B8DA7F4590E6E7E31C75EDFC /* CategoriesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7024D9671D1CF3A8C2BB08B9 /* CategoriesView.swift */; };
 		BBAD266EFEE39D9046030056 /* celebrities.json in Resources */ = {isa = PBXBuildFile; fileRef = 7C15543B77170C57A22A9D39 /* celebrities.json */; };
 		C29E200FE2E3452CB3D81667 /* VotingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A0840B6E8D6C2FAC494C35B /* VotingView.swift */; };
+		CBDDD1A5D6252BD8501EFF63 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = A07314160D6C5EA1AAB20FD6 /* FirebaseCrashlytics */; };
 		CF9E7A8BDF5FE91D7734042C /* ResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A85D01792F87215E545F74 /* ResultView.swift */; };
 		D1157ABEE5FCE361F51921F6 /* movies.json in Resources */ = {isa = PBXBuildFile; fileRef = 5A45FF697C805ABE39A790E9 /* movies.json */; };
 		DCAFDB045B541CAF858DEF50 /* hobbies.json in Resources */ = {isa = PBXBuildFile; fileRef = FE0D3784B68E83A8796B604D /* hobbies.json */; };
+		E0688C618CD5CAF6DAAF5306 /* OnboardingHero.png in Resources */ = {isa = PBXBuildFile; fileRef = C467A4341FF8018A561D46C1 /* OnboardingHero.png */; };
 		E78372EEC1931B91E618EDC7 /* GameSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED521C6104609D6FD37E3EC4 /* GameSession.swift */; };
 		F04E1A30174677770894670B /* HapticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD3B1E2BC3F96DBDE54AA2D /* HapticsManager.swift */; };
 		F6C9306608A448B5BF1E69C8 /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57B1A59DC496A37029B24E08 /* SubscriptionManager.swift */; };
+		FEDD643230CD1B9D84C79192 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = AA18741BEA45BBF37BAB5DD9 /* FirebaseAnalytics */; };
 		FF3FAE15D939F6C7197EF798 /* superpowers.json in Resources */ = {isa = PBXBuildFile; fileRef = 1663BC03E6D507D86CFF5227 /* superpowers.json */; };
-		E1F0A2B3C4D5E6F708091131 /* Evolventa-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E1F0A2B3C4D5E6F708091122 /* Evolventa-Bold.ttf */; };
-		E1F0A2B3C4D5E6F708091132 /* Evolventa-BoldOblique.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E1F0A2B3C4D5E6F708091124 /* Evolventa-BoldOblique.ttf */; };
-		E1F0A2B3C4D5E6F708091133 /* Evolventa-Oblique.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E1F0A2B3C4D5E6F708091123 /* Evolventa-Oblique.ttf */; };
-		E1F0A2B3C4D5E6F708091130 /* Evolventa-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E1F0A2B3C4D5E6F708091121 /* Evolventa-Regular.ttf */; };
-		F2A1B2C3D4E5F60708192022 /* OnboardingHero.png in Resources */ = {isa = PBXBuildFile; fileRef = F2A1B2C3D4E5F60708192021 /* OnboardingHero.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0014E12B1193C34A72CFC8DA /* RoleRevealView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoleRevealView.swift; sourceTree = "<group>"; };
 		038CD78E19C18AC9B1222AF7 /* places.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = places.json; sourceTree = "<group>"; };
 		04D6987D9F8031C588CE8E0A /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
+		16290548E5CB15614AEC125E /* CategoryPaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryPaywallView.swift; sourceTree = "<group>"; };
 		1663BC03E6D507D86CFF5227 /* superpowers.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = superpowers.json; sourceTree = "<group>"; };
 		1FD3B1E2BC3F96DBDE54AA2D /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
-		2476A1B0369B4FE898A3E211 /* CategoryPaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryPaywallView.swift; sourceTree = "<group>"; };
-		27F294A47ED935D77A2182B2 /* work.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = work.json; sourceTree = "<group>"; };
+		2DBAEFB45EEAE7CD5D244F9E /* shopping.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = shopping.json; sourceTree = "<group>"; };
 		32B68064C5075CB4909F3E8C /* school.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = school.json; sourceTree = "<group>"; };
 		3A0840B6E8D6C2FAC494C35B /* VotingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingView.swift; sourceTree = "<group>"; };
 		48266F11CC4F53FB03C3EBC0 /* PlayerSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerSetupView.swift; sourceTree = "<group>"; };
@@ -69,12 +69,13 @@
 		5625DFA74B6BD1E707F2FB62 /* party_time.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = party_time.json; sourceTree = "<group>"; };
 		57B1A59DC496A37029B24E08 /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
 		57BC9CB184283EAE65342ACE /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
-		5A3D39D79EBFEE259F695500 /* ImposterGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImposterGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A3D39D79EBFEE259F695500 /* ImposterGame.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ImposterGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A45FF697C805ABE39A790E9 /* movies.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = movies.json; sourceTree = "<group>"; };
 		5FC8A6DC10ADD0B1DCAA5B16 /* spicy.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = spicy.json; sourceTree = "<group>"; };
 		7024D9671D1CF3A8C2BB08B9 /* CategoriesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoriesView.swift; sourceTree = "<group>"; };
 		7C15543B77170C57A22A9D39 /* celebrities.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = celebrities.json; sourceTree = "<group>"; };
 		85C7811EF9EFD2F14047A94A /* food.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = food.json; sourceTree = "<group>"; };
+		8BE02C67520C3F41F354FFC4 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		8E7956E43973E4945E852F34 /* music.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = music.json; sourceTree = "<group>"; };
 		A5E6668A898BCA70D1F2E53A /* AppRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouter.swift; sourceTree = "<group>"; };
 		A6D9874BB67E73D89AC0EDD2 /* travel.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = travel.json; sourceTree = "<group>"; };
@@ -82,6 +83,7 @@
 		AB66DCED769F6CE62338D5CF /* GameSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSettingsView.swift; sourceTree = "<group>"; };
 		B9E4FD5E37DE7F6EC24F1019 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		C0B8E52B2767DF58833BD2E2 /* sports.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = sports.json; sourceTree = "<group>"; };
+		C467A4341FF8018A561D46C1 /* OnboardingHero.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = OnboardingHero.png; sourceTree = "<group>"; };
 		C8CD45AF718629C1648047AA /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		D2FEAFC938D219B05704FA71 /* GameSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSettings.swift; sourceTree = "<group>"; };
 		D8A85D01792F87215E545F74 /* ResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultView.swift; sourceTree = "<group>"; };
@@ -90,14 +92,22 @@
 		ED521C6104609D6FD37E3EC4 /* GameSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSession.swift; sourceTree = "<group>"; };
 		F0B134E6E41FA1B6CF210BD9 /* work_life.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = work_life.json; sourceTree = "<group>"; };
 		F312ACA34110442A21E2C739 /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
+		FB41651CAAFA80CFD091161B /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
 		FBA5AE4EC12E5BCEE5BA6B34 /* family.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = family.json; sourceTree = "<group>"; };
 		FE0D3784B68E83A8796B604D /* hobbies.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = hobbies.json; sourceTree = "<group>"; };
-		E1F0A2B3C4D5E6F708091121 /* Evolventa-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Evolventa-Regular.ttf"; sourceTree = "<group>"; };
-		E1F0A2B3C4D5E6F708091122 /* Evolventa-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Evolventa-Bold.ttf"; sourceTree = "<group>"; };
-		E1F0A2B3C4D5E6F708091123 /* Evolventa-Oblique.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Evolventa-Oblique.ttf"; sourceTree = "<group>"; };
-		E1F0A2B3C4D5E6F708091124 /* Evolventa-BoldOblique.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Evolventa-BoldOblique.ttf"; sourceTree = "<group>"; };
-		F2A1B2C3D4E5F60708192021 /* OnboardingHero.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = OnboardingHero.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A3ADC9DD969E41C415A76E19 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FEDD643230CD1B9D84C79192 /* FirebaseAnalytics in Frameworks */,
+				CBDDD1A5D6252BD8501EFF63 /* FirebaseCrashlytics in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		10B6CF3701787BD0C1DC1469 /* Navigation */ = {
@@ -138,6 +148,7 @@
 		3E2D977C644A068266F3364A /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				FB41651CAAFA80CFD091161B /* AnalyticsService.swift */,
 				52B4C73F586F99F9FD593FA9 /* CategoryLoader.swift */,
 				AA27ACED2644C163A72FD40E /* GameEngine.swift */,
 				1FD3B1E2BC3F96DBDE54AA2D /* HapticsManager.swift */,
@@ -174,30 +185,10 @@
 		622494B8AE6D874736411B20 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				E1F0A2B3C4D5E6F708091140 /* Fonts */,
-				F2A1B2C3D4E5F60708192023 /* Onboarding */,
+				8733D288A5D2DF79B0412536 /* Onboarding */,
 				DEAF5DF3E26A038DB1CE5C85 /* WordPacks */,
 			);
 			path = Resources;
-			sourceTree = "<group>";
-		};
-		F2A1B2C3D4E5F60708192023 /* Onboarding */ = {
-			isa = PBXGroup;
-			children = (
-				F2A1B2C3D4E5F60708192021 /* OnboardingHero.png */,
-			);
-			path = Onboarding;
-			sourceTree = "<group>";
-		};
-		E1F0A2B3C4D5E6F708091140 /* Fonts */ = {
-			isa = PBXGroup;
-			children = (
-				E1F0A2B3C4D5E6F708091121 /* Evolventa-Regular.ttf */,
-				E1F0A2B3C4D5E6F708091122 /* Evolventa-Bold.ttf */,
-				E1F0A2B3C4D5E6F708091123 /* Evolventa-Oblique.ttf */,
-				E1F0A2B3C4D5E6F708091124 /* Evolventa-BoldOblique.ttf */,
-			);
-			path = Fonts;
 			sourceTree = "<group>";
 		};
 		66BD934E49C5A19D59F11FAE /* Onboarding */ = {
@@ -219,10 +210,18 @@
 		822705CF4CF51CBA67BC86C7 /* Paywall */ = {
 			isa = PBXGroup;
 			children = (
-				2476A1B0369B4FE898A3E211 /* CategoryPaywallView.swift */,
+				16290548E5CB15614AEC125E /* CategoryPaywallView.swift */,
 				B9E4FD5E37DE7F6EC24F1019 /* PaywallView.swift */,
 			);
 			path = Paywall;
+			sourceTree = "<group>";
+		};
+		8733D288A5D2DF79B0412536 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				C467A4341FF8018A561D46C1 /* OnboardingHero.png */,
+			);
+			path = Onboarding;
 			sourceTree = "<group>";
 		};
 		94B836DE68657910D7E25113 = {
@@ -276,6 +275,7 @@
 		D86FEAB09CBD68154E2C6FE4 /* ImposterGame */ = {
 			isa = PBXGroup;
 			children = (
+				8BE02C67520C3F41F354FFC4 /* GoogleService-Info.plist */,
 				2859DB60DE187487DF8A97D1 /* App */,
 				479D28AC4071D720484A452F /* Extensions */,
 				111210B4E68091EC6C0E63CE /* Models */,
@@ -335,6 +335,8 @@
 			buildPhases = (
 				989347082AB233D0A24B91F3 /* Sources */,
 				19A1FD2294326343A407CA3D /* Resources */,
+				A3ADC9DD969E41C415A76E19 /* Frameworks */,
+				F26A2B4929645EF85FE186F0 /* Firebase Crashlytics */,
 			);
 			buildRules = (
 			);
@@ -342,6 +344,8 @@
 			);
 			name = ImposterGame;
 			packageProductDependencies = (
+				AA18741BEA45BBF37BAB5DD9 /* FirebaseAnalytics */,
+				A07314160D6C5EA1AAB20FD6 /* FirebaseCrashlytics */,
 			);
 			productName = ImposterGame;
 			productReference = 5A3D39D79EBFEE259F695500 /* ImposterGame.app */;
@@ -354,7 +358,9 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2640;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+				};
 			};
 			buildConfigurationList = 97E264728EAC9BC18F364366 /* Build configuration list for PBXProject "ImposterGame" */;
 			developmentRegion = en;
@@ -365,6 +371,9 @@
 			);
 			mainGroup = 94B836DE68657910D7E25113;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				2A4396BBF0F911E44E2769CC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1C713422ED53F1EAFCABCC00 /* Products */;
 			projectDirPath = "";
@@ -380,11 +389,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E1F0A2B3C4D5E6F708091131 /* Evolventa-Bold.ttf in Resources */,
-				E1F0A2B3C4D5E6F708091132 /* Evolventa-BoldOblique.ttf in Resources */,
-				E1F0A2B3C4D5E6F708091133 /* Evolventa-Oblique.ttf in Resources */,
-				E1F0A2B3C4D5E6F708091130 /* Evolventa-Regular.ttf in Resources */,
-				F2A1B2C3D4E5F60708192022 /* OnboardingHero.png in Resources */,
+				4B45873C322DAC732859D437 /* GoogleService-Info.plist in Resources */,
+				E0688C618CD5CAF6DAAF5306 /* OnboardingHero.png in Resources */,
 				BBAD266EFEE39D9046030056 /* celebrities.json in Resources */,
 				1C736260CE1B62B93624F0C5 /* family.json in Resources */,
 				02783BF3E33C4CFBBE974DC0 /* food.json in Resources */,
@@ -406,16 +412,41 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		F26A2B4929645EF85FE186F0 /* Firebase Crashlytics */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${TARGET_NAME}",
+				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
+			);
+			name = "Firebase Crashlytics";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		989347082AB233D0A24B91F3 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				93D558B5712E107B8A798489 /* AnalyticsService.swift in Sources */,
 				56D2AA90912B97D89F371971 /* AppRouter.swift in Sources */,
 				B8DA7F4590E6E7E31C75EDFC /* CategoriesView.swift in Sources */,
 				AA15A141C41971E4D6E7EF70 /* Category.swift in Sources */,
 				23B5B5E6AECC686FCF506E42 /* CategoryLoader.swift in Sources */,
-				2476A1B1369B4FE898A3E211 /* CategoryPaywallView.swift in Sources */,
+				9404F92E7776D1663BD6F608 /* CategoryPaywallView.swift in Sources */,
 				49BBC3FB9C2FE74F3CE77DEA /* DesignSystem.swift in Sources */,
 				1E686607DFEAE0DC0C1EF8AC /* GameEngine.swift in Sources */,
 				E78372EEC1931B91E618EDC7 /* GameSession.swift in Sources */,
@@ -477,7 +508,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -498,7 +528,6 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.9;
@@ -543,7 +572,6 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -571,7 +599,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.9;
@@ -584,14 +611,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				GENERATE_INFOPLIST_FILE = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				INFOPLIST_KEY_CFBundleDisplayName = Imposter;
-				INFOPLIST_KEY_UIAppFonts = (
-					"Evolventa-Regular.ttf",
-					"Evolventa-Bold.ttf",
-					"Evolventa-Oblique.ttf",
-					"Evolventa-BoldOblique.ttf",
-				);
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -608,14 +629,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Imposter;
-				INFOPLIST_KEY_UIAppFonts = (
-					"Evolventa-Regular.ttf",
-					"Evolventa-Bold.ttf",
-					"Evolventa-Oblique.ttf",
-					"Evolventa-BoldOblique.ttf",
-				);
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -648,6 +662,30 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		2A4396BBF0F911E44E2769CC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A07314160D6C5EA1AAB20FD6 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2A4396BBF0F911E44E2769CC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
+		AA18741BEA45BBF37BAB5DD9 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2A4396BBF0F911E44E2769CC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 42D23C0ECEAE4BEEDACA428A /* Project object */;
 }

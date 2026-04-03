@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum AppScreen: Hashable {
+enum AppScreen: String, Hashable {
     case onboarding
     case paywall
     case categoryPaywall
@@ -18,6 +18,7 @@ class AppRouter: ObservableObject {
 
     func navigate(to screen: AppScreen) {
         path.append(screen)
+        AnalyticsService.logScreenView(for: screen)
     }
 
     func popToRoot() {
@@ -35,6 +36,7 @@ class AppRouter: ObservableObject {
         var next = NavigationPath()
         next.append(AppScreen.playerSetup)
         path = next
+        AnalyticsService.logScreenView(for: .playerSetup)
     }
 
     /// Player setup → categories (same players; new game / pick category again)
@@ -43,5 +45,6 @@ class AppRouter: ObservableObject {
         next.append(AppScreen.playerSetup)
         next.append(AppScreen.categories)
         path = next
+        AnalyticsService.logScreenView(for: .categories)
     }
 }

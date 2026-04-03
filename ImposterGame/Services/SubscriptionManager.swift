@@ -12,11 +12,13 @@ class SubscriptionManager: ObservableObject {
     func purchaseSubscription() {
         // TODO: Integrate RevenueCat
         // For now, unlock premium for testing
+        AnalyticsService.logEvent("subscription_purchase", parameters: ["source": "in_app"])
         isPremium = true
         hasCompletedOnboarding = true
     }
 
     func restorePurchases() {
         // TODO: Integrate RevenueCat restore
+        AnalyticsService.logEvent("subscription_restore_attempt")
     }
 }

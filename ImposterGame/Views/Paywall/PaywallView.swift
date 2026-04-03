@@ -120,6 +120,7 @@ struct OnboardingPaywallView: View {
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
         .onAppear {
+            AnalyticsService.logEvent("paywall_show", parameters: ["context": "onboarding"])
             withAnimation(.easeOut(duration: 0.5)) {
                 appearAnimation = true
             }
