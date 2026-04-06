@@ -24,15 +24,19 @@ struct VotingView: View {
 
     var body: some View {
         ZStack {
-            Color(red: 0.08, green: 0.08, blue: 0.1)
+            LinearGradient.gameplayBackground
                 .ignoresSafeArea()
+                .overlay(
+                    GridPatternView()
+                        .opacity(0.08)
+                )
 
             VStack(spacing: 0) {
                 // Header
                 VStack(spacing: 8) {
                     Text("Who's the Imposter?")
                         .font(.evolventa(size: 28, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundColor(.gameplayTitle)
 
                     Text("Select \(maxSelections) player\(maxSelections == 1 ? "" : "s") you think are faking it")
                         .font(.evolventa(size: 15))
@@ -84,10 +88,10 @@ struct VotingView: View {
                     }) {
                         Text("Reveal")
                             .font(.evolventa(size: 20, weight: .bold))
-                            .foregroundColor(.black)
+                            .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .frame(height: 56)
-                            .background(Color.white)
+                            .background(Color.gameplayButtonPrimary)
                             .clipShape(RoundedRectangle(cornerRadius: 28))
                     }
                     .padding(.horizontal, 20)
@@ -129,7 +133,7 @@ struct VotingCard: View {
             .padding(8)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color(white: 0.12))
+                    .fill(Color.gameplaySurface)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 20)

@@ -35,6 +35,7 @@
 		A7E1E27765119707E2033D19 /* tech.json in Resources */ = {isa = PBXBuildFile; fileRef = 51BEE2357CA596C887FCC5C6 /* tech.json */; };
 		AA15A141C41971E4D6E7EF70 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57BC9CB184283EAE65342ACE /* Category.swift */; };
 		AAA12E4505E3EC290E5770DF /* shopping.json in Resources */ = {isa = PBXBuildFile; fileRef = 2DBAEFB45EEAE7CD5D244F9E /* shopping.json */; };
+		ACC4866899B846DF8C050C45 /* FirebaseInstallations in Frameworks */ = {isa = PBXBuildFile; productRef = A2462B968BD5F03BCFEAF2FD /* FirebaseInstallations */; };
 		B43D2D20049CC899C61A61D9 /* places.json in Resources */ = {isa = PBXBuildFile; fileRef = 038CD78E19C18AC9B1222AF7 /* places.json */; };
 		B6B8B90417B7852993ED99F1 /* GameSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB66DCED769F6CE62338D5CF /* GameSettingsView.swift */; };
 		B8DA7F4590E6E7E31C75EDFC /* CategoriesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7024D9671D1CF3A8C2BB08B9 /* CategoriesView.swift */; };
@@ -104,6 +105,7 @@
 			files = (
 				FEDD643230CD1B9D84C79192 /* FirebaseAnalytics in Frameworks */,
 				CBDDD1A5D6252BD8501EFF63 /* FirebaseCrashlytics in Frameworks */,
+				ACC4866899B846DF8C050C45 /* FirebaseInstallations in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -346,6 +348,7 @@
 			packageProductDependencies = (
 				AA18741BEA45BBF37BAB5DD9 /* FirebaseAnalytics */,
 				A07314160D6C5EA1AAB20FD6 /* FirebaseCrashlytics */,
+				A2462B968BD5F03BCFEAF2FD /* FirebaseInstallations */,
 			);
 			productName = ImposterGame;
 			productReference = 5A3D39D79EBFEE259F695500 /* ImposterGame.app */;
@@ -679,6 +682,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2A4396BBF0F911E44E2769CC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCrashlytics;
+		};
+		A2462B968BD5F03BCFEAF2FD /* FirebaseInstallations */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2A4396BBF0F911E44E2769CC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseInstallations;
 		};
 		AA18741BEA45BBF37BAB5DD9 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;

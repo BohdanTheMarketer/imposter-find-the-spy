@@ -1,3 +1,5 @@
+import FirebaseAnalytics
+import FirebaseInstallations
 import SwiftUI
 import UIKit
 
@@ -48,7 +50,7 @@ struct PlayerSetupView: View {
                     .padding(.vertical, 14)
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
-                    .background(Color(white: 0.15))
+                    .background(Color.gameplaySurface)
                     .clipShape(RoundedRectangle(cornerRadius: 25))
 
                     Button(action: addPlayer) {
@@ -56,9 +58,8 @@ struct PlayerSetupView: View {
                             .font(.evolventa(size: 20, weight: .bold))
                             .foregroundColor(.white)
                             .frame(width: 50, height: 50)
-                            .background(Color(white: 0.15))
-                            .clipShape(Circle())
                     }
+                    .buttonStyle(GameplayRoundIconButtonStyle())
                     .disabled(newPlayerName.trimmingCharacters(in: .whitespaces).isEmpty)
                     .opacity(newPlayerName.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1.0)
                 }
@@ -81,17 +82,17 @@ struct PlayerSetupView: View {
                         HStack(spacing: 14) {
                             Text("CONTINUE")
                                 .font(.evolventa(size: 20, weight: .bold))
-                                .foregroundColor(.black)
+                                .foregroundColor(.white)
                             Rectangle()
-                                .fill(Color.black.opacity(0.35))
+                                .fill(Color.white.opacity(0.35))
                                 .frame(width: 1, height: 26)
                             Text(playerCountLabel)
                                 .font(.evolventa(size: 20, weight: .semibold))
-                                .foregroundColor(.black.opacity(0.85))
+                                .foregroundColor(.white.opacity(0.85))
                         }
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
-                        .background(Color.white)
+                        .background(Color.gameplayButtonPrimary)
                         .clipShape(RoundedRectangle(cornerRadius: 28))
                     }
                     .opacity(canContinue ? 1.0 : 0.85)
@@ -112,8 +113,7 @@ struct PlayerSetupView: View {
 
     var body: some View {
         ZStack {
-            // Red gradient background with grid
-            LinearGradient.appRedGradient
+            LinearGradient.gameplayBackground
                 .ignoresSafeArea()
                 .overlay(
                     GridPatternView()
@@ -126,7 +126,7 @@ struct PlayerSetupView: View {
                     Spacer()
                     Text("Players")
                         .font(.evolventa(size: 28, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundColor(.gameplayTitle)
                     Spacer()
                 }
                 .overlay(alignment: .trailing) {
@@ -138,7 +138,7 @@ struct PlayerSetupView: View {
                             .font(.evolventa(size: 20))
                             .foregroundColor(.white)
                             .frame(width: 44, height: 44)
-                            .background(Color(white: 0.15))
+                            .background(Color.gameplayButtonSecondary)
                             .clipShape(Circle())
                     }
                 }
@@ -316,19 +316,6 @@ private struct PlayerNameEntryField: UIViewRepresentable {
 
 // MARK: - Options sheet (gear on Players screen)
 
-private enum AppUserIdentity {
-    private static let key = "app_anonymous_user_id"
-
-    static var id: String {
-        if let existing = UserDefaults.standard.string(forKey: key) {
-            return existing
-        }
-        let new = UUID().uuidString
-        UserDefaults.standard.set(new, forKey: key)
-        return new
-    }
-}
-
 private enum PlayerOptionsLinks {
     /// Replace with your App Store support email before release.
     static let contactEmail = "support@example.com"
@@ -340,10 +327,12 @@ private enum PlayerOptionsLinks {
 struct PlayerOptionsSheet: View {
     @Binding var isPresented: Bool
     @State private var vibrationOn = HapticsManager.isEnabled
+    @State private var firebaseInstallationId: String = ""
+    @State private var isLoadingFirebaseId = true
 
     var body: some View {
         ZStack {
-            LinearGradient.appRedGradient
+            LinearGradient.gameplayBackground
                 .ignoresSafeArea()
                 .overlay(
                     GridPatternView()
@@ -353,7 +342,7 @@ struct PlayerOptionsSheet: View {
             VStack(spacing: 0) {
                 Text("Options")
                     .font(.evolventa(size: 22, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(.gameplayTitle)
                     .padding(.top, 28)
                     .padding(.bottom, 20)
 
@@ -386,13 +375,7 @@ struct PlayerOptionsSheet: View {
                 .clipShape(RoundedRectangle(cornerRadius: 16))
                 .padding(.horizontal, 20)
 
-                Text("User ID: \(AppUserIdentity.id)")
-                    .font(.evolventa(size: 11, weight: .regular))
-                    .foregroundColor(.white.opacity(0.55))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
-                    .padding(.top, 16)
-                    .textSelection(.enabled)
+                firebaseInstallationIdRow
 
                 Spacer(minLength: 12)
 
@@ -405,7 +388,7 @@ struct PlayerOptionsSheet: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
-                        .background(Color(white: 0.12))
+                        .background(Color.gameplayButtonPrimary)
                         .clipShape(RoundedRectangle(cornerRadius: 28))
                 }
                 .padding(.horizontal, 20)
@@ -414,9 +397,69 @@ struct PlayerOptionsSheet: View {
         }
         .onAppear {
             vibrationOn = HapticsManager.isEnabled
+            loadFirebaseInstallationID()
         }
         .presentationDetents([.fraction(0.62), .large])
         .presentationDragIndicator(.visible)
+    }
+
+    private var firebaseInstallationIdRow: some View {
+        let valueText: String = {
+            if isLoadingFirebaseId { return "Loading…" }
+            if firebaseInstallationId.isEmpty { return "Unavailable" }
+            return firebaseInstallationId
+        }()
+
+        return Button(action: copyFirebaseInstallationID) {
+            HStack(alignment: .center, spacing: 12) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Firebase Installation ID")
+                        .font(.evolventa(size: 10, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.45))
+                    Text(valueText)
+                        .font(.system(size: 11, weight: .regular, design: .monospaced))
+                        .foregroundColor(.white.opacity(0.55))
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                Image(systemName: "doc.on.doc")
+                    .font(.evolventa(size: 16, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.55))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.white.opacity(0.06))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .buttonStyle(.plain)
+        .disabled(isLoadingFirebaseId || firebaseInstallationId.isEmpty)
+        .padding(.horizontal, 20)
+        .padding(.top, 16)
+    }
+
+    private func loadFirebaseInstallationID() {
+        isLoadingFirebaseId = true
+        Installations.installations().installationID { id, _ in
+            DispatchQueue.main.async {
+                if let id, !id.isEmpty {
+                    firebaseInstallationId = id
+                } else if let analyticsId = Analytics.appInstanceID(), !analyticsId.isEmpty {
+                    firebaseInstallationId = analyticsId
+                } else {
+                    firebaseInstallationId = ""
+                }
+                isLoadingFirebaseId = false
+            }
+        }
+    }
+
+    private func copyFirebaseInstallationID() {
+        guard !firebaseInstallationId.isEmpty else { return }
+        UIPasteboard.general.string = firebaseInstallationId
+        HapticsManager.impact(.light)
     }
 
     private var vibrationRow: some View {
@@ -503,7 +546,7 @@ struct PlayerRow: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .background(Color(white: 0.15))
+        .background(Color.gameplaySurface)
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 }

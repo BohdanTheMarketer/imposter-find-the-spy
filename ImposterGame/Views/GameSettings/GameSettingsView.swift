@@ -48,18 +48,18 @@ struct GameSettingsView: View {
                 HStack(spacing: 10) {
                     Text("PLAY")
                         .font(.evolventa(size: 18, weight: .black))
-                        .foregroundColor(.black)
+                        .foregroundColor(.white)
                     Text("|")
                         .font(.evolventa(size: 14, weight: .black))
-                        .foregroundColor(.black.opacity(0.65))
+                        .foregroundColor(.white.opacity(0.65))
                     Text(imposterCountLabel)
                         .font(.evolventa(size: 18, weight: .black))
-                        .foregroundColor(.black)
+                        .foregroundColor(.white)
                 }
                 .padding(.horizontal, 26)
                 .frame(height: 56)
                 .frame(maxWidth: .infinity)
-                .background(Color.white)
+                .background(Color.gameplayButtonPrimary)
                 .clipShape(Capsule())
             }
             .padding(.horizontal, 20)
@@ -76,15 +76,7 @@ struct GameSettingsView: View {
 
     private var gameSettingsBackground: some View {
         ZStack {
-            LinearGradient(
-                colors: [
-                    Color(red: 0.92, green: 0.08, blue: 0.30),
-                    Color(red: 0.98, green: 0.18, blue: 0.28),
-                    Color(red: 0.78, green: 0.08, blue: 0.20)
-                ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
+            LinearGradient.gameplayBackground
             .ignoresSafeArea()
 
             GridPatternView(lineColor: .white.opacity(0.10))
@@ -119,7 +111,7 @@ struct GameSettingsView: View {
 
             Text("Game Settings")
                 .font(.evolventa(size: 30, weight: .black))
-                .foregroundColor(.white)
+                .foregroundColor(.gameplayTitle)
 
             Spacer()
 
@@ -331,7 +323,7 @@ struct GameSettingsView: View {
 private extension View {
     func cardShell() -> some View {
         self
-            .background(Color(red: 0.14, green: 0.14, blue: 0.18))
+            .background(Color.gameplaySurface)
             .overlay(
                 RoundedRectangle(cornerRadius: 22)
                     .stroke(Color.white.opacity(0.08), lineWidth: 1)

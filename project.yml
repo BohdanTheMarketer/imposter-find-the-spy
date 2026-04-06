@@ -42,6 +42,8 @@ targets:
         product: FirebaseAnalytics
       - package: Firebase
         product: FirebaseCrashlytics
+      - package: Firebase
+        product: FirebaseInstallations
     postBuildScripts:
       - name: Firebase Crashlytics
         basedOnDependencyAnalysis: false

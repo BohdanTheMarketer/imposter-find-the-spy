@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct CategoriesView: View {
     @EnvironmentObject var router: AppRouter
@@ -15,8 +16,7 @@ struct CategoriesView: View {
 
     var body: some View {
         ZStack {
-            // Red gradient background with grid
-            LinearGradient.appRedGradient
+            LinearGradient.gameplayBackground
                 .ignoresSafeArea()
                 .overlay(
                     GridPatternView()
@@ -36,7 +36,7 @@ struct CategoriesView: View {
 
                     Text("Categories")
                         .font(.evolventa(size: 28, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundColor(.gameplayTitle)
 
                     Spacer()
 
@@ -94,19 +94,19 @@ struct CategoriesView: View {
                     HStack(spacing: 14) {
                         Text("PLAY")
                             .font(.evolventa(size: 20, weight: .bold))
-                            .foregroundColor(.black)
+                            .foregroundColor(.white)
 
                         Rectangle()
-                            .fill(Color.black.opacity(0.35))
+                            .fill(Color.white.opacity(0.35))
                             .frame(width: 1, height: 26)
 
                         Text("\(selectedCategoryCount) Category")
                             .font(.evolventa(size: 20, weight: .semibold))
-                            .foregroundColor(.black.opacity(0.85))
+                            .foregroundColor(.white.opacity(0.85))
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 56)
-                    .background(Color.white)
+                    .background(Color.gameplayButtonPrimary)
                     .clipShape(RoundedRectangle(cornerRadius: 28))
                 }
                 .padding(.horizontal, 20)
@@ -156,75 +156,86 @@ struct CategoryCard: View {
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 12) {
+            HStack(spacing: 14) {
+                categoryIcon
+
                 VStack(alignment: .leading, spacing: 6) {
-                    HStack(spacing: 6) {
+                    HStack(spacing: 8) {
                         Text(category.name)
-                            .font(.evolventa(size: 22, weight: .bold))
-                            .foregroundColor(.white)
+                            .font(.evolventa(size: 20, weight: .bold))
+                            .foregroundColor(.white.opacity(0.95))
+                            .lineLimit(1)
 
                         if isLocked {
                             Image(systemName: "lock.fill")
-                                .font(.evolventa(size: 14))
-                                .foregroundColor(.white.opacity(0.6))
+                                .font(.evolventa(size: 13, weight: .semibold))
+                                .foregroundColor(.gameplayButtonPrimary)
                         }
                     }
 
                     Text(category.description)
-                        .font(.evolventa(size: 13))
-                        .foregroundColor(.white.opacity(0.7))
-                        .lineLimit(2)
+                        .font(.evolventa(size: 13, weight: .medium))
+                        .foregroundColor(.white.opacity(0.55))
+                        .lineLimit(nil)
+                        .minimumScaleFactor(0.9)
                         .multilineTextAlignment(.leading)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-
-                Spacer()
-
-                Text(categoryEmoji)
-                    .font(.evolventa(size: 56))
-                    .padding(.trailing, 2)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(16)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
             .background(
-                RoundedRectangle(cornerRadius: 26)
-                    .fill(Color(white: 0.12))
+                RoundedRectangle(cornerRadius: 30)
+                    .fill(cardBackground)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 26)
-                    .stroke(isSelected ? Color.white : Color.clear, lineWidth: 2)
+                RoundedRectangle(cornerRadius: 30)
+                    .stroke(isSelected ? Color.white.opacity(0.85) : Color.white.opacity(0.06), lineWidth: isSelected ? 2 : 1)
             )
             .opacity(isLocked ? 0.78 : 1.0)
         }
         .buttonStyle(.plain)
     }
 
-    private var categoryEmoji: String {
+    @ViewBuilder
+    private var categoryIcon: some View {
+        if UIImage(named: category.icon) != nil {
+            Image(category.icon)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 76, height: 76)
+                .clipShape(Circle())
+                .overlay(
+                    Circle().stroke(Color.white.opacity(0.16), lineWidth: 1)
+                )
+        } else {
+            Circle()
+                .fill(Color.black.opacity(0.28))
+                .frame(width: 76, height: 76)
+                .overlay(
+                    Image(systemName: category.icon)
+                        .font(.evolventa(size: 30, weight: .bold))
+                        .foregroundColor(.white.opacity(0.92))
+                )
+                .overlay(
+                    Circle().stroke(Color.white.opacity(0.12), lineWidth: 1)
+                )
+        }
+    }
+
+    private var cardBackground: LinearGradient {
         switch category.name {
-        case "Party Time":
-            return "🍾🪩"
         case "Food":
-            return "🥤🍣"
+            return LinearGradient(colors: [Color(red: 0.15, green: 0.17, blue: 0.24), Color(red: 0.09, green: 0.11, blue: 0.17)], startPoint: .topLeading, endPoint: .bottomTrailing)
         case "Celebrities":
-            return "⭐️🎤"
+            return LinearGradient(colors: [Color(red: 0.20, green: 0.12, blue: 0.34), Color(red: 0.11, green: 0.10, blue: 0.24)], startPoint: .topLeading, endPoint: .bottomTrailing)
         case "Hobbies":
-            return "📓🩰"
+            return LinearGradient(colors: [Color(red: 0.06, green: 0.20, blue: 0.35), Color(red: 0.05, green: 0.12, blue: 0.23)], startPoint: .topLeading, endPoint: .bottomTrailing)
         case "Family":
-            return "👨‍👩‍👧"
-        case "School & College":
-            return "🎓📚"
-        case "Places":
-            return "🗺️🏝️"
-        case "Sports":
-            return "⚽️🏀"
-        case "Spicy":
-            return "🌶️🔥"
-        case "Movies & TV":
-            return "🎬📺"
-        case "Animals":
-            return "🦊🐼"
-        case "Work":
-            return "💼📈"
+            return LinearGradient(colors: [Color(red: 0.22, green: 0.13, blue: 0.17), Color(red: 0.11, green: 0.08, blue: 0.13)], startPoint: .topLeading, endPoint: .bottomTrailing)
         default:
-            return "🎯✨"
+            return LinearGradient(colors: [Color(red: 0.14, green: 0.15, blue: 0.25), Color(red: 0.08, green: 0.09, blue: 0.18)], startPoint: .topLeading, endPoint: .bottomTrailing)
         }
     }
 }
@@ -269,7 +280,7 @@ struct CategoryInfoOverlay: View {
                     .font(.evolventa(size: 44, weight: .bold))
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
-                    .foregroundColor(.white)
+                    .foregroundColor(.gameplayTitle)
                     .padding(.top, 42)
 
                 Text(steps[currentStep].subtitle)
@@ -297,7 +308,7 @@ struct CategoryInfoOverlay: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
-                        .background(Color(white: 0.12))
+                        .background(Color.gameplayButtonPrimary)
                         .clipShape(RoundedRectangle(cornerRadius: 28))
                 }
                 .padding(.horizontal, 30)
@@ -305,7 +316,7 @@ struct CategoryInfoOverlay: View {
                 .padding(.bottom, 30)
             }
             .frame(maxWidth: .infinity)
-            .background(LinearGradient.appRedGradient)
+            .background(LinearGradient.gameplayBackground)
             .clipShape(RoundedRectangle(cornerRadius: 34))
             .overlay(
                 RoundedRectangle(cornerRadius: 34)
