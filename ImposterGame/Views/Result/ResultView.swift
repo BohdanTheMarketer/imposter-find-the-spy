@@ -47,7 +47,7 @@ struct ResultView: View {
     // MARK: - Intrigue View
     private var intrigueView: some View {
         ZStack {
-            Color(red: 0.08, green: 0.08, blue: 0.1)
+            LinearGradient.gameplayBackground
                 .ignoresSafeArea()
                 .overlay(
                     GridPatternView()
@@ -72,8 +72,7 @@ struct ResultView: View {
     // MARK: - Result Reveal
     private var resultRevealView: some View {
         ZStack {
-            // Background
-            LinearGradient.appRedGradient
+            LinearGradient.gameplayBackground
                 .ignoresSafeArea()
                 .overlay(
                     GridPatternView()
@@ -83,7 +82,7 @@ struct ResultView: View {
             VStack(spacing: 0) {
                 Text("Results")
                     .font(.evolventa(size: 28, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(.gameplayTitle)
                     .padding(.top, 20)
                     .padding(.bottom, 24)
 
@@ -130,7 +129,7 @@ struct ResultView: View {
                             }
                             .padding(20)
                             .frame(maxWidth: .infinity)
-                            .background(Color(white: 0.12))
+                            .background(Color.gameplaySurface)
                             .clipShape(RoundedRectangle(cornerRadius: 16))
 
                             // Secret word card
@@ -148,7 +147,7 @@ struct ResultView: View {
                             }
                             .padding(20)
                             .frame(maxWidth: .infinity)
-                            .background(Color(white: 0.12))
+                            .background(Color.gameplaySurface)
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                         }
                         .padding(.horizontal, 20)
@@ -170,10 +169,10 @@ struct ResultView: View {
                             Image(systemName: "arrow.counterclockwise")
                                 .font(.evolventa(size: 18, weight: .bold))
                         }
-                        .foregroundColor(.black)
+                        .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
-                        .background(Color.white)
+                        .background(Color.gameplayButtonPrimary)
                         .clipShape(RoundedRectangle(cornerRadius: 28))
                     }
                     .padding(.horizontal, 20)

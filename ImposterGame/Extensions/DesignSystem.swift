@@ -33,6 +33,14 @@ extension Color {
     static let revealBlue = Color(red: 0.3, green: 0.55, blue: 0.95)
     static let revealPurple = Color(red: 0.6, green: 0.3, blue: 0.9)
     static let revealPink = Color(red: 0.95, green: 0.3, blue: 0.5)
+
+    // Core gameplay theme (exclude onboarding/paywall/reveal).
+    static let gameplayBackgroundTop = Color(red: 0.05, green: 0.05, blue: 0.14)
+    static let gameplayBackgroundBottom = Color(red: 0.02, green: 0.02, blue: 0.10)
+    static let gameplayTitle = Color(red: 1.0, green: 0.06, blue: 0.62)
+    static let gameplaySurface = Color(red: 0.10, green: 0.10, blue: 0.20)
+    static let gameplayButtonPrimary = Color(red: 1.0, green: 0.06, blue: 0.62)
+    static let gameplayButtonSecondary = Color(red: 0.13, green: 0.13, blue: 0.22)
 }
 
 // MARK: - Gradients
@@ -59,6 +67,12 @@ extension LinearGradient {
         colors: [Color(red: 0.12, green: 0.12, blue: 0.14), Color(red: 0.06, green: 0.06, blue: 0.08)],
         startPoint: .top,
         endPoint: .bottom
+    )
+
+    static let gameplayBackground = LinearGradient(
+        colors: [Color.gameplayBackgroundTop, Color.gameplayBackgroundBottom],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
     )
 }
 
@@ -90,9 +104,46 @@ struct PrimaryButtonStyle: ButtonStyle {
     }
 }
 
+struct GameplayPrimaryButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.evolventa(size: 18, weight: .bold))
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity)
+            .frame(height: 56)
+            .background(Color.gameplayButtonPrimary)
+            .clipShape(RoundedRectangle(cornerRadius: 28))
+            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+            .animation(.easeInOut(duration: 0.12), value: configuration.isPressed)
+    }
+}
+
+struct GameplayRoundIconButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundColor(.white)
+            .frame(width: 50, height: 50)
+            .background(Color.gameplayButtonPrimary)
+            .clipShape(Circle())
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .animation(.easeInOut(duration: 0.12), value: configuration.isPressed)
+    }
+}
+
 extension View {
     func cardStyle(backgroundColor: Color = Color(white: 0.15)) -> some View {
         modifier(CardStyle(backgroundColor: backgroundColor))
+    }
+
+    func gameplayScreenBackground(gridOpacity: Double = 0.10) -> some View {
+        background(
+            LinearGradient.gameplayBackground
+                .ignoresSafeArea()
+                .overlay(
+                    GridPatternView()
+                        .opacity(gridOpacity)
+                )
+        )
     }
 }
 

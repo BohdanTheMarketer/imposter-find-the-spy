@@ -21,8 +21,7 @@ struct GameTimerView: View {
 
     var body: some View {
         ZStack {
-            // Dark background with subtle grid
-            Color(red: 0.08, green: 0.08, blue: 0.1)
+            LinearGradient.gameplayBackground
                 .ignoresSafeArea()
                 .overlay(
                     GridPatternView()
@@ -65,7 +64,7 @@ struct GameTimerView: View {
                 VStack(spacing: 8) {
                     Text("Timer")
                         .font(.evolventa(size: 20, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundColor(.gameplayTitle)
 
                     Text(formattedTime)
                         .font(.evolventa(size: 72, weight: .black))
@@ -87,7 +86,7 @@ struct GameTimerView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 52)
-                        .background(Color(white: 0.18))
+                        .background(Color.gameplayButtonSecondary)
                         .clipShape(RoundedRectangle(cornerRadius: 26))
                 }
                 .padding(.horizontal, 40)
@@ -95,7 +94,7 @@ struct GameTimerView: View {
 
                 // Red accent bar
                 Rectangle()
-                    .fill(Color.gradientRedTop)
+                    .fill(Color.gameplayButtonPrimary)
                     .frame(height: 4)
                     .padding(.horizontal, 40)
                     .padding(.bottom, 40)
@@ -126,7 +125,7 @@ struct GameTimerView: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .frame(height: 52)
-                            .background(Color(white: 0.2))
+                            .background(Color.gameplayButtonSecondary)
                             .clipShape(RoundedRectangle(cornerRadius: 26))
                     }
 
@@ -139,10 +138,10 @@ struct GameTimerView: View {
                     }) {
                         Text("Vote Now")
                             .font(.evolventa(size: 18, weight: .bold))
-                            .foregroundColor(.black)
+                            .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .frame(height: 52)
-                            .background(Color.white)
+                            .background(Color.gameplayButtonPrimary)
                             .clipShape(RoundedRectangle(cornerRadius: 26))
                     }
                 }
