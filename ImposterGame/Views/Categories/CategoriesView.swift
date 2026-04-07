@@ -1,6 +1,33 @@
 import SwiftUI
 import UIKit
 
+private enum CategoryIconLoader {
+    private static let fileNameByIcon: [String: String] = [
+        "party.popper": "category_party_popper",
+        "fork.knife": "category_fork_knife",
+        "star.fill": "category_star_fill",
+        "paintpalette.fill": "category_paintpalette_fill",
+        "house.fill": "category_house_fill",
+        "book.fill": "category_book_fill",
+        "flame.fill": "category_flame_fill",
+        "sportscourt.fill": "category_sportscourt_fill",
+        "airplane": "category_airplane",
+        "briefcase.fill": "category_briefcase_fill",
+        "film.fill": "category_film_fill",
+        "bag.fill": "category_bag_fill",
+        "desktopcomputer": "category_desktopcomputer",
+        "bolt.fill": "category_bolt_fill",
+        "music.note": "category_music_note",
+        "map.fill": "category_map_fill"
+    ]
+
+    static func uiImage(for icon: String) -> UIImage? {
+        guard let fileName = fileNameByIcon[icon] else { return nil }
+        guard let filePath = Bundle.main.path(forResource: fileName, ofType: "png") else { return nil }
+        return UIImage(contentsOfFile: filePath)
+    }
+}
+
 struct CategoriesView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var gameSession: GameSession
@@ -200,8 +227,8 @@ struct CategoryCard: View {
 
     @ViewBuilder
     private var categoryIcon: some View {
-        if UIImage(named: category.icon) != nil {
-            Image(category.icon)
+        if let iconImage = CategoryIconLoader.uiImage(for: category.icon) {
+            Image(uiImage: iconImage)
                 .resizable()
                 .scaledToFill()
                 .frame(width: 76, height: 76)

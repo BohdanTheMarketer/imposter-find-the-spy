@@ -49,10 +49,8 @@ struct VotingView: View {
                 ScrollView(showsIndicators: false) {
                     LazyVGrid(columns: columns, spacing: 12) {
                         ForEach(gameSession.players) { player in
-                            let index = gameSession.players.firstIndex(where: { $0.id == player.id }) ?? 0
                             VotingCard(
                                 player: player,
-                                index: index,
                                 isSelected: selectedPlayerIDs.contains(player.id),
                                 onTap: {
                                     HapticsManager.selection()
@@ -109,21 +107,14 @@ struct VotingView: View {
 
 struct VotingCard: View {
     let player: Player
-    let index: Int
     let isSelected: Bool
     let onTap: () -> Void
 
     var body: some View {
         Button(action: onTap) {
             VStack(spacing: 8) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(AvatarColors.color(for: index))
-                        .aspectRatio(1.0, contentMode: .fit)
-
-                    Text(PlayerAvatars.avatar(for: index))
-                        .font(.evolventa(size: 50))
-                }
+                PlayerAvatarSquareTileView(avatarIndex: player.avatarIndex)
+                    .aspectRatio(1.0, contentMode: .fit)
 
                 Text(player.name)
                     .font(.evolventa(size: 15, weight: .semibold))
@@ -144,4 +135,22 @@ struct VotingCard: View {
         }
         .buttonStyle(.plain)
     }
+}
+
+#Preview("Voting cards") {
+    HStack(spacing: 12) {
+        VotingCard(
+            player: Player(name: "Alex", avatarIndex: 0),
+            isSelected: false,
+            onTap: {}
+        )
+        VotingCard(
+            player: Player(name: "Jordan", avatarIndex: 7),
+            isSelected: true,
+            onTap: {}
+        )
+    }
+    .padding()
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(Color(red: 0.08, green: 0.08, blue: 0.1))
 }

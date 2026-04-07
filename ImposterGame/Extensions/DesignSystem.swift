@@ -166,29 +166,135 @@ extension Font {
     }
 }
 
-// MARK: - Avatar Colors
-enum AvatarColors {
-    static let colors: [Color] = [
-        .revealOrange, .revealGreen, .revealBlue, .revealPurple,
-        .revealPink, Color.yellow, Color.cyan, Color.mint,
-        Color.indigo, Color.teal, Color.brown, Color.orange,
-        Color.pink, Color.green, Color.blue
-    ]
+// MARK: - Player profiles (bundled portraits: player_0 … player_11)
 
-    static func color(for index: Int) -> Color {
-        colors[index % colors.count]
+enum PlayerProfiles {
+    static let count = 12
+
+    static func slot(for avatarIndex: Int) -> Int {
+        let m = avatarIndex % count
+        return m >= 0 ? m : m + count
+    }
+
+    /// Bundle resource name (no extension) for `Image(_:)`.
+    static func bundleImageName(for avatarIndex: Int) -> String {
+        "player_\(slot(for: avatarIndex))"
+    }
+
+    /// Role-reveal cover portraits: `VV1` … `VV12` align with avatar slots 0 … 11 (same order as `player_0` … `player_11`).
+    static func roleRevealPortraitName(for avatarIndex: Int) -> String {
+        "VV\(slot(for: avatarIndex) + 1)"
+    }
+
+    /// Loads bundled portrait for role-reveal: prefers `VV*` art, then `player_*` (same slot order).
+    static func roleRevealUIImage(for avatarIndex: Int) -> UIImage? {
+        if let vv = UIImage(named: roleRevealPortraitName(for: avatarIndex)) {
+            return vv
+        }
+        return UIImage(named: bundleImageName(for: avatarIndex))
     }
 }
 
-// MARK: - Player Emoji Avatars
-enum PlayerAvatars {
-    static let avatars = [
-        "😎", "🤩", "😈", "🤡", "👻",
-        "🦊", "🐸", "🎃", "🤖", "👽",
-        "🦁", "🐵", "🐷", "🐼", "🦄"
+// MARK: - Avatar theme colors (one per bundled portrait, aligned with player_N.png order)
+
+enum AvatarColors {
+    private static let colors: [Color] = [
+        Color(red: 0.518, green: 0.800, blue: 0.086), // #84CC16 lime
+        Color(red: 1.0, green: 0.624, blue: 0.110), // #FF9F1C orange
+        Color(red: 0.169, green: 0.612, blue: 0.922), // #2B9CEB sky blue
+        Color(red: 0.576, green: 0.200, blue: 0.918), // #9333EA purple
+        Color(red: 0.831, green: 0.396, blue: 0.180), // #D4652E terracotta
+        Color(red: 0.427, green: 0.706, blue: 0.949), // #6DB4F2 light blue
+        Color(red: 0.239, green: 0.678, blue: 0.961), // #3DADF5 bright sky
+        Color(red: 1.0, green: 0.420, blue: 0.208), // #FF6B35 coral orange
+        Color(red: 1.0, green: 0.573, blue: 0.220), // #FF9238 warm orange
+        Color(red: 0.925, green: 0.282, blue: 0.600), // #EC4899 pink
+        Color(red: 0.518, green: 0.878, blue: 0.310), // #84E04F fresh green
+        Color(red: 0.133, green: 0.773, blue: 0.369) // #22C55E green
     ]
 
-    static func avatar(for index: Int) -> String {
-        avatars[index % avatars.count]
+    static func color(for avatarIndex: Int) -> Color {
+        colors[PlayerProfiles.slot(for: avatarIndex)]
     }
+}
+
+// MARK: - Avatar thumbnails (mini profile icons)
+
+struct PlayerAvatarThumbnailView: View {
+    let avatarIndex: Int
+    var size: CGFloat = 44
+    /// Use `size / 2` for a circle.
+    var cornerRadius: CGFloat
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .fill(AvatarColors.color(for: avatarIndex))
+            if let ui = UIImage(named: PlayerProfiles.bundleImageName(for: avatarIndex)) {
+                Image(uiImage: ui)
+                    .renderingMode(.original)
+                    .resizable()
+                    .scaledToFill()
+                    .padding(size * 0.08)
+            }
+        }
+        .frame(width: size, height: size)
+        .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+    }
+}
+
+/// Square tile for voting grid; pair with `aspectRatio(1, contentMode: .fit)` on the parent.
+struct PlayerAvatarSquareTileView: View {
+    let avatarIndex: Int
+    var cornerRadius: CGFloat = 16
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: cornerRadius)
+                .fill(AvatarColors.color(for: avatarIndex))
+            if let ui = UIImage(named: PlayerProfiles.bundleImageName(for: avatarIndex)) {
+                Image(uiImage: ui)
+                    .renderingMode(.original)
+                    .resizable()
+                    .scaledToFill()
+                    .padding(8)
+            }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+    }
+}
+
+// MARK: - Previews
+
+#Preview("Avatar thumbnails (all 12)") {
+    ScrollView {
+        VStack(alignment: .leading, spacing: 20) {
+            Text("Circle (setup row)")
+                .font(.headline)
+                .foregroundStyle(.white)
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 56), spacing: 12)], spacing: 12) {
+                ForEach(0 ..< PlayerProfiles.count, id: \.self) { i in
+                    VStack(spacing: 6) {
+                        PlayerAvatarThumbnailView(avatarIndex: i, size: 52, cornerRadius: 26)
+                        Text("\(i)")
+                            .font(.caption2)
+                            .foregroundStyle(.white.opacity(0.7))
+                    }
+                }
+            }
+
+            Text("Square tile (voting)")
+                .font(.headline)
+                .foregroundStyle(.white)
+                .padding(.top, 8)
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                ForEach(0 ..< PlayerProfiles.count, id: \.self) { i in
+                    PlayerAvatarSquareTileView(avatarIndex: i)
+                        .aspectRatio(1, contentMode: .fit)
+                }
+            }
+        }
+        .padding()
+    }
+    .background(Color(red: 0.08, green: 0.08, blue: 0.1))
 }

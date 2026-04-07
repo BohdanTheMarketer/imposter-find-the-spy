@@ -25,7 +25,7 @@ struct RoleRevealView: View {
     }
 
     private var revealColor: Color {
-        AvatarColors.color(for: currentIndex)
+        AvatarColors.color(for: currentPlayer.avatarIndex)
     }
 
     private var currentImposterHint: String? {
@@ -64,6 +64,12 @@ struct RoleRevealView: View {
                     Spacer()
 
                     VStack(spacing: 14) {
+                        PlayerAvatarThumbnailView(
+                            avatarIndex: currentPlayer.avatarIndex,
+                            size: 96,
+                            cornerRadius: 48
+                        )
+
                         if currentPlayer.isImposter {
                             Image(systemName: "person.fill.questionmark")
                                 .font(.evolventa(size: 56, weight: .bold))
@@ -109,88 +115,88 @@ struct RoleRevealView: View {
                 .padding(.bottom, UIScreen.main.bounds.height * 0.18)
             }
 
-            // Cover image (draggable)
-            VStack {
-                // Player number
-                HStack {
-                    Button(action: {
-                        if currentIndex == 0 {
-                            router.pop()
-                        }
-                    }) {
-                        Image(systemName: "chevron.left")
-                            .font(.evolventa(size: 18, weight: .semibold))
-                            .foregroundColor(.white)
+            // Cover (draggable): centered portrait with top/bottom chrome overlaid.
+            ZStack {
+                revealColor
+
+                Group {
+                    if let portrait = PlayerProfiles.roleRevealUIImage(for: currentPlayer.avatarIndex) {
+                        Image(uiImage: portrait)
+                            .renderingMode(.original)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxWidth: UIScreen.main.bounds.width * 0.9)
+                            .frame(maxHeight: UIScreen.main.bounds.height * 0.52)
                     }
-                    .opacity(currentIndex == 0 ? 1.0 : 0.0)
-                    .disabled(currentIndex != 0)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                VStack(spacing: 0) {
+                    HStack {
+                        Button(action: {
+                            if currentIndex == 0 {
+                                router.pop()
+                            }
+                        }) {
+                            Image(systemName: "chevron.left")
+                                .font(.evolventa(size: 18, weight: .semibold))
+                                .foregroundColor(.white)
+                        }
+                        .opacity(currentIndex == 0 ? 1.0 : 0.0)
+                        .disabled(currentIndex != 0)
+
+                        Spacer()
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 16)
+
+                    Text("\(currentIndex + 1)")
+                        .font(.evolventa(size: 40, weight: .black))
+                        .foregroundColor(.white)
 
                     Spacer()
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 16)
+                    VStack(spacing: 10) {
+                        if hasSeenCurrentWord {
+                            if isLastPlayer {
+                                Text("Everyone has seen the word")
+                                    .font(.evolventa(size: 18, weight: .bold))
+                                    .foregroundColor(.black)
+                                    .multilineTextAlignment(.center)
+                            } else if let next = nextPlayer {
+                                Text("Pass the phone to \(next.name)")
+                                    .font(.evolventa(size: 18, weight: .bold))
+                                    .foregroundColor(.black)
+                                    .multilineTextAlignment(.center)
+                            }
 
-                Text("\(currentIndex + 1)")
-                    .font(.evolventa(size: 40, weight: .bold))
-                    .foregroundColor(.white)
-
-                Spacer()
-
-                // Character emoji
-                ZStack {
-                    Circle()
-                        .fill(revealColor.opacity(0.5))
-                        .frame(width: 200, height: 200)
-
-                    Text(PlayerAvatars.avatar(for: currentIndex))
-                        .font(.evolventa(size: 100))
-                }
-
-                Spacer()
-
-                // Bottom prompt / action area
-                VStack(spacing: 10) {
-                    if hasSeenCurrentWord {
-                        if isLastPlayer {
-                            Text("Everyone has seen the word")
-                                .font(.evolventa(size: 18, weight: .bold))
-                                .foregroundColor(.black)
-                                .multilineTextAlignment(.center)
-                        } else if let next = nextPlayer {
-                            Text("Pass the phone to \(next.name)")
-                                .font(.evolventa(size: 18, weight: .bold))
-                                .foregroundColor(.black)
-                                .multilineTextAlignment(.center)
-                        }
-
-                        Button(action: {
-                            continueTapped()
-                        }) {
-                            Text(isLastPlayer ? "Start Game" : "Continue")
+                            Button(action: {
+                                continueTapped()
+                            }) {
+                                Text(isLastPlayer ? "Start Game" : "Continue")
+                                    .font(.evolventa(size: 20, weight: .black))
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 62)
+                                    .background(Color.black)
+                                    .clipShape(RoundedRectangle(cornerRadius: 31))
+                            }
+                            .padding(.horizontal, 40)
+                        } else {
+                            Text("Swipe up to reveal\nthe secret word")
                                 .font(.evolventa(size: 20, weight: .bold))
                                 .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 62)
-                                .background(Color.black)
-                                .clipShape(RoundedRectangle(cornerRadius: 31))
+                                .multilineTextAlignment(.center)
                         }
-                        .padding(.horizontal, 40)
-                    } else {
-                        Text("Swipe up to reveal\nthe secret word")
-                            .font(.evolventa(size: 20, weight: .bold))
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                    }
 
-                    Image(systemName: "chevron.up")
-                        .font(.evolventa(size: 24, weight: .bold))
-                        .foregroundColor(.white)
-                        .offset(y: -4)
+                        Image(systemName: "chevron.up")
+                            .font(.evolventa(size: 24, weight: .bold))
+                            .foregroundColor(.white)
+                            .offset(y: -4)
+                    }
+                    .padding(.bottom, 36)
                 }
-                .padding(.bottom, 36)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(revealColor)
             .offset(y: dragOffset)
             .gesture(
                 DragGesture()
@@ -229,4 +235,37 @@ struct RoleRevealView: View {
             hasSeenCurrentWord = false
         }
     }
+}
+
+// MARK: - Previews
+
+private enum RoleRevealPreviewData {
+    static func session(imposterAt: Int? = nil) -> GameSession {
+        let session = GameSession()
+        var a = Player(name: "Alex", avatarIndex: 0)
+        a.secretWord = "Waterfall"
+        var b = Player(name: "Jordan", avatarIndex: 4)
+        b.secretWord = "Lantern"
+        var c = Player(name: "Sam", avatarIndex: 9)
+        c.secretWord = "Velvet"
+        var players = [a, b, c]
+        if let i = imposterAt, i >= 0, i < players.count {
+            players[i].isImposter = true
+            players[i].secretWord = "Echo hint"
+        }
+        session.players = players
+        return session
+    }
+}
+
+#Preview("Role reveal — crew") {
+    RoleRevealView()
+        .environmentObject(AppRouter())
+        .environmentObject(RoleRevealPreviewData.session(imposterAt: nil))
+}
+
+#Preview("Role reveal — imposter middle") {
+    RoleRevealView()
+        .environmentObject(AppRouter())
+        .environmentObject(RoleRevealPreviewData.session(imposterAt: 1))
 }

@@ -55,6 +55,12 @@ targets:
     resources:
       - path: ImposterGame/Resources/WordPacks
         buildPhase: resources
+      - path: ImposterGame/Resources/Onboarding
+        buildPhase: resources
+      - path: ImposterGame/Resources/PlayerAvatars
+        buildPhase: resources
+      - path: ImposterGame/Resources/CategoryIcons
+        buildPhase: resources
       - path: ImposterGame/GoogleService-Info.plist
         buildPhase: resources
     settings:

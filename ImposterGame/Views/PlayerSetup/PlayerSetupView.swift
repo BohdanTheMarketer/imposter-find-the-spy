@@ -154,9 +154,10 @@ struct PlayerSetupView: View {
                     ScrollView {
                         LazyVStack(spacing: 10) {
                             ForEach(players) { entry in
-                                if players.firstIndex(where: { $0.id == entry.id }) != nil {
+                                if let index = players.firstIndex(where: { $0.id == entry.id }) {
                                     PlayerRow(
                                         name: entry.name,
+                                        index: index,
                                         canDelete: true,
                                         onDelete: {
                                             withAnimation(.easeInOut(duration: 0.2)) {
@@ -606,11 +607,14 @@ struct PlayerOptionsSheet: View {
 
 struct PlayerRow: View {
     let name: String
+    let index: Int
     let canDelete: Bool
     let onDelete: () -> Void
 
     var body: some View {
         HStack(spacing: 14) {
+            PlayerAvatarThumbnailView(avatarIndex: index, size: 44, cornerRadius: 22)
+
             Text(name)
                 .font(.evolventa(size: 17, weight: .medium))
                 .foregroundColor(.white)
@@ -631,4 +635,21 @@ struct PlayerRow: View {
         .background(Color.gameplaySurface)
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
+}
+
+#Preview("Player row") {
+    VStack(spacing: 10) {
+        PlayerRow(name: "Alex", index: 0, canDelete: true, onDelete: {})
+        PlayerRow(name: "Jordan", index: 5, canDelete: true, onDelete: {})
+        PlayerRow(name: "Sam", index: 11, canDelete: false, onDelete: {})
+    }
+    .padding()
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(
+        LinearGradient(
+            colors: [Color(red: 0.45, green: 0.12, blue: 0.18), Color(red: 0.2, green: 0.05, blue: 0.12)],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+    )
 }

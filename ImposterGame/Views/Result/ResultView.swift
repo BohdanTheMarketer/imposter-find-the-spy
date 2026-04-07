@@ -112,14 +112,11 @@ struct ResultView: View {
                                 // Show the imposter(s)
                                 ForEach(imposters) { imposter in
                                     VStack(spacing: 8) {
-                                        ZStack {
-                                            RoundedRectangle(cornerRadius: 16)
-                                                .fill(AvatarColors.color(for: imposter.avatarIndex))
-                                                .frame(width: 120, height: 120)
-
-                                            Text(PlayerAvatars.avatar(for: imposter.avatarIndex))
-                                                .font(.evolventa(size: 60))
-                                        }
+                                        PlayerAvatarThumbnailView(
+                                            avatarIndex: imposter.avatarIndex,
+                                            size: 120,
+                                            cornerRadius: 16
+                                        )
 
                                         Text(imposter.name)
                                             .font(.evolventa(size: 16, weight: .semibold))
