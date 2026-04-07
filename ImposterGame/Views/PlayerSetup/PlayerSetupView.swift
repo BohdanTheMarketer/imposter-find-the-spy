@@ -2,6 +2,7 @@ import FirebaseAnalytics
 import FirebaseInstallations
 import SwiftUI
 import UIKit
+import Combine
 
 struct PlayerEntry: Identifiable {
     let id = UUID()
@@ -16,9 +17,12 @@ struct PlayerSetupView: View {
     @State private var showOptionsMenu = false
     /// Bumped to programmatically focus the UIKit name field (see `PlayerNameEntryField`).
     @State private var nameFieldFocusToken = 0
+    @State private var keyboardHeight: CGFloat = 0
+    private let inputRowScrollId = "player-input-row"
 
     private let minPlayers = 3
     private let maxPlayers = 15
+    private let maxNameLength = 24
 
     private var validPlayerNames: [String] {
         players.map { $0.name.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
@@ -36,83 +40,83 @@ struct PlayerSetupView: View {
     }
 
     @ViewBuilder
-    private var bottomChrome: some View {
-        VStack(spacing: 16) {
-            if players.count < maxPlayers {
-                HStack(spacing: 12) {
-                    PlayerNameEntryField(
-                        text: $newPlayerName,
-                        placeholder: "Enter player name",
-                        onCommit: addPlayer,
-                        focusToken: nameFieldFocusToken
-                    )
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 14)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
-                    .background(Color.gameplaySurface)
-                    .clipShape(RoundedRectangle(cornerRadius: 25))
+    private var nameInputSection: some View {
+        if players.count < maxPlayers {
+            HStack(spacing: 12) {
+                PlayerNameEntryField(
+                    text: $newPlayerName,
+                    placeholder: "Enter player name",
+                    onCommit: addPlayer,
+                    focusToken: nameFieldFocusToken,
+                    maxLength: maxNameLength
+                )
+                .padding(.horizontal, 16)
+                .padding(.vertical, 14)
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
+                .background(Color.gameplaySurface)
+                .clipShape(RoundedRectangle(cornerRadius: 25))
 
-                    Button(action: addPlayer) {
-                        Image(systemName: "plus")
+                Button(action: addPlayer) {
+                    Image(systemName: "plus")
+                        .font(.evolventa(size: 20, weight: .bold))
+                        .foregroundColor(.white)
+                        .frame(width: 50, height: 50)
+                }
+                .buttonStyle(GameplayRoundIconButtonStyle())
+                .disabled(newPlayerName.trimmingCharacters(in: .whitespaces).isEmpty)
+                .opacity(newPlayerName.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1.0)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var actionSection: some View {
+        Group {
+            if validPlayerCount >= minPlayers {
+                Button(action: {
+                    guard canContinue else {
+                        HapticsManager.notification(.warning)
+                        return
+                    }
+
+                    HapticsManager.impact(.medium)
+                    PlayerSetupKeyboard.dismiss()
+                    setupPlayers()
+                    router.navigate(to: .categories)
+                }) {
+                    HStack(spacing: 14) {
+                        Text("CONTINUE")
                             .font(.evolventa(size: 20, weight: .bold))
                             .foregroundColor(.white)
-                            .frame(width: 50, height: 50)
+                        Rectangle()
+                            .fill(Color.white.opacity(0.35))
+                            .frame(width: 1, height: 26)
+                        Text(playerCountLabel)
+                            .font(.evolventa(size: 20, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.85))
                     }
-                    .buttonStyle(GameplayRoundIconButtonStyle())
-                    .disabled(newPlayerName.trimmingCharacters(in: .whitespaces).isEmpty)
-                    .opacity(newPlayerName.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1.0)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 56)
+                    .background(Color.gameplayButtonPrimary)
+                    .clipShape(RoundedRectangle(cornerRadius: 28))
                 }
-                .padding(.horizontal, 20)
+                .opacity(canContinue ? 1.0 : 0.85)
+            } else {
+                Text("Minimum 3 players to start a game")
+                    .font(.evolventa(size: 15, weight: .medium))
+                    .foregroundColor(.white.opacity(0.75))
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 56)
             }
-
-            Group {
-                if validPlayerCount >= minPlayers {
-                    Button(action: {
-                        guard canContinue else {
-                            HapticsManager.notification(.warning)
-                            return
-                        }
-
-                        HapticsManager.impact(.medium)
-                        PlayerSetupKeyboard.dismiss()
-                        setupPlayers()
-                        router.navigate(to: .categories)
-                    }) {
-                        HStack(spacing: 14) {
-                            Text("CONTINUE")
-                                .font(.evolventa(size: 20, weight: .bold))
-                                .foregroundColor(.white)
-                            Rectangle()
-                                .fill(Color.white.opacity(0.35))
-                                .frame(width: 1, height: 26)
-                            Text(playerCountLabel)
-                                .font(.evolventa(size: 20, weight: .semibold))
-                                .foregroundColor(.white.opacity(0.85))
-                        }
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(Color.gameplayButtonPrimary)
-                        .clipShape(RoundedRectangle(cornerRadius: 28))
-                    }
-                    .opacity(canContinue ? 1.0 : 0.85)
-                } else {
-                    Text("Minimum 3 players to start a game")
-                        .font(.evolventa(size: 15, weight: .medium))
-                        .foregroundColor(.white.opacity(0.75))
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                }
-            }
-            .padding(.horizontal, 20)
         }
-        .padding(.top, 12)
-        .padding(.bottom, 16)
+        .padding(.horizontal, 20)
     }
 
     var body: some View {
-        ZStack {
+        GeometryReader { geometry in
+            ZStack {
             LinearGradient.gameplayBackground
                 .ignoresSafeArea()
                 .overlay(
@@ -150,10 +154,9 @@ struct PlayerSetupView: View {
                     ScrollView {
                         LazyVStack(spacing: 10) {
                             ForEach(players) { entry in
-                                if let index = players.firstIndex(where: { $0.id == entry.id }) {
+                                if players.firstIndex(where: { $0.id == entry.id }) != nil {
                                     PlayerRow(
                                         name: entry.name,
-                                        index: index,
                                         canDelete: true,
                                         onDelete: {
                                             withAnimation(.easeInOut(duration: 0.2)) {
@@ -165,6 +168,9 @@ struct PlayerSetupView: View {
                                     .id(entry.id)
                                 }
                             }
+
+                            nameInputSection
+                                .id(inputRowScrollId)
                         }
                         .padding(.horizontal, 20)
                         .padding(.bottom, 8)
@@ -181,9 +187,14 @@ struct PlayerSetupView: View {
                         scrollToLastPlayer(using: proxy)
                     }
                 }
+
+                VStack(spacing: 12) {
+                    actionSection
+                }
+                .padding(.top, 12)
+                .padding(.bottom, 16)
+                    .padding(.bottom, bottomChromeBottomPadding(safeAreaBottom: geometry.safeAreaInsets.bottom))
             }
-            .safeAreaInset(edge: .bottom, spacing: 0) {
-                bottomChrome
             }
         }
         .navigationBarHidden(true)
@@ -206,13 +217,27 @@ struct PlayerSetupView: View {
                 PlayerSetupKeyboard.dismiss()
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillChangeFrameNotification)) { notification in
+            updateKeyboardHeight(from: notification)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+            keyboardHeight = 0
+        }
     }
 
     private func scrollToLastPlayer(using proxy: ScrollViewProxy) {
-        guard let lastId = players.last?.id else { return }
+        let targetId: AnyHashable
+        if players.count < maxPlayers {
+            targetId = inputRowScrollId
+        } else if let lastId = players.last?.id {
+            targetId = lastId
+        } else {
+            return
+        }
+
         DispatchQueue.main.async {
             withAnimation(.easeOut(duration: 0.25)) {
-                proxy.scrollTo(lastId, anchor: .bottom)
+                proxy.scrollTo(targetId, anchor: .bottom)
             }
         }
     }
@@ -220,19 +245,72 @@ struct PlayerSetupView: View {
     private func addPlayer() {
         let trimmed = newPlayerName.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty, players.count < maxPlayers else { return }
-
-        // Check for duplicates
-        let isDuplicate = players.contains { $0.name.lowercased().trimmingCharacters(in: .whitespaces) == trimmed.lowercased() }
-        if isDuplicate {
+        guard trimmed.count <= maxNameLength else {
             HapticsManager.notification(.warning)
+            newPlayerName = String(trimmed.prefix(maxNameLength))
             return
         }
 
+        let uniqueName = nextAvailableName(from: trimmed)
+
         withAnimation(.easeInOut(duration: 0.2)) {
-            players.append(PlayerEntry(name: trimmed))
+            players.append(PlayerEntry(name: uniqueName))
         }
         newPlayerName = ""
         HapticsManager.impact(.light)
+    }
+
+    /// If entered name already exists, append an incrementing suffix: "Name 2", "Name 3", ...
+    private func nextAvailableName(from rawName: String) -> String {
+        let name = rawName.trimmingCharacters(in: .whitespaces)
+        let (baseName, enteredSuffix) = splitNameAndSuffix(name)
+        let normalizedBase = baseName.lowercased()
+        guard !normalizedBase.isEmpty else { return name }
+
+        var maxUsedSuffix = 0
+        for entry in players {
+            let existing = entry.name.trimmingCharacters(in: .whitespaces)
+            let (existingBase, existingSuffix) = splitNameAndSuffix(existing)
+            guard existingBase.lowercased() == normalizedBase else { continue }
+            maxUsedSuffix = max(maxUsedSuffix, existingSuffix ?? 1)
+        }
+
+        if maxUsedSuffix == 0 {
+            return name
+        }
+
+        let requestedSuffix = enteredSuffix ?? 1
+        let nextSuffix = max(maxUsedSuffix + 1, requestedSuffix)
+        return "\(baseName) \(nextSuffix)"
+    }
+
+    private func splitNameAndSuffix(_ value: String) -> (base: String, suffix: Int?) {
+        let trimmed = value.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return ("", nil) }
+
+        let parts = trimmed.split(separator: " ", omittingEmptySubsequences: true)
+        guard let last = parts.last, let suffix = Int(last), parts.count > 1 else {
+            return (trimmed, nil)
+        }
+
+        let base = parts.dropLast().joined(separator: " ")
+        return (base.trimmingCharacters(in: .whitespaces), suffix)
+    }
+
+    /// Keeps bottom controls above keyboard while preserving normal spacing.
+    private func bottomChromeBottomPadding(safeAreaBottom: CGFloat) -> CGFloat {
+        guard keyboardHeight > 0 else { return 16 }
+        return max(16, keyboardHeight - safeAreaBottom + 8)
+    }
+
+    private func updateKeyboardHeight(from notification: Notification) {
+        guard
+            let userInfo = notification.userInfo,
+            let frame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect
+        else { return }
+
+        let overlap = max(0, UIScreen.main.bounds.height - frame.minY)
+        keyboardHeight = overlap
     }
 
     private func setupPlayers() {
@@ -261,6 +339,7 @@ private struct PlayerNameEntryField: UIViewRepresentable {
     var placeholder: String
     var onCommit: () -> Void
     var focusToken: Int
+    var maxLength: Int
 
     func makeCoordinator() -> Coordinator {
         Coordinator()
@@ -310,6 +389,17 @@ private struct PlayerNameEntryField: UIViewRepresentable {
         func textFieldShouldReturn(_ textField: UITextField) -> Bool {
             parent.onCommit()
             return false
+        }
+
+        func textField(
+            _ textField: UITextField,
+            shouldChangeCharactersIn range: NSRange,
+            replacementString string: String
+        ) -> Bool {
+            let currentText = textField.text ?? ""
+            guard let textRange = Range(range, in: currentText) else { return true }
+            let updatedText = currentText.replacingCharacters(in: textRange, with: string)
+            return updatedText.count <= parent.maxLength
         }
     }
 }
@@ -516,19 +606,11 @@ struct PlayerOptionsSheet: View {
 
 struct PlayerRow: View {
     let name: String
-    let index: Int
     let canDelete: Bool
     let onDelete: () -> Void
 
     var body: some View {
         HStack(spacing: 14) {
-            // Avatar
-            Text(PlayerAvatars.avatar(for: index))
-                .font(.evolventa(size: 28))
-                .frame(width: 44, height: 44)
-                .background(AvatarColors.color(for: index))
-                .clipShape(Circle())
-
             Text(name)
                 .font(.evolventa(size: 17, weight: .medium))
                 .foregroundColor(.white)
