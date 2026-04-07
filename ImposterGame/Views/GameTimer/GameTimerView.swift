@@ -50,7 +50,7 @@ struct GameTimerView: View {
                 // Starting player info
                 VStack(spacing: 4) {
                     Text("\(gameSession.startingPlayerIndex + 1)")
-                        .font(.evolventa(size: 40, weight: .black))
+                        .font(.evolventa(size: 40, weight: .bold))
                         .foregroundColor(.white)
 
                     Text("Starts Asking!")
@@ -67,7 +67,7 @@ struct GameTimerView: View {
                         .foregroundColor(.gameplayTitle)
 
                     Text(formattedTime)
-                        .font(.evolventa(size: 72, weight: .black))
+                        .font(.evolventa(size: 72, weight: .bold))
                         .foregroundColor(.white)
                         .monospacedDigit()
                 }

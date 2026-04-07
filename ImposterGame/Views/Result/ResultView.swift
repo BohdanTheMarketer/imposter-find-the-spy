@@ -58,7 +58,7 @@ struct ResultView: View {
                 ForEach(0..<intrigueTexts.count, id: \.self) { index in
                     if index <= intrigueTextIndex {
                         Text(intrigueTexts[index])
-                            .font(.evolventa(size: 48, weight: .black))
+                            .font(.evolventa(size: 48, weight: .bold))
                             .foregroundColor(.white)
                             .transition(.opacity.combined(with: .move(edge: .leading)))
                     }
@@ -165,7 +165,7 @@ struct ResultView: View {
                     }) {
                         HStack(spacing: 8) {
                             Text("PLAY AGAIN")
-                                .font(.evolventa(size: 20, weight: .black))
+                                .font(.evolventa(size: 20, weight: .bold))
                             Image(systemName: "arrow.counterclockwise")
                                 .font(.evolventa(size: 18, weight: .bold))
                         }

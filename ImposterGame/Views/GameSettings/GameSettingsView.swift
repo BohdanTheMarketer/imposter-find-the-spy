@@ -47,13 +47,13 @@ struct GameSettingsView: View {
             }) {
                 HStack(spacing: 10) {
                     Text("PLAY")
-                        .font(.evolventa(size: 18, weight: .black))
+                        .font(.evolventa(size: 18, weight: .bold))
                         .foregroundColor(.white)
                     Text("|")
-                        .font(.evolventa(size: 14, weight: .black))
+                        .font(.evolventa(size: 14, weight: .bold))
                         .foregroundColor(.white.opacity(0.65))
                     Text(imposterCountLabel)
-                        .font(.evolventa(size: 18, weight: .black))
+                        .font(.evolventa(size: 18, weight: .bold))
                         .foregroundColor(.white)
                 }
                 .padding(.horizontal, 26)
@@ -110,7 +110,7 @@ struct GameSettingsView: View {
             Spacer()
 
             Text("Game Settings")
-                .font(.evolventa(size: 30, weight: .black))
+                .font(.evolventa(size: 30, weight: .bold))
                 .foregroundColor(.gameplayTitle)
 
             Spacer()
@@ -125,7 +125,7 @@ struct GameSettingsView: View {
     private var impostersCard: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("Imposters")
-                .font(.evolventa(size: 26, weight: .black))
+                .font(.evolventa(size: 26, weight: .bold))
                 .foregroundColor(.white)
 
             Text("How many players should be secret imposters?")
@@ -176,7 +176,7 @@ struct GameSettingsView: View {
     private var roundDurationCard: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("Round Duration")
-                .font(.evolventa(size: 26, weight: .black))
+                .font(.evolventa(size: 26, weight: .bold))
                 .foregroundColor(.white)
 
             Text("How long should each discussion round last?")
@@ -225,7 +225,7 @@ struct GameSettingsView: View {
     private var hintsCard: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Hints for Imposters")
-                .font(.evolventa(size: 26, weight: .black))
+                .font(.evolventa(size: 26, weight: .bold))
                 .foregroundColor(.white)
 
             Text("Should imposters get a hint about the secret word?")
@@ -249,7 +249,7 @@ struct GameSettingsView: View {
                 HapticsManager.selection()
             } label: {
                 Text("Disabled")
-                    .font(.evolventa(size: 12, weight: .black))
+                    .font(.evolventa(size: 12, weight: .bold))
                     .foregroundColor(hintsEnabled ? .white.opacity(0.55) : .black)
                     .frame(maxWidth: .infinity)
                     .frame(height: 46)
@@ -263,7 +263,7 @@ struct GameSettingsView: View {
                 HapticsManager.selection()
             } label: {
                 Text("Enabled")
-                    .font(.evolventa(size: 12, weight: .black))
+                    .font(.evolventa(size: 12, weight: .bold))
                     .foregroundColor(hintsEnabled ? .black : .white.opacity(0.55))
                     .frame(maxWidth: .infinity)
                     .frame(height: 46)
