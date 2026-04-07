@@ -70,7 +70,7 @@ struct RoleRevealView: View {
                                 .foregroundColor(.white)
 
                             Text("You are the IMPOSTER")
-                                .font(.evolventa(size: 30, weight: .black))
+                                .font(.evolventa(size: 30, weight: .bold))
                                 .foregroundColor(.white)
                                 .multilineTextAlignment(.center)
 
@@ -94,7 +94,7 @@ struct RoleRevealView: View {
                                 .foregroundColor(.black.opacity(0.8))
 
                             Text(currentPlayer.secretWord)
-                                .font(.evolventa(size: 42, weight: .black))
+                                .font(.evolventa(size: 42, weight: .bold))
                                 .foregroundColor(.black)
                                 .multilineTextAlignment(.center)
                                 .minimumScaleFactor(0.6)
@@ -131,7 +131,7 @@ struct RoleRevealView: View {
                 .padding(.top, 16)
 
                 Text("\(currentIndex + 1)")
-                    .font(.evolventa(size: 40, weight: .black))
+                    .font(.evolventa(size: 40, weight: .bold))
                     .foregroundColor(.white)
 
                 Spacer()
@@ -167,7 +167,7 @@ struct RoleRevealView: View {
                             continueTapped()
                         }) {
                             Text(isLastPlayer ? "Start Game" : "Continue")
-                                .font(.evolventa(size: 20, weight: .black))
+                                .font(.evolventa(size: 20, weight: .bold))
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 62)

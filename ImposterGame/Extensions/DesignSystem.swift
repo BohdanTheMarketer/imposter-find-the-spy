@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 // MARK: - Colors
 extension Color {
@@ -157,7 +158,11 @@ extension Font {
             || weight == .heavy
             || weight == .black
         let postScriptName = isBold ? "Evolventa-Bold" : "Evolventa-Regular"
-        return .custom(postScriptName, size: size)
+        // If bundled font files are missing, preserve intended visual hierarchy with weighted system fallback.
+        if UIFont(name: postScriptName, size: size) != nil {
+            return .custom(postScriptName, size: size)
+        }
+        return .system(size: size, weight: weight)
     }
 }
 

@@ -91,7 +91,7 @@ struct CategoryPaywallView: View {
 
     private var titleBlock: some View {
         Text("Continue to get\nfull access")
-            .font(.evolventa(size: 50, weight: .heavy))
+            .font(.evolventa(size: 50, weight: .bold))
             .minimumScaleFactor(0.6)
             .multilineTextAlignment(.center)
             .foregroundColor(.white)
@@ -142,7 +142,7 @@ struct CategoryPaywallView: View {
                     .padding(.leading, 44)
 
                 Text("0 USD due today \u{2022} 3 days FREE")
-                    .font(.evolventa(size: 16, weight: .heavy))
+                    .font(.evolventa(size: 16, weight: .bold))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.leading, 44)
@@ -229,7 +229,7 @@ struct CategoryPaywallView: View {
         }) {
             HStack {
                 Text(isTrialEnabled ? "Try it for Free" : "Continue")
-                    .font(.evolventa(size: 19.5, weight: .heavy))
+                    .font(.evolventa(size: 19.5, weight: .bold))
                     .foregroundColor(.white)
                 Spacer()
                 Image(systemName: "arrow.right")
