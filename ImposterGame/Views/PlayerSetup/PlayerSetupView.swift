@@ -409,16 +409,17 @@ private struct PlayerNameEntryField: UIViewRepresentable {
 private enum PlayerOptionsLinks {
     /// Replace with your App Store support email before release.
     static let contactEmail = "support@example.com"
-    /// Replace with live URLs when available.
-    static let privacyURL = URL(string: "https://example.com/privacy")
-    static let termsURL = URL(string: "https://example.com/terms")
+    static let privacyURL = URL(string: "https://www.verte-bro.com/privacy-policy")
+    static let termsURL = URL(string: "https://www.verte-bro.com/terms-and-conditions")
 }
 
 struct PlayerOptionsSheet: View {
     @Binding var isPresented: Bool
-    @State private var vibrationOn = HapticsManager.isEnabled
     @State private var firebaseInstallationId: String = ""
     @State private var isLoadingFirebaseId = true
+    @State private var didCopyUDID = false
+    @State private var toastMessage = ""
+    @State private var showToast = false
 
     var body: some View {
         ZStack {
@@ -436,33 +437,26 @@ struct PlayerOptionsSheet: View {
                     .padding(.top, 28)
                     .padding(.bottom, 20)
 
-                VStack(spacing: 0) {
+                VStack(spacing: 10) {
                     optionRow(title: "Language", systemImage: "globe") {
                         openURLString(UIApplication.openSettingsURLString)
                     }
-                    Divider().background(Color.white.opacity(0.2))
                     optionRow(title: "Contact Us", systemImage: "envelope") {
                         if let url = URL(string: "mailto:\(PlayerOptionsLinks.contactEmail)") {
                             UIApplication.shared.open(url)
                         }
                     }
-                    Divider().background(Color.white.opacity(0.2))
-                    optionRow(title: "Privacy", systemImage: "shield") {
+                    optionRow(title: "Privacy Policy", systemImage: "shield") {
                         if let url = PlayerOptionsLinks.privacyURL {
                             UIApplication.shared.open(url)
                         }
                     }
-                    Divider().background(Color.white.opacity(0.2))
-                    optionRow(title: "Terms of Use", systemImage: "doc.text") {
+                    optionRow(title: "Terms & Conditions", systemImage: "doc.text") {
                         if let url = PlayerOptionsLinks.termsURL {
                             UIApplication.shared.open(url)
                         }
                     }
-                    Divider().background(Color.white.opacity(0.2))
-                    vibrationRow
                 }
-                .background(Color.white.opacity(0.08))
-                .clipShape(RoundedRectangle(cornerRadius: 16))
                 .padding(.horizontal, 20)
 
                 firebaseInstallationIdRow
@@ -486,8 +480,21 @@ struct PlayerOptionsSheet: View {
             }
         }
         .onAppear {
-            vibrationOn = HapticsManager.isEnabled
             loadFirebaseInstallationID()
+        }
+        .overlay(alignment: .topLeading) {
+            if showToast {
+                Text(toastMessage)
+                    .font(.evolventa(size: 13, weight: .semibold))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .background(Color.black.opacity(0.82))
+                    .clipShape(Capsule())
+                    .padding(.top, 230)
+                    .padding(.leading, 30)
+                    .transition(.offset(y: -8).combined(with: .opacity))
+            }
         }
         .presentationDetents([.fraction(0.62), .large])
         .presentationDragIndicator(.visible)
@@ -502,21 +509,19 @@ struct PlayerOptionsSheet: View {
 
         return Button(action: copyFirebaseInstallationID) {
             HStack(alignment: .center, spacing: 12) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Firebase Installation ID")
-                        .font(.evolventa(size: 10, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.45))
-                    Text(valueText)
-                        .font(.system(size: 11, weight: .regular, design: .monospaced))
-                        .foregroundColor(.white.opacity(0.55))
-                        .lineLimit(1)
-                        .truncationMode(.middle)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-                Image(systemName: "doc.on.doc")
-                    .font(.evolventa(size: 16, weight: .semibold))
+                Text("UDID:")
+                    .font(.evolventa(size: 12, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.6))
+                Text(valueText)
+                    .font(.system(size: 11, weight: .regular, design: .monospaced))
                     .foregroundColor(.white.opacity(0.55))
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                Image(systemName: didCopyUDID ? "checkmark.circle.fill" : "doc.on.doc")
+                    .font(.evolventa(size: 16, weight: .semibold))
+                    .foregroundColor(didCopyUDID ? .green.opacity(0.9) : .white.opacity(0.55))
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
@@ -524,8 +529,7 @@ struct PlayerOptionsSheet: View {
             .background(Color.white.opacity(0.06))
             .clipShape(RoundedRectangle(cornerRadius: 12))
         }
-        .buttonStyle(.plain)
-        .disabled(isLoadingFirebaseId || firebaseInstallationId.isEmpty)
+        .buttonStyle(OptionsRowButtonStyle())
         .padding(.horizontal, 20)
         .padding(.top, 16)
     }
@@ -547,34 +551,28 @@ struct PlayerOptionsSheet: View {
     }
 
     private func copyFirebaseInstallationID() {
-        guard !firebaseInstallationId.isEmpty else { return }
-        UIPasteboard.general.string = firebaseInstallationId
-        HapticsManager.impact(.light)
-    }
-
-    private var vibrationRow: some View {
-        HStack {
-            Text("Vibration")
-                .font(.evolventa(size: 17, weight: .semibold))
-                .foregroundColor(.white)
-            Spacer()
-            Image(systemName: "iphone.radiowaves.left.and.right")
-                .font(.evolventa(size: 20, weight: .regular))
-                .foregroundColor(.white.opacity(0.9))
-                .padding(.trailing, 8)
-            Toggle("", isOn: $vibrationOn)
-                .labelsHidden()
-                .tint(.green)
-                .onChange(of: vibrationOn) { newValue in
-                    HapticsManager.isEnabled = newValue
-                    if newValue {
-                        HapticsManager.impact(.light)
-                    }
-                }
+        guard !isLoadingFirebaseId else {
+            showToast(message: "UDID is still loading. Try again in a moment.")
+            HapticsManager.notification(.warning)
+            return
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 14)
-        .contentShape(Rectangle())
+        guard !firebaseInstallationId.isEmpty else {
+            showToast(message: "UDID is unavailable right now.")
+            HapticsManager.notification(.warning)
+            return
+        }
+        UIPasteboard.general.string = firebaseInstallationId
+        didCopyUDID = UIPasteboard.general.string == firebaseInstallationId
+        if didCopyUDID {
+            showToast(message: "UDID copied")
+            HapticsManager.impact(.light)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                didCopyUDID = false
+            }
+        } else {
+            showToast(message: "Could not copy UDID")
+            HapticsManager.notification(.warning)
+        }
     }
 
     private func optionRow(title: String, systemImage: String, action: @escaping () -> Void) -> some View {
@@ -594,13 +592,40 @@ struct PlayerOptionsSheet: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
             .contentShape(Rectangle())
+            .background(Color.white.opacity(0.08))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(OptionsRowButtonStyle())
     }
 
     private func openURLString(_ string: String) {
         guard let url = URL(string: string) else { return }
         UIApplication.shared.open(url)
+    }
+
+    private func showToast(message: String) {
+        toastMessage = message
+        withAnimation(.easeOut(duration: 0.18)) {
+            showToast = true
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            withAnimation(.easeIn(duration: 0.18)) {
+                showToast = false
+            }
+        }
+    }
+
+    private struct OptionsRowButtonStyle: ButtonStyle {
+        func makeBody(configuration: Configuration) -> some View {
+            configuration.label
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.white.opacity(configuration.isPressed ? 0.55 : 0.0), lineWidth: 1.5)
+                )
+                .scaleEffect(configuration.isPressed ? 0.975 : 1.0)
+                .opacity(configuration.isPressed ? 0.68 : 1.0)
+                .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+        }
     }
 }
 
