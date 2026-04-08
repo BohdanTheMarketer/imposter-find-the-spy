@@ -188,10 +188,25 @@ enum PlayerProfiles {
 
     /// Loads bundled portrait for role-reveal: prefers `VV*` art, then `player_*` (same slot order).
     static func roleRevealUIImage(for avatarIndex: Int) -> UIImage? {
-        if let vv = UIImage(named: roleRevealPortraitName(for: avatarIndex)) {
+        if let vv = loadBundledImage(named: roleRevealPortraitName(for: avatarIndex)) {
             return vv
         }
-        return UIImage(named: bundleImageName(for: avatarIndex))
+        return loadBundledImage(named: bundleImageName(for: avatarIndex))
+    }
+
+    /// Loads avatar image by basename across common image extensions.
+    /// This is resilient when project resources were renamed (e.g. png -> jpg).
+    static func loadBundledImage(named baseName: String) -> UIImage? {
+        if let image = UIImage(named: baseName) {
+            return image
+        }
+        for ext in ["jpg", "jpeg", "png"] {
+            if let url = Bundle.main.url(forResource: baseName, withExtension: ext),
+               let image = UIImage(contentsOfFile: url.path) {
+                return image
+            }
+        }
+        return nil
     }
 }
 
@@ -230,7 +245,7 @@ struct PlayerAvatarThumbnailView: View {
         ZStack {
             RoundedRectangle(cornerRadius: cornerRadius)
                 .fill(AvatarColors.color(for: avatarIndex))
-            if let ui = UIImage(named: PlayerProfiles.bundleImageName(for: avatarIndex)) {
+            if let ui = PlayerProfiles.loadBundledImage(named: PlayerProfiles.bundleImageName(for: avatarIndex)) {
                 Image(uiImage: ui)
                     .renderingMode(.original)
                     .resizable()
@@ -252,7 +267,7 @@ struct PlayerAvatarSquareTileView: View {
         ZStack {
             RoundedRectangle(cornerRadius: cornerRadius)
                 .fill(AvatarColors.color(for: avatarIndex))
-            if let ui = UIImage(named: PlayerProfiles.bundleImageName(for: avatarIndex)) {
+            if let ui = PlayerProfiles.loadBundledImage(named: PlayerProfiles.bundleImageName(for: avatarIndex)) {
                 Image(uiImage: ui)
                     .renderingMode(.original)
                     .resizable()
