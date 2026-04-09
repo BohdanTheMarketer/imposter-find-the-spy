@@ -6,6 +6,7 @@ struct RoleRevealView: View {
     @State private var dragOffset: CGFloat = 0
     @State private var hasSeenCurrentWord = false
     @State private var currentIndex = 0
+    @State private var revealScreenColor: Color = AvatarColors.color(for: 0)
 
     private var currentPlayer: Player {
         guard currentIndex < gameSession.players.count else {
@@ -24,10 +25,6 @@ struct RoleRevealView: View {
         return gameSession.players[nextIdx]
     }
 
-    private var revealColor: Color {
-        AvatarColors.color(for: currentPlayer.avatarIndex)
-    }
-
     private var currentImposterHint: String? {
         guard currentPlayer.isImposter else { return nil }
         let hint = currentPlayer.secretWord.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -36,8 +33,8 @@ struct RoleRevealView: View {
 
     var body: some View {
         ZStack {
-            // Background color
-            revealColor
+            // Background matches sampled portrait backdrop when possible.
+            revealScreenColor
                 .ignoresSafeArea()
 
             roleRevealContent
@@ -49,6 +46,10 @@ struct RoleRevealView: View {
             currentIndex = 0
             dragOffset = 0
             hasSeenCurrentWord = false
+            syncRevealBackdrop()
+        }
+        .onChange(of: currentIndex) { _ in
+            syncRevealBackdrop()
         }
     }
 
@@ -57,43 +58,52 @@ struct RoleRevealView: View {
         ZStack {
             // Revealed content underneath the top card.
             ZStack {
-                (currentPlayer.isImposter ? Color.black : revealColor)
+                (currentPlayer.isImposter ? Color.black : revealScreenColor)
                     .ignoresSafeArea()
 
                 VStack {
                     Spacer()
 
-                    VStack(spacing: 14) {
-                        PlayerAvatarThumbnailView(
-                            avatarIndex: currentPlayer.avatarIndex,
-                            size: 96,
-                            cornerRadius: 48
-                        )
-
+                    VStack(spacing: 18) {
                         if currentPlayer.isImposter {
-                            Image(systemName: "person.fill.questionmark")
-                                .font(.evolventa(size: 56, weight: .bold))
-                                .foregroundColor(.white)
+                            ImposterRevealBrandMark()
 
-                            Text("You are the IMPOSTER")
-                                .font(.evolventa(size: 30, weight: .bold))
-                                .foregroundColor(.white)
-                                .multilineTextAlignment(.center)
+                            VStack(spacing: 6) {
+                                Text("You are the")
+                                    .font(.evolventa(size: 20, weight: .semibold))
+                                    .foregroundColor(.white.opacity(0.88))
 
-                                // Show the imposter hint only after the swipe-up reveal interaction.
-                                if hasSeenCurrentWord, let hint = currentImposterHint {
-                                    VStack(spacing: 6) {
-                                        Text("Imposter hint")
-                                            .font(.evolventa(size: 16, weight: .bold))
-                                            .foregroundColor(.white.opacity(0.92))
-                                        Text(hint)
-                                            .font(.evolventa(size: 18, weight: .semibold))
-                                            .foregroundColor(.white)
-                                            .multilineTextAlignment(.center)
-                                            .lineLimit(3)
-                                    }
-                                    .padding(.top, 6)
+                                Text("IMPOSTER")
+                                    .font(.evolventa(size: 34, weight: .bold))
+                                    .foregroundStyle(
+                                        LinearGradient(
+                                            colors: [
+                                                Color(red: 1.0, green: 0.35, blue: 0.38),
+                                                Color(red: 0.92, green: 0.12, blue: 0.2),
+                                                Color(red: 0.72, green: 0.06, blue: 0.12)
+                                            ],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .shadow(color: Color.red.opacity(0.45), radius: 12, x: 0, y: 0)
+                                    .multilineTextAlignment(.center)
+                            }
+
+                            // Show the imposter hint only after the swipe-up reveal interaction.
+                            if hasSeenCurrentWord, let hint = currentImposterHint {
+                                VStack(spacing: 8) {
+                                    Text("Imposter hint")
+                                        .font(.evolventa(size: 16, weight: .bold))
+                                        .foregroundColor(Color(red: 0.98, green: 0.45, blue: 0.48))
+                                    Text(hint)
+                                        .font(.evolventa(size: 18, weight: .semibold))
+                                        .foregroundColor(.white.opacity(0.95))
+                                        .multilineTextAlignment(.center)
+                                        .lineLimit(3)
                                 }
+                                .padding(.top, 8)
+                            }
                         } else {
                             Text("Your secret word is:")
                                 .font(.evolventa(size: 18, weight: .semibold))
@@ -117,7 +127,7 @@ struct RoleRevealView: View {
 
             // Cover (draggable): centered portrait with top/bottom chrome overlaid.
             ZStack {
-                revealColor
+                revealScreenColor
 
                 Group {
                     if let portrait = PlayerProfiles.roleRevealUIImage(for: currentPlayer.avatarIndex) {
@@ -153,6 +163,7 @@ struct RoleRevealView: View {
                     Text("\(currentIndex + 1)")
                         .font(.evolventa(size: 40, weight: .black))
                         .foregroundColor(.white)
+                        .padding(.top, 14)
 
                     Spacer()
                     VStack(spacing: 10) {
@@ -233,6 +244,111 @@ struct RoleRevealView: View {
             currentIndex += 1
             dragOffset = 0
             hasSeenCurrentWord = false
+        }
+    }
+
+    private func syncRevealBackdrop() {
+        let fallback = AvatarColors.color(for: currentPlayer.avatarIndex)
+        if let ui = PlayerProfiles.roleRevealUIImage(for: currentPlayer.avatarIndex),
+           let sampled = ui.portraitBackdropColor() {
+            revealScreenColor = sampled
+        } else {
+            revealScreenColor = fallback
+        }
+    }
+}
+
+// MARK: - Imposter brand (role reveal)
+
+/// Vector mark for the imposter role — not a player photo; reads as a disguise / hidden identity.
+private struct ImposterRevealBrandMark: View {
+    private let fillGradient = LinearGradient(
+        colors: [
+            Color(red: 1.0, green: 0.28, blue: 0.32),
+            Color(red: 0.78, green: 0.08, blue: 0.14),
+            Color(red: 0.55, green: 0.02, blue: 0.08)
+        ],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 26, style: .continuous)
+                .fill(fillGradient)
+                .frame(width: 118, height: 118)
+                .shadow(color: Color.red.opacity(0.42), radius: 22, x: 0, y: 10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 26, style: .continuous)
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    Color.white.opacity(0.35),
+                                    Color.white.opacity(0.06)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1.5
+                        )
+                )
+
+            // Hood + anonymous “visor” silhouette (white on red).
+            ImposterMarkGlyph()
+                .frame(width: 72, height: 72)
+        }
+        .accessibilityLabel("Imposter")
+    }
+}
+
+private struct ImposterMarkGlyph: View {
+    var body: some View {
+        Canvas { context, size in
+            let w = size.width
+            let h = size.height
+            let hood = Path { p in
+                p.move(to: CGPoint(x: w * 0.12, y: h * 0.72))
+                p.addQuadCurve(
+                    to: CGPoint(x: w * 0.5, y: h * 0.08),
+                    control: CGPoint(x: w * 0.02, y: h * 0.32)
+                )
+                p.addQuadCurve(
+                    to: CGPoint(x: w * 0.88, y: h * 0.72),
+                    control: CGPoint(x: w * 0.98, y: h * 0.32)
+                )
+                p.addQuadCurve(
+                    to: CGPoint(x: w * 0.5, y: h * 0.88),
+                    control: CGPoint(x: w * 0.78, y: h * 0.95)
+                )
+                p.addQuadCurve(
+                    to: CGPoint(x: w * 0.12, y: h * 0.72),
+                    control: CGPoint(x: w * 0.22, y: h * 0.95)
+                )
+                p.closeSubpath()
+            }
+            context.fill(hood, with: .color(.white.opacity(0.95)))
+
+            // Visor band — negative space feel
+            let visor = Path { p in
+                p.move(to: CGPoint(x: w * 0.22, y: h * 0.42))
+                p.addQuadCurve(
+                    to: CGPoint(x: w * 0.78, y: h * 0.42),
+                    control: CGPoint(x: w * 0.5, y: h * 0.36)
+                )
+                p.addLine(to: CGPoint(x: w * 0.76, y: h * 0.58))
+                p.addQuadCurve(
+                    to: CGPoint(x: w * 0.24, y: h * 0.58),
+                    control: CGPoint(x: w * 0.5, y: h * 0.64)
+                )
+                p.closeSubpath()
+            }
+            context.fill(visor, with: .color(Color(red: 0.55, green: 0.02, blue: 0.08).opacity(0.92)))
+
+            // Eyes
+            let eyeL = Path(ellipseIn: CGRect(x: w * 0.32, y: h * 0.46, width: w * 0.1, height: h * 0.08))
+            let eyeR = Path(ellipseIn: CGRect(x: w * 0.58, y: h * 0.46, width: w * 0.1, height: h * 0.08))
+            context.fill(eyeL, with: .color(.white.opacity(0.92)))
+            context.fill(eyeR, with: .color(.white.opacity(0.92)))
         }
     }
 }

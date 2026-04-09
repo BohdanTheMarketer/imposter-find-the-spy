@@ -241,20 +241,42 @@ struct PlayerAvatarThumbnailView: View {
     /// Use `size / 2` for a circle.
     var cornerRadius: CGFloat
 
+    @State private var backdropColor: Color?
+
+    private var fillColor: Color {
+        backdropColor ?? AvatarColors.color(for: avatarIndex)
+    }
+
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: cornerRadius)
-                .fill(AvatarColors.color(for: avatarIndex))
-            if let ui = PlayerProfiles.loadBundledImage(named: PlayerProfiles.bundleImageName(for: avatarIndex)) {
-                Image(uiImage: ui)
-                    .renderingMode(.original)
-                    .resizable()
-                    .scaledToFill()
-                    .padding(size * 0.08)
+        GeometryReader { geo in
+            ZStack {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(fillColor)
+                if let ui = PlayerProfiles.loadBundledImage(named: PlayerProfiles.bundleImageName(for: avatarIndex)) {
+                    Image(uiImage: ui)
+                        .renderingMode(.original)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: geo.size.width, height: geo.size.height)
+                        .clipped()
+                }
             }
         }
         .frame(width: size, height: size)
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+        .onAppear { refreshBackdrop() }
+        .onChange(of: avatarIndex) { _ in
+            refreshBackdrop()
+        }
+    }
+
+    private func refreshBackdrop() {
+        let name = PlayerProfiles.bundleImageName(for: avatarIndex)
+        if let ui = PlayerProfiles.loadBundledImage(named: name) {
+            backdropColor = ui.portraitBackdropColor()
+        } else {
+            backdropColor = nil
+        }
     }
 }
 
@@ -263,19 +285,34 @@ struct PlayerAvatarSquareTileView: View {
     let avatarIndex: Int
     var cornerRadius: CGFloat = 16
 
+    @State private var backdropColor: Color?
+
+    private var fillColor: Color {
+        backdropColor ?? AvatarColors.color(for: avatarIndex)
+    }
+
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: cornerRadius)
-                .fill(AvatarColors.color(for: avatarIndex))
-            if let ui = PlayerProfiles.loadBundledImage(named: PlayerProfiles.bundleImageName(for: avatarIndex)) {
-                Image(uiImage: ui)
-                    .renderingMode(.original)
-                    .resizable()
-                    .scaledToFill()
-                    .padding(8)
+        GeometryReader { geo in
+            ZStack {
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .fill(fillColor)
+                if let ui = PlayerProfiles.loadBundledImage(named: PlayerProfiles.bundleImageName(for: avatarIndex)) {
+                    Image(uiImage: ui)
+                        .renderingMode(.original)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: geo.size.width, height: geo.size.height)
+                        .clipped()
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+        }
+        .onAppear {
+            let name = PlayerProfiles.bundleImageName(for: avatarIndex)
+            if let ui = PlayerProfiles.loadBundledImage(named: name) {
+                backdropColor = ui.portraitBackdropColor()
             }
         }
-        .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
     }
 }
 

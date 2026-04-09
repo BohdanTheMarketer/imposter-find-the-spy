@@ -36,18 +36,19 @@ struct OnboardingView: View {
 
     var body: some View {
         ZStack {
-            TabView(selection: $currentPage) {
-                stitchFirstOnboardingPage
-                    .tag(0)
-
-                ForEach(0..<followPages.count, id: \.self) { index in
-                    classicOnboardingPage(followPages[index])
-                        .tag(index + 1)
+            Group {
+                if currentPage == 0 {
+                    stitchFirstOnboardingPage
+                } else if currentPage - 1 < followPages.count {
+                    classicOnboardingPage(followPages[currentPage - 1])
+                } else {
+                    stitchFirstOnboardingPage
                 }
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .ignoresSafeArea()
+            .transition(.opacity)
         }
+        .animation(.easeInOut(duration: 0.35), value: currentPage)
+        .ignoresSafeArea()
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
     }
@@ -210,9 +211,7 @@ struct OnboardingView: View {
     private func advanceFromOnboarding() {
         HapticsManager.impact(.light)
         if currentPage < totalPages - 1 {
-            withAnimation {
-                currentPage += 1
-            }
+            currentPage += 1
         } else {
             subscriptionManager.hasCompletedOnboarding = true
             let next = subscriptionManager.isPremium ? "player_setup" : "paywall"

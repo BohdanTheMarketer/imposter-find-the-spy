@@ -14,19 +14,31 @@ enum HapticsManager {
 
     static func impact(_ style: UIImpactFeedbackGenerator.FeedbackStyle = .medium) {
         guard isEnabled else { return }
+        #if targetEnvironment(simulator)
+        return
+        #else
         let generator = UIImpactFeedbackGenerator(style: style)
         generator.impactOccurred()
+        #endif
     }
 
     static func notification(_ type: UINotificationFeedbackGenerator.FeedbackType) {
         guard isEnabled else { return }
+        #if targetEnvironment(simulator)
+        return
+        #else
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(type)
+        #endif
     }
 
     static func selection() {
         guard isEnabled else { return }
+        #if targetEnvironment(simulator)
+        return
+        #else
         let generator = UISelectionFeedbackGenerator()
         generator.selectionChanged()
+        #endif
     }
 }

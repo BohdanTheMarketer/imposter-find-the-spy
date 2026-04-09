@@ -30,6 +30,7 @@
 		45A43D1562DEECCB83D7F219 /* category_star_fill.png in Resources */ = {isa = PBXBuildFile; fileRef = 12BF0BF73F70CB46376EA1B7 /* category_star_fill.png */; };
 		46E0108931F0555A7A17C613 /* LoaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6F40320211814B166363656 /* LoaderView.swift */; };
 		49BBC3FB9C2FE74F3CE77DEA /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04D6987D9F8031C588CE8E0A /* DesignSystem.swift */; };
+		7F2E9C1DA8B3456789012346 /* UIImage+PortraitBackdrop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F2E9C1DA8B3456789012345 /* UIImage+PortraitBackdrop.swift */; };
 		4A64072DEEC5A71550C496AD /* player_4.png in Resources */ = {isa = PBXBuildFile; fileRef = E89055437F98F40B82E569C7 /* player_4.png */; };
 		4AB082A29A0AA54C222BB64C /* VV4.png in Resources */ = {isa = PBXBuildFile; fileRef = 7328867D918502135E4EFDA7 /* VV4.png */; };
 		4B45873C322DAC732859D437 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8BE02C67520C3F41F354FFC4 /* GoogleService-Info.plist */; };
@@ -98,6 +99,7 @@
 		038CD78E19C18AC9B1222AF7 /* places.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = places.json; sourceTree = "<group>"; };
 		0494CB01BA87AC9B95AB538B /* category_desktopcomputer.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_desktopcomputer.png; sourceTree = "<group>"; };
 		04D6987D9F8031C588CE8E0A /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
+		7F2E9C1DA8B3456789012345 /* UIImage+PortraitBackdrop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+PortraitBackdrop.swift"; sourceTree = "<group>"; };
 		10513D64393ED72C491A7A16 /* category_party_popper.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_party_popper.png; sourceTree = "<group>"; };
 		12BF0BF73F70CB46376EA1B7 /* category_star_fill.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_star_fill.png; sourceTree = "<group>"; };
 		13B5C558F99CCFDBA2EFE8E4 /* category_fork_knife.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_fork_knife.png; sourceTree = "<group>"; };
@@ -243,6 +245,7 @@
 			isa = PBXGroup;
 			children = (
 				04D6987D9F8031C588CE8E0A /* DesignSystem.swift */,
+				7F2E9C1DA8B3456789012345 /* UIImage+PortraitBackdrop.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -628,6 +631,7 @@
 				9404F92E7776D1663BD6F608 /* CategoryPaywallView.swift in Sources */,
 				49BBC3FB9C2FE74F3CE77DEA /* DesignSystem.swift in Sources */,
 				1E686607DFEAE0DC0C1EF8AC /* GameEngine.swift in Sources */,
+				7F2E9C1DA8B3456789012346 /* UIImage+PortraitBackdrop.swift in Sources */,
 				E78372EEC1931B91E618EDC7 /* GameSession.swift in Sources */,
 				97971494481F8B745B8EF99F /* GameSettings.swift in Sources */,
 				B6B8B90417B7852993ED99F1 /* GameSettingsView.swift in Sources */,
@@ -792,6 +796,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				INFOPLIST_KEY_CFBundleDisplayName = Imposter;
+				INFOPLIST_KEY_FirebaseDataCollectionDefaultEnabled = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -808,7 +813,9 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				INFOPLIST_KEY_CFBundleDisplayName = Imposter;
+				INFOPLIST_KEY_FirebaseDataCollectionDefaultEnabled = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

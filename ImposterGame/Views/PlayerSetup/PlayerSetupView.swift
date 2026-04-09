@@ -153,21 +153,19 @@ struct PlayerSetupView: View {
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(spacing: 10) {
-                            ForEach(players) { entry in
-                                if let index = players.firstIndex(where: { $0.id == entry.id }) {
-                                    PlayerRow(
-                                        name: entry.name,
-                                        index: index,
-                                        canDelete: true,
-                                        onDelete: {
-                                            withAnimation(.easeInOut(duration: 0.2)) {
-                                                players.removeAll { $0.id == entry.id }
-                                            }
-                                            HapticsManager.impact(.light)
+                            ForEach(Array(players.enumerated()), id: \.element.id) { index, entry in
+                                PlayerRow(
+                                    name: entry.name,
+                                    avatarIndex: index,
+                                    canDelete: true,
+                                    onDelete: {
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            players.removeAll { $0.id == entry.id }
                                         }
-                                    )
-                                    .id(entry.id)
-                                }
+                                        HapticsManager.impact(.light)
+                                    }
+                                )
+                                .id(entry.id)
                             }
 
                             nameInputSection
@@ -191,6 +189,8 @@ struct PlayerSetupView: View {
 
                 VStack(spacing: 12) {
                     actionSection
+                        .animation(.easeInOut(duration: 0.3), value: validPlayerCount)
+                        .animation(.easeInOut(duration: 0.3), value: canContinue)
                 }
                 .padding(.top, 12)
                 .padding(.bottom, 16)
@@ -200,8 +200,6 @@ struct PlayerSetupView: View {
         }
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
-        .animation(.easeInOut(duration: 0.3), value: validPlayerCount)
-        .animation(.easeInOut(duration: 0.3), value: canContinue)
         .onAppear {
             syncLocalPlayersFromSession()
             let shouldShowKeyboard = players.count < maxPlayers
@@ -632,13 +630,13 @@ struct PlayerOptionsSheet: View {
 
 struct PlayerRow: View {
     let name: String
-    let index: Int
+    let avatarIndex: Int
     let canDelete: Bool
     let onDelete: () -> Void
 
     var body: some View {
         HStack(spacing: 14) {
-            PlayerAvatarThumbnailView(avatarIndex: index, size: 44, cornerRadius: 22)
+            PlayerAvatarThumbnailView(avatarIndex: avatarIndex, size: 44, cornerRadius: 22)
 
             Text(name)
                 .font(.evolventa(size: 17, weight: .medium))
@@ -664,9 +662,9 @@ struct PlayerRow: View {
 
 #Preview("Player row") {
     VStack(spacing: 10) {
-        PlayerRow(name: "Alex", index: 0, canDelete: true, onDelete: {})
-        PlayerRow(name: "Jordan", index: 5, canDelete: true, onDelete: {})
-        PlayerRow(name: "Sam", index: 11, canDelete: false, onDelete: {})
+        PlayerRow(name: "Alex", avatarIndex: 0, canDelete: true, onDelete: {})
+        PlayerRow(name: "Jordan", avatarIndex: 5, canDelete: true, onDelete: {})
+        PlayerRow(name: "Sam", avatarIndex: 11, canDelete: false, onDelete: {})
     }
     .padding()
     .frame(maxWidth: .infinity, maxHeight: .infinity)
