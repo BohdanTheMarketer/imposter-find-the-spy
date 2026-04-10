@@ -248,13 +248,7 @@ struct RoleRevealView: View {
     }
 
     private func syncRevealBackdrop() {
-        let fallback = AvatarColors.color(for: currentPlayer.avatarIndex)
-        if let ui = PlayerProfiles.roleRevealUIImage(for: currentPlayer.avatarIndex),
-           let sampled = ui.portraitBackdropColor() {
-            revealScreenColor = sampled
-        } else {
-            revealScreenColor = fallback
-        }
+        revealScreenColor = AvatarColors.color(for: currentPlayer.avatarIndex)
     }
 }
 

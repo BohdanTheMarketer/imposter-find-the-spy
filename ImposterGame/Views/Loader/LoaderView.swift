@@ -72,7 +72,8 @@ struct LoaderView: View {
 
             guard !Self.didScheduleInitialNavigation else { return }
             Self.didScheduleInitialNavigation = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            // Short beat so the logo can begin its animation; avoid a multi-second artificial wait before onboarding.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) {
                 // Onboarding is shown on every cold start; paywall / home follow after the flow.
                 router.navigate(to: .onboarding)
             }

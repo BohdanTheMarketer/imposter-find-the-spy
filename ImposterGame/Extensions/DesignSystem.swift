@@ -166,7 +166,7 @@ extension Font {
     }
 }
 
-// MARK: - Player profiles (bundled portraits: player_0 … player_11)
+// MARK: - Player profiles (bundled portraits: `player_1` … `player_12`, thumbnails: `small_player_1` … `small_player_12`)
 
 enum PlayerProfiles {
     static let count = 12
@@ -176,31 +176,32 @@ enum PlayerProfiles {
         return m >= 0 ? m : m + count
     }
 
-    /// Bundle resource name (no extension) for `Image(_:)`.
+    /// Full-screen portrait for role reveal (`player_1` … `player_12`).
+    static func fullPortraitBaseName(for avatarIndex: Int) -> String {
+        "player_\(slot(for: avatarIndex) + 1)"
+    }
+
+    /// Small circular asset for lists (`small_player_1` … `small_player_12`).
+    static func thumbnailBaseName(for avatarIndex: Int) -> String {
+        "small_player_\(slot(for: avatarIndex) + 1)"
+    }
+
+    /// Legacy alias: full portrait basename.
     static func bundleImageName(for avatarIndex: Int) -> String {
-        "player_\(slot(for: avatarIndex))"
+        fullPortraitBaseName(for: avatarIndex)
     }
 
-    /// Role-reveal cover portraits: `VV1` … `VV12` align with avatar slots 0 … 11 (same order as `player_0` … `player_11`).
-    static func roleRevealPortraitName(for avatarIndex: Int) -> String {
-        "VV\(slot(for: avatarIndex) + 1)"
-    }
-
-    /// Loads bundled portrait for role-reveal: prefers `VV*` art, then `player_*` (same slot order).
+    /// Loads the large reveal portrait.
     static func roleRevealUIImage(for avatarIndex: Int) -> UIImage? {
-        if let vv = loadBundledImage(named: roleRevealPortraitName(for: avatarIndex)) {
-            return vv
-        }
-        return loadBundledImage(named: bundleImageName(for: avatarIndex))
+        loadBundledImage(named: fullPortraitBaseName(for: avatarIndex))
     }
 
     /// Loads avatar image by basename across common image extensions.
-    /// This is resilient when project resources were renamed (e.g. png -> jpg).
     static func loadBundledImage(named baseName: String) -> UIImage? {
         if let image = UIImage(named: baseName) {
             return image
         }
-        for ext in ["jpg", "jpeg", "png"] {
+        for ext in ["png", "jpg", "jpeg"] {
             if let url = Bundle.main.url(forResource: baseName, withExtension: ext),
                let image = UIImage(contentsOfFile: url.path) {
                 return image
@@ -210,22 +211,26 @@ enum PlayerProfiles {
     }
 }
 
-// MARK: - Avatar theme colors (one per bundled portrait, aligned with player_N.png order)
+// MARK: - Avatar theme colors (aligned with `player_1` … `player_12` for slots 0 … 11)
 
 enum AvatarColors {
+    private static func rgb(_ r: CGFloat, _ g: CGFloat, _ b: CGFloat) -> Color {
+        Color(red: r / 255, green: g / 255, blue: b / 255)
+    }
+
     private static let colors: [Color] = [
-        Color(red: 0.518, green: 0.800, blue: 0.086), // #84CC16 lime
-        Color(red: 1.0, green: 0.624, blue: 0.110), // #FF9F1C orange
-        Color(red: 0.169, green: 0.612, blue: 0.922), // #2B9CEB sky blue
-        Color(red: 0.576, green: 0.200, blue: 0.918), // #9333EA purple
-        Color(red: 0.831, green: 0.396, blue: 0.180), // #D4652E terracotta
-        Color(red: 0.427, green: 0.706, blue: 0.949), // #6DB4F2 light blue
-        Color(red: 0.239, green: 0.678, blue: 0.961), // #3DADF5 bright sky
-        Color(red: 1.0, green: 0.420, blue: 0.208), // #FF6B35 coral orange
-        Color(red: 1.0, green: 0.573, blue: 0.220), // #FF9238 warm orange
-        Color(red: 0.925, green: 0.282, blue: 0.600), // #EC4899 pink
-        Color(red: 0.518, green: 0.878, blue: 0.310), // #84E04F fresh green
-        Color(red: 0.133, green: 0.773, blue: 0.369) // #22C55E green
+        rgb(242, 145, 4), // player_1  #f29104
+        rgb(74, 141, 219), // player_2  #4a8ddb
+        rgb(199, 64, 12), // player_3  #c7400c
+        rgb(238, 145, 12), // player_4  #ee910c
+        rgb(198, 67, 14), // player_5  #c6430e
+        rgb(77, 161, 29), // player_6  #4da11d
+        rgb(74, 160, 27), // player_7  #4aa01b
+        rgb(202, 65, 10), // player_8  #ca410a
+        rgb(74, 141, 219), // player_9  #4a8ddb
+        rgb(242, 145, 8), // player_10 #f29108
+        rgb(79, 141, 221), // player_11 #4f8ddd
+        rgb(73, 160, 27) // player_12 #49a01b
     ]
 
     static func color(for avatarIndex: Int) -> Color {
@@ -241,10 +246,8 @@ struct PlayerAvatarThumbnailView: View {
     /// Use `size / 2` for a circle.
     var cornerRadius: CGFloat
 
-    @State private var backdropColor: Color?
-
     private var fillColor: Color {
-        backdropColor ?? AvatarColors.color(for: avatarIndex)
+        AvatarColors.color(for: avatarIndex)
     }
 
     var body: some View {
@@ -252,7 +255,7 @@ struct PlayerAvatarThumbnailView: View {
             ZStack {
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .fill(fillColor)
-                if let ui = PlayerProfiles.loadBundledImage(named: PlayerProfiles.bundleImageName(for: avatarIndex)) {
+                if let ui = PlayerProfiles.loadBundledImage(named: PlayerProfiles.thumbnailBaseName(for: avatarIndex)) {
                     Image(uiImage: ui)
                         .renderingMode(.original)
                         .resizable()
@@ -264,19 +267,6 @@ struct PlayerAvatarThumbnailView: View {
         }
         .frame(width: size, height: size)
         .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
-        .onAppear { refreshBackdrop() }
-        .onChange(of: avatarIndex) { _ in
-            refreshBackdrop()
-        }
-    }
-
-    private func refreshBackdrop() {
-        let name = PlayerProfiles.bundleImageName(for: avatarIndex)
-        if let ui = PlayerProfiles.loadBundledImage(named: name) {
-            backdropColor = ui.portraitBackdropColor()
-        } else {
-            backdropColor = nil
-        }
     }
 }
 
@@ -285,10 +275,8 @@ struct PlayerAvatarSquareTileView: View {
     let avatarIndex: Int
     var cornerRadius: CGFloat = 16
 
-    @State private var backdropColor: Color?
-
     private var fillColor: Color {
-        backdropColor ?? AvatarColors.color(for: avatarIndex)
+        AvatarColors.color(for: avatarIndex)
     }
 
     var body: some View {
@@ -296,7 +284,7 @@ struct PlayerAvatarSquareTileView: View {
             ZStack {
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .fill(fillColor)
-                if let ui = PlayerProfiles.loadBundledImage(named: PlayerProfiles.bundleImageName(for: avatarIndex)) {
+                if let ui = PlayerProfiles.loadBundledImage(named: PlayerProfiles.thumbnailBaseName(for: avatarIndex)) {
                     Image(uiImage: ui)
                         .renderingMode(.original)
                         .resizable()
@@ -306,12 +294,6 @@ struct PlayerAvatarSquareTileView: View {
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
-        }
-        .onAppear {
-            let name = PlayerProfiles.bundleImageName(for: avatarIndex)
-            if let ui = PlayerProfiles.loadBundledImage(named: name) {
-                backdropColor = ui.portraitBackdropColor()
-            }
         }
     }
 }

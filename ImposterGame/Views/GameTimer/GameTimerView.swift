@@ -32,7 +32,10 @@ struct GameTimerView: View {
                 // Header
                 HStack {
                     Button(action: {
-                        showPauseMenu = true
+                        HapticsManager.impact(.light)
+                        withAnimation(.spring(response: 0.45, dampingFraction: 0.86)) {
+                            showPauseMenu = true
+                        }
                         pauseTimer()
                     }) {
                         Image(systemName: "chevron.left")
@@ -75,77 +78,109 @@ struct GameTimerView: View {
                 Spacer()
                 Spacer()
 
-                // Pause button
-                Button(action: {
-                    HapticsManager.impact(.medium)
-                    showPauseMenu = true
-                    pauseTimer()
-                }) {
-                    Text("Pause")
-                        .font(.evolventa(size: 18, weight: .bold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 52)
-                        .background(Color.gameplayButtonSecondary)
-                        .clipShape(RoundedRectangle(cornerRadius: 26))
+                // Space for the pinned bottom control bar
+                Color.clear
+                    .frame(height: 108)
+            }
+
+            if showPauseMenu {
+                Color.black.opacity(0.45)
+                    .ignoresSafeArea()
+                    .transition(.opacity)
+                    .onTapGesture {
+                        withAnimation(.spring(response: 0.45, dampingFraction: 0.86)) {
+                            showPauseMenu = false
+                        }
+                        resumeTimer()
+                    }
+            }
+
+            VStack(spacing: 0) {
+                Spacer()
+
+                VStack(spacing: 10) {
+                    if showPauseMenu {
+                        Text("Paused")
+                            .font(.evolventa(size: 13, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.55))
+                            .transition(.opacity.combined(with: .move(edge: .top)))
+                    }
+
+                    HStack(spacing: 12) {
+                        if showPauseMenu {
+                            Button(action: {
+                                HapticsManager.impact(.light)
+                                withAnimation(.spring(response: 0.45, dampingFraction: 0.86)) {
+                                    showPauseMenu = false
+                                }
+                                resumeTimer()
+                            }) {
+                                Text("Continue")
+                                    .font(.evolventa(size: 17, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 52)
+                                    .background(Color.gameplayButtonSecondary)
+                                    .clipShape(RoundedRectangle(cornerRadius: 26))
+                            }
+                            .buttonStyle(.plain)
+                            .transition(.asymmetric(
+                                insertion: .move(edge: .leading).combined(with: .opacity),
+                                removal: .opacity
+                            ))
+
+                            Button(action: {
+                                HapticsManager.impact(.medium)
+                                withAnimation(.spring(response: 0.45, dampingFraction: 0.86)) {
+                                    showPauseMenu = false
+                                }
+                                stopTimer()
+                                gameSession.gamePhase = .voting
+                                router.navigate(to: .voting)
+                            }) {
+                                Text("Vote Now")
+                                    .font(.evolventa(size: 17, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 52)
+                                    .background(Color.gameplayButtonPrimary)
+                                    .clipShape(RoundedRectangle(cornerRadius: 26))
+                            }
+                            .buttonStyle(.plain)
+                            .transition(.asymmetric(
+                                insertion: .move(edge: .trailing).combined(with: .opacity),
+                                removal: .opacity
+                            ))
+                        } else {
+                            Button(action: {
+                                HapticsManager.impact(.medium)
+                                withAnimation(.spring(response: 0.45, dampingFraction: 0.86)) {
+                                    showPauseMenu = true
+                                }
+                                pauseTimer()
+                            }) {
+                                Text("Pause")
+                                    .font(.evolventa(size: 18, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 52)
+                                    .background(Color.gameplayButtonSecondary)
+                                    .clipShape(RoundedRectangle(cornerRadius: 26))
+                            }
+                            .buttonStyle(.plain)
+                            .transition(.opacity.combined(with: .scale(scale: 0.98)))
+                        }
+                    }
+                    .animation(.spring(response: 0.45, dampingFraction: 0.86), value: showPauseMenu)
                 }
                 .padding(.horizontal, 40)
                 .padding(.bottom, 8)
 
-                // Red accent bar
                 Rectangle()
                     .fill(Color.gameplayButtonPrimary)
                     .frame(height: 4)
                     .padding(.horizontal, 40)
                     .padding(.bottom, 40)
-            }
-
-            // Pause menu overlay
-            if showPauseMenu {
-                Color.black.opacity(0.7)
-                    .ignoresSafeArea()
-                    .onTapGesture {
-                        showPauseMenu = false
-                        resumeTimer()
-                    }
-
-                VStack(spacing: 16) {
-                    Text("Game Paused")
-                        .font(.evolventa(size: 24, weight: .bold))
-                        .foregroundColor(.white)
-                        .padding(.bottom, 8)
-
-                    Button(action: {
-                        HapticsManager.impact(.light)
-                        showPauseMenu = false
-                        resumeTimer()
-                    }) {
-                        Text("Continue")
-                            .font(.evolventa(size: 18, weight: .bold))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 52)
-                            .background(Color.gameplayButtonSecondary)
-                            .clipShape(RoundedRectangle(cornerRadius: 26))
-                    }
-
-                    Button(action: {
-                        HapticsManager.impact(.medium)
-                        showPauseMenu = false
-                        stopTimer()
-                        gameSession.gamePhase = .voting
-                        router.navigate(to: .voting)
-                    }) {
-                        Text("Vote Now")
-                            .font(.evolventa(size: 18, weight: .bold))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 52)
-                            .background(Color.gameplayButtonPrimary)
-                            .clipShape(RoundedRectangle(cornerRadius: 26))
-                    }
-                }
-                .padding(.horizontal, 40)
             }
         }
         .navigationBarHidden(true)

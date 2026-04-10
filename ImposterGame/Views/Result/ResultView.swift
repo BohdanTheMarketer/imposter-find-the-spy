@@ -291,23 +291,17 @@ struct ResultView: View {
 
     private var outcomeHeroBlock: some View {
         VStack(spacing: 14) {
-            TimelineView(.animation(minimumInterval: 1 / 30)) { timeline in
-                let t = timeline.date.timeIntervalSinceReferenceDate
-                let breathe = 1.0 + 0.055 * sin(t * 2.15)
-                ZStack {
-                    Circle()
-                        .fill(outcomeAccentColor.opacity(0.2))
-                        .frame(width: 88, height: 88)
-                        .scaleEffect(breathe * 1.02)
-                        .blur(radius: 12)
-                    Circle()
-                        .stroke(outcomeAccentColor.opacity(0.35), lineWidth: 1)
-                        .frame(width: 76, height: 76)
-                    Image(systemName: didPlayersWin ? "trophy.fill" : "theatermasks.fill")
-                        .font(.system(size: 34, weight: .semibold))
-                        .foregroundStyle(headlineGradient)
-                        .scaleEffect(breathe)
-                }
+            ZStack {
+                Circle()
+                    .fill(outcomeAccentColor.opacity(0.2))
+                    .frame(width: 88, height: 88)
+                    .blur(radius: 12)
+                Circle()
+                    .stroke(outcomeAccentColor.opacity(0.35), lineWidth: 1)
+                    .frame(width: 76, height: 76)
+                Image(systemName: didPlayersWin ? "trophy.fill" : "theatermasks.fill")
+                    .font(.system(size: 34, weight: .semibold))
+                    .foregroundStyle(headlineGradient)
             }
             .padding(.bottom, 4)
 
@@ -431,27 +425,31 @@ struct ResultView: View {
     // MARK: - Intrigue Sequence
 
     private func startIntrigueSequence() {
+        let wordStep = 0.26
         for i in 0..<intrigueTexts.count {
-            DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.48) {
-                withAnimation(.spring(response: 0.42, dampingFraction: 0.82)) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * wordStep) {
+                withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
                     intrigueTextIndex = i
                 }
-                HapticsManager.impact(.heavy)
+                HapticsManager.impact(i == intrigueTexts.count - 1 ? .medium : .light)
             }
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.35) {
-            withAnimation(.easeInOut(duration: 0.55)) {
+        let lastWordDelay = Double(intrigueTexts.count - 1) * wordStep
+        let revealDelay = lastWordDelay + 0.28
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + revealDelay) {
+            withAnimation(.easeInOut(duration: 0.38)) {
                 phase = .reveal
             }
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
-                withAnimation(.spring(response: 0.55, dampingFraction: 0.82)) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                withAnimation(.spring(response: 0.42, dampingFraction: 0.88)) {
                     headerReveal = true
                 }
             }
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.28) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
                 if let result = gameSession.gameResult {
                     switch result {
                     case .playersWin:
@@ -460,19 +458,18 @@ struct ResultView: View {
                         HapticsManager.notification(.warning)
                     }
                 }
-                withAnimation(.spring(response: 0.58, dampingFraction: 0.82)) {
+                withAnimation(.spring(response: 0.45, dampingFraction: 0.88)) {
                     showOutcomeSection = true
                 }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) {
-                    withAnimation(.spring(response: 0.52, dampingFraction: 0.88)) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.04) {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.9)) {
                         outcomeCardAppeared = true
                     }
                 }
-                HapticsManager.impact(.medium)
             }
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.72) {
-                withAnimation(.spring(response: 0.52, dampingFraction: 0.86)) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.42) {
+                withAnimation(.spring(response: 0.42, dampingFraction: 0.88)) {
                     showSecretSection = true
                 }
                 HapticsManager.selection()
@@ -488,36 +485,24 @@ private struct ResultAmbientGlowView: View {
     let secondary: Color
 
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1 / 30)) { timeline in
-            let t = timeline.date.timeIntervalSinceReferenceDate
-            ZStack {
-                Circle()
-                    .fill(accent.opacity(0.2))
-                    .frame(width: 320, height: 320)
-                    .blur(radius: 70)
-                    .offset(
-                        x: CGFloat(sin(t * 0.65)) * 50,
-                        y: CGFloat(cos(t * 0.5)) * 40
-                    )
-                Circle()
-                    .fill(secondary.opacity(0.18))
-                    .frame(width: 240, height: 240)
-                    .blur(radius: 55)
-                    .offset(
-                        x: CGFloat(cos(t * 0.45)) * 42,
-                        y: CGFloat(sin(t * 0.58)) * 48
-                    )
-                Circle()
-                    .fill(Color.revealPurple.opacity(0.1))
-                    .frame(width: 180, height: 180)
-                    .blur(radius: 45)
-                    .offset(
-                        x: CGFloat(sin(t * 0.35 + 1.2)) * 30,
-                        y: CGFloat(cos(t * 0.4 + 0.8)) * 36
-                    )
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        ZStack {
+            Circle()
+                .fill(accent.opacity(0.2))
+                .frame(width: 320, height: 320)
+                .blur(radius: 70)
+                .offset(x: 28, y: -36)
+            Circle()
+                .fill(secondary.opacity(0.18))
+                .frame(width: 240, height: 240)
+                .blur(radius: 55)
+                .offset(x: -36, y: 44)
+            Circle()
+                .fill(Color.revealPurple.opacity(0.1))
+                .frame(width: 180, height: 180)
+                .blur(radius: 45)
+                .offset(x: 22, y: 28)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .allowsHitTesting(false)
     }
 }
