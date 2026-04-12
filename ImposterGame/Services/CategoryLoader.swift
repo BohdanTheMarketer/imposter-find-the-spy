@@ -24,9 +24,14 @@ enum CategoryLoader {
         var categories: [Category] = []
 
         for fileName in fileNames {
-            if let url = Bundle.main.url(forResource: fileName, withExtension: "json"),
-               let data = try? Data(contentsOf: url),
-               let wordPack = try? JSONDecoder().decode(WordPack.self, from: data) {
+            guard let url = Bundle.main.url(forResource: fileName, withExtension: "json") else {
+                print("[CategoryLoader] Failed to locate \(fileName).json in bundle")
+                AnalyticsService.logEvent("category_load_failed", parameters: ["file": fileName])
+                continue
+            }
+            do {
+                let data = try Data(contentsOf: url)
+                let wordPack = try JSONDecoder().decode(WordPack.self, from: data)
                 let category = Category(
                     name: wordPack.category,
                     icon: wordPack.icon,
@@ -36,6 +41,9 @@ enum CategoryLoader {
                     isPremium: wordPack.isPremium
                 )
                 categories.append(category)
+            } catch {
+                print("[CategoryLoader] Failed to decode \(fileName): \(error)")
+                AnalyticsService.logEvent("category_load_failed", parameters: ["file": fileName])
             }
         }
 

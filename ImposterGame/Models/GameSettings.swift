@@ -2,7 +2,9 @@ import Foundation
 
 struct GameSettings {
     var imposterCount: Int = 1
-    var roundDuration: Int = 120 // seconds
+    var roundDuration: Int = 120 {
+        didSet { roundDuration = max(30, min(600, roundDuration)) }
+    }
     var hintsEnabled: Bool = false
 
     var maxImposters: Int {

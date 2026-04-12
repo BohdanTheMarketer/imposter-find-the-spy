@@ -87,6 +87,9 @@ class GameEngine {
     }
 
     private func hint(for word: String, in category: Category) -> String {
+        if category.imposterHints.isEmpty {
+            print("[GameEngine] Warning: hints enabled but category '\(category.name)' has no hints.")
+        }
         if let index = category.words.firstIndex(of: word), index < category.imposterHints.count {
             let hint = category.imposterHints[index].trimmingCharacters(in: .whitespacesAndNewlines)
             if !hint.isEmpty {

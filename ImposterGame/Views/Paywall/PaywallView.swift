@@ -5,6 +5,7 @@ struct OnboardingPaywallView: View {
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @State private var enableFreeTrial = false
     @State private var appearAnimation = false
+    @State private var showRestoreMessage = false
 
     var body: some View {
         ZStack {
@@ -72,6 +73,11 @@ struct OnboardingPaywallView: View {
         }
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
+        .alert("Restore Purchases", isPresented: $showRestoreMessage) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("If you have an active subscription, it will be restored shortly.")
+        }
         .onAppear {
             AnalyticsService.logEvent("paywall_show", parameters: ["context": "onboarding"])
             withAnimation(.easeOut(duration: 0.5)) {
@@ -243,6 +249,7 @@ struct OnboardingPaywallView: View {
             Button("Privacy") {}
             Button("Restore") {
                 subscriptionManager.restorePurchases()
+                showRestoreMessage = true
             }
         }
         .font(.evolventa(size: 12, weight: .medium))

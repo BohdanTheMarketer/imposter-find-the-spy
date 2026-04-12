@@ -41,6 +41,10 @@ struct VotingView: View {
                     Text("Select \(maxSelections) player\(maxSelections == 1 ? "" : "s") you think are faking it")
                         .font(.evolventa(size: 15))
                         .foregroundColor(.white.opacity(0.6))
+
+                    Text("\(selectedIndices.count)/\(maxSelections) selected")
+                        .font(.evolventa(size: 14, weight: .regular))
+                        .foregroundColor(.white.opacity(0.6))
                 }
                 .padding(.top, 20)
                 .padding(.bottom, 24)

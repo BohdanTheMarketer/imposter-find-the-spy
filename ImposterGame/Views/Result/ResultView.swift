@@ -78,7 +78,10 @@ struct ResultView: View {
             headerReveal = false
             outcomeCardAppeared = false
             if let result = gameSession.gameResult {
-                AnalyticsService.logEvent("round_result", parameters: ["outcome": result.analyticsValue])
+                AnalyticsService.logGameEnd(
+                    result: result.analyticsValue,
+                    duration: gameSession.settings.roundDuration
+                )
             }
             startIntrigueSequence()
         }
@@ -173,18 +176,34 @@ struct ResultView: View {
             }
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 if showSecretSection {
-                    Button(action: {
-                        HapticsManager.impact(.medium)
-                        gameSession.resetForNewRound()
-                        router.navigateToCategories()
-                    }) {
-                        HStack(spacing: 10) {
-                            Text("PLAY AGAIN")
-                            Image(systemName: "arrow.counterclockwise")
-                                .font(.system(size: 17, weight: .semibold))
+                    VStack(spacing: 10) {
+                        Button(action: {
+                            HapticsManager.impact(.medium)
+                            gameSession.resetForNewRound()
+                            router.navigateToCategories()
+                        }) {
+                            HStack(spacing: 10) {
+                                Text("PLAY AGAIN")
+                                Image(systemName: "arrow.counterclockwise")
+                                    .font(.system(size: 17, weight: .semibold))
+                            }
+                        }
+                        .buttonStyle(GameplayPrimaryButtonStyle())
+
+                        Button(action: {
+                            HapticsManager.impact(.light)
+                            gameSession.resetForNewRound()
+                            router.navigateToPlayerSetup()
+                        }) {
+                            Text("New Game")
+                                .font(.evolventa(size: 17, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.7))
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 50)
+                                .background(Color.white.opacity(0.08))
+                                .clipShape(Capsule())
                         }
                     }
-                    .buttonStyle(GameplayPrimaryButtonStyle())
                     .padding(.horizontal, 20)
                     .padding(.top, 12)
                     .padding(.bottom, 12)

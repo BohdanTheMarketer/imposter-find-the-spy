@@ -6,6 +6,7 @@ struct CategoryPaywallView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var isTrialEnabled = false
+    @State private var showRestoreMessage = false
 
     var body: some View {
         ZStack {
@@ -25,17 +26,10 @@ struct CategoryPaywallView: View {
 
                 freeAccessCard
 
-                if isTrialEnabled {
-                    weeklyPlanCard(selected: true, badgeText: "Most popular")
-                        .padding(.top, 12)
-                    yearlyPlanCard(dimmed: true)
-                        .padding(.top, 10)
-                } else {
-                    yearlyPlanCard(dimmed: false)
-                        .padding(.top, 12)
-                    weeklyPlanCard(selected: false, badgeText: "Best value")
-                        .padding(.top, 10)
-                }
+                yearlyPlanCard(dimmed: isTrialEnabled)
+                    .padding(.top, 12)
+                weeklyPlanCard(selected: isTrialEnabled)
+                    .padding(.top, 10)
 
                 ctaButton
                     .padding(.top, 16)
@@ -48,6 +42,11 @@ struct CategoryPaywallView: View {
         }
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
+        .alert("Restore Purchases", isPresented: $showRestoreMessage) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("If you have an active subscription, it will be restored shortly.")
+        }
         .onAppear {
             AnalyticsService.logEvent("paywall_show", parameters: ["context": "category"])
         }
@@ -177,6 +176,18 @@ struct CategoryPaywallView: View {
         .padding(.vertical, 14)
         .background(Color.white.opacity(dimmed ? 0.08 : 0.14))
         .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay(alignment: .topTrailing) {
+            Text("Best value")
+                .font(.evolventa(size: 11, weight: .bold))
+                .foregroundColor(.white)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(
+                    Capsule()
+                        .fill(Color(red: 0.95, green: 0.28, blue: 0.63))
+                )
+                .offset(x: -10, y: -10)
+        }
         .overlay(
             RoundedRectangle(cornerRadius: 16)
                 .stroke(Color.white.opacity(dimmed ? 0.2 : 0.65), lineWidth: 1.5)
@@ -184,7 +195,7 @@ struct CategoryPaywallView: View {
         .opacity(dimmed ? 0.52 : 1.0)
     }
 
-    private func weeklyPlanCard(selected: Bool, badgeText: String) -> some View {
+    private func weeklyPlanCard(selected: Bool) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Weekly")
@@ -203,18 +214,6 @@ struct CategoryPaywallView: View {
         .padding(.vertical, 14)
         .background(Color.white.opacity(selected ? 0.18 : 0.12))
         .clipShape(RoundedRectangle(cornerRadius: 16))
-        .overlay(alignment: .topTrailing) {
-            Text(badgeText)
-                .font(.evolventa(size: 11, weight: .bold))
-                .foregroundColor(.white)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
-                .background(
-                    Capsule()
-                        .fill(Color(red: 0.95, green: 0.28, blue: 0.63))
-                )
-                .offset(x: -10, y: -10)
-        }
         .overlay(
             RoundedRectangle(cornerRadius: 16)
                 .stroke(Color.white.opacity(selected ? 0.95 : 0.45), lineWidth: 1.5)
@@ -249,6 +248,7 @@ struct CategoryPaywallView: View {
             Button("Privacy") {}
             Button("Restore") {
                 subscriptionManager.restorePurchases()
+                showRestoreMessage = true
             }
         }
         .font(.evolventa(size: 12, weight: .medium))

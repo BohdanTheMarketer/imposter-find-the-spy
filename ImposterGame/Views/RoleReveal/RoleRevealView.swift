@@ -55,74 +55,75 @@ struct RoleRevealView: View {
 
     // MARK: - Role Reveal Content
     private var roleRevealContent: some View {
+        GeometryReader { geo in
         ZStack {
             // Revealed content underneath the top card.
             ZStack {
-                (currentPlayer.isImposter ? Color.black : revealScreenColor)
-                    .ignoresSafeArea()
+                    (currentPlayer.isImposter ? Color.black : revealScreenColor)
+                        .ignoresSafeArea()
 
-                VStack {
-                    Spacer()
+                    VStack {
+                        Spacer()
 
-                    VStack(spacing: 18) {
-                        if currentPlayer.isImposter {
-                            ImposterRevealBrandMark()
+                        VStack(spacing: 18) {
+                            if currentPlayer.isImposter {
+                                ImposterRevealBrandMark()
 
-                            VStack(spacing: 6) {
-                                Text("You are the")
-                                    .font(.evolventa(size: 20, weight: .semibold))
-                                    .foregroundColor(.white.opacity(0.88))
+                                VStack(spacing: 6) {
+                                    Text("You are the")
+                                        .font(.evolventa(size: 20, weight: .semibold))
+                                        .foregroundColor(.white.opacity(0.88))
 
-                                Text("IMPOSTER")
-                                    .font(.evolventa(size: 34, weight: .bold))
-                                    .foregroundStyle(
-                                        LinearGradient(
-                                            colors: [
-                                                Color(red: 1.0, green: 0.35, blue: 0.38),
-                                                Color(red: 0.92, green: 0.12, blue: 0.2),
-                                                Color(red: 0.72, green: 0.06, blue: 0.12)
-                                            ],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
+                                    Text("IMPOSTER")
+                                        .font(.evolventa(size: 34, weight: .bold))
+                                        .foregroundStyle(
+                                            LinearGradient(
+                                                colors: [
+                                                    Color(red: 1.0, green: 0.35, blue: 0.38),
+                                                    Color(red: 0.92, green: 0.12, blue: 0.2),
+                                                    Color(red: 0.72, green: 0.06, blue: 0.12)
+                                                ],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
                                         )
-                                    )
-                                    .shadow(color: Color.red.opacity(0.45), radius: 12, x: 0, y: 0)
-                                    .multilineTextAlignment(.center)
-                            }
-
-                            // Show the imposter hint only after the swipe-up reveal interaction.
-                            if hasSeenCurrentWord, let hint = currentImposterHint {
-                                VStack(spacing: 8) {
-                                    Text("Imposter hint")
-                                        .font(.evolventa(size: 16, weight: .bold))
-                                        .foregroundColor(Color(red: 0.98, green: 0.45, blue: 0.48))
-                                    Text(hint)
-                                        .font(.evolventa(size: 18, weight: .semibold))
-                                        .foregroundColor(.white.opacity(0.95))
+                                        .shadow(color: Color.red.opacity(0.45), radius: 12, x: 0, y: 0)
                                         .multilineTextAlignment(.center)
-                                        .lineLimit(3)
                                 }
-                                .padding(.top, 8)
+
+                                // Show the imposter hint only after the swipe-up reveal interaction.
+                                if hasSeenCurrentWord, let hint = currentImposterHint {
+                                    VStack(spacing: 8) {
+                                        Text("Imposter hint")
+                                            .font(.evolventa(size: 16, weight: .bold))
+                                            .foregroundColor(Color(red: 0.98, green: 0.45, blue: 0.48))
+                                        Text(hint)
+                                            .font(.evolventa(size: 18, weight: .semibold))
+                                            .foregroundColor(.white.opacity(0.95))
+                                            .multilineTextAlignment(.center)
+                                            .lineLimit(3)
+                                    }
+                                    .padding(.top, 8)
+                                }
+                            } else {
+                                Text("Your secret word is:")
+                                    .font(.evolventa(size: 18, weight: .semibold))
+                                    .foregroundColor(.black.opacity(0.8))
+
+                                Text(currentPlayer.secretWord)
+                                    .font(.evolventa(size: 42, weight: .bold))
+                                    .foregroundColor(.black)
+                                    .multilineTextAlignment(.center)
+                                    .minimumScaleFactor(0.6)
+                                    .lineLimit(2)
                             }
-                        } else {
-                            Text("Your secret word is:")
-                                .font(.evolventa(size: 18, weight: .semibold))
-                                .foregroundColor(.black.opacity(0.8))
-
-                            Text(currentPlayer.secretWord)
-                                .font(.evolventa(size: 42, weight: .bold))
-                                .foregroundColor(.black)
-                                .multilineTextAlignment(.center)
-                                .minimumScaleFactor(0.6)
-                                .lineLimit(2)
                         }
-                    }
 
-                    Spacer()
-                }
-                .padding(.horizontal, 24)
-                .padding(.top, UIScreen.main.bounds.height * 0.56)
-                .padding(.bottom, UIScreen.main.bounds.height * 0.18)
+                        Spacer()
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.top, geo.size.height * 0.56)
+                    .padding(.bottom, geo.size.height * 0.18)
             }
 
             // Cover (draggable): centered portrait with top/bottom chrome overlaid.
@@ -135,8 +136,8 @@ struct RoleRevealView: View {
                             .renderingMode(.original)
                             .resizable()
                             .scaledToFit()
-                            .frame(maxWidth: UIScreen.main.bounds.width * 0.9)
-                            .frame(maxHeight: UIScreen.main.bounds.height * 0.52)
+                            .frame(maxWidth: geo.size.width * 0.9)
+                            .frame(maxHeight: geo.size.height * 0.52)
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -214,7 +215,7 @@ struct RoleRevealView: View {
                     .onChanged { value in
                         if value.translation.height < 0 {
                             // Lift the cover only up to roughly mid-screen while dragging.
-                            let maxLift = -UIScreen.main.bounds.height * 0.5
+                            let maxLift = -geo.size.height * 0.5
                             dragOffset = max(value.translation.height, maxLift)
 
                             // Mark as revealed as soon as swipe crosses the threshold,
@@ -232,6 +233,7 @@ struct RoleRevealView: View {
                         }
                     }
             )
+        }
         }
     }
 

@@ -6,6 +6,7 @@ struct GameSettingsView: View {
     @State private var imposterCount: Int = 1
     @State private var roundDuration: Int = 120
     @State private var hintsEnabled: Bool = false
+    @State private var showWordError = false
 
     private var maxImposters: Int {
         GameSettings.recommendedImposters(forPlayerCount: gameSession.players.count)
@@ -67,6 +68,9 @@ struct GameSettingsView: View {
         }
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
+        .alert("Couldn't load a word for this category. Please try again.", isPresented: $showWordError) {
+            Button("OK", role: .cancel) {}
+        }
         .onAppear {
             imposterCount = maxImposters
             roundDuration = gameSession.settings.roundDuration
@@ -312,10 +316,21 @@ struct GameSettingsView: View {
             imposterCount: imposterCount,
             hintsEnabled: hintsEnabled
         )
+
+        guard !word.isEmpty && word != "Mystery" else {
+            showWordError = true
+            return
+        }
+
         gameSession.secretWord = word
         gameSession.currentPlayerIndex = 0
         gameSession.startingPlayerIndex = engine.selectStartingPlayer(from: gameSession.players)
         gameSession.gamePhase = .roleReveal
+        AnalyticsService.logGameStart(
+            category: category.name,
+            playerCount: gameSession.players.count,
+            imposterCount: gameSession.settings.imposterCount
+        )
         router.navigate(to: .roleReveal)
     }
 }
