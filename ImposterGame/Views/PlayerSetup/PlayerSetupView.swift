@@ -512,7 +512,7 @@ struct PlayerOptionsSheet: View {
                     .font(.evolventa(size: 12, weight: .semibold))
                     .foregroundColor(.white.opacity(0.6))
                 Text(valueText)
-                    .font(.system(size: 11, weight: .regular, design: .monospaced))
+                    .font(.evolventa(size: 11, weight: .regular))
                     .foregroundColor(.white.opacity(0.55))
                     .lineLimit(1)
                     .truncationMode(.middle)

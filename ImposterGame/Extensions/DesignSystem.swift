@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import CoreText
 
 // MARK: - Colors
 extension Color {
@@ -148,21 +149,96 @@ extension View {
     }
 }
 
-// MARK: - Evolventa (bundled TTF; register in Info.plist UIAppFonts)
+// MARK: - App fonts (bundled TTF; register in Info.plist UIAppFonts)
 
 extension Font {
-    /// Evolventa custom font. Bold weights use `Evolventa-Bold`; all others use `Evolventa-Regular`.
+    /// Legacy app font helper now mapped to Libre Baskerville.
     static func evolventa(size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        let isBold = weight == .semibold
-            || weight == .bold
-            || weight == .heavy
-            || weight == .black
-        let postScriptName = isBold ? "Evolventa-Bold" : "Evolventa-Regular"
-        // If bundled font files are missing, preserve intended visual hierarchy with weighted system fallback.
-        if UIFont(name: postScriptName, size: size) != nil {
-            return .custom(postScriptName, size: size)
+        libreBaskerville(size: size, weight: weight)
+    }
+
+    /// Kept for compatibility; app-wide typography uses Libre Baskerville.
+    static func antropicSans(size: CGFloat, weight: Font.Weight = .regular) -> Font {
+        libreBaskerville(size: size, weight: weight)
+    }
+
+    /// Kept for compatibility; app-wide typography uses Libre Baskerville.
+    static func antropicSerif(size: CGFloat, weight: Font.Weight = .regular) -> Font {
+        libreBaskerville(size: size, weight: weight)
+    }
+
+    /// Kept for backward compatibility with previous name.
+    static func nanumMyeongjo(size: CGFloat, weight: Font.Weight = .regular) -> Font {
+        libreBaskerville(size: size, weight: weight)
+    }
+
+    /// Primary app font family: Libre Baskerville.
+    static func libreBaskerville(size: CGFloat, weight: Font.Weight = .regular) -> Font {
+        let candidates: [String]
+        switch weight {
+        case .black, .heavy, .bold:
+            candidates = ["LibreBaskerville-Bold"]
+        case .semibold:
+            candidates = ["LibreBaskerville-SemiBold", "LibreBaskerville-Medium"]
+        case .medium:
+            candidates = ["LibreBaskerville-Medium", "LibreBaskerville-Regular"]
+        default:
+            candidates = ["LibreBaskerville-Regular"]
         }
-        return .system(size: size, weight: weight)
+        return customFontFromCandidates(candidates, size: size, fallbackWeight: weight)
+    }
+
+    private static func customFontFromCandidates(
+        _ postScriptCandidates: [String],
+        size: CGFloat,
+        fallbackWeight: Font.Weight
+    ) -> Font {
+        for name in postScriptCandidates where AppFontRegistrar.isFontAvailable(name: name, size: size) {
+            return .custom(name, size: size)
+        }
+        return .system(size: size, weight: fallbackWeight)
+    }
+}
+
+enum AppFontRegistrar {
+    private static let libreFontFiles = [
+        "LibreBaskerville-Regular",
+        "LibreBaskerville-Medium",
+        "LibreBaskerville-SemiBold",
+        "LibreBaskerville-Bold",
+        "LibreBaskerville-Italic",
+        "LibreBaskerville-MediumItalic",
+        "LibreBaskerville-SemiBoldItalic",
+        "LibreBaskerville-BoldItalic"
+    ]
+
+    private static let searchSubdirectories: [String?] = [nil, "Fonts", "Resources/Fonts"]
+
+    static func registerAppFonts() {
+        for fileBaseName in libreFontFiles {
+            guard let url = fontURL(baseName: fileBaseName) else { continue }
+            guard let provider = CGDataProvider(url: url as CFURL),
+                  let cgFont = CGFont(provider)
+            else { continue }
+
+            var error: Unmanaged<CFError>?
+            CTFontManagerRegisterGraphicsFont(cgFont, &error)
+            // Ignore "already registered" errors; availability check below handles final state.
+            _ = error
+        }
+    }
+
+    static func isFontAvailable(name: String, size: CGFloat) -> Bool {
+        UIFont(name: name, size: size) != nil
+    }
+
+    private static func fontURL(baseName: String) -> URL? {
+        for subdirectory in searchSubdirectories {
+            if let url = Bundle.main.url(forResource: baseName, withExtension: "ttf", subdirectory: subdirectory) {
+                return url
+            }
+        }
+        return nil
     }
 }
 
@@ -201,10 +277,39 @@ enum PlayerProfiles {
         if let image = UIImage(named: baseName) {
             return image
         }
+        let searchSubdirectories: [String?] = [
+            nil,
+            "Onboarding",
+            "Resources/Onboarding",
+            "PlayerAvatars",
+            "Resources/PlayerAvatars"
+        ]
         for ext in ["png", "jpg", "jpeg"] {
-            if let url = Bundle.main.url(forResource: baseName, withExtension: ext),
-               let image = UIImage(contentsOfFile: url.path) {
-                return image
+            for subdirectory in searchSubdirectories {
+                if let url = Bundle.main.url(
+                    forResource: baseName,
+                    withExtension: ext,
+                    subdirectory: subdirectory
+                ), let image = UIImage(contentsOfFile: url.path) {
+                    return image
+                }
+            }
+        }
+        // Last-resort lookup: scan bundle contents in case Xcode nests resources unexpectedly.
+        if let resourceURL = Bundle.main.resourceURL,
+           let enumerator = FileManager.default.enumerator(
+               at: resourceURL,
+               includingPropertiesForKeys: nil,
+               options: [.skipsHiddenFiles]
+           ) {
+            let validExtensions = Set(["png", "jpg", "jpeg"])
+            for case let fileURL as URL in enumerator {
+                let ext = fileURL.pathExtension.lowercased()
+                guard validExtensions.contains(ext) else { continue }
+                guard fileURL.deletingPathExtension().lastPathComponent == baseName else { continue }
+                if let image = UIImage(contentsOfFile: fileURL.path) {
+                    return image
+                }
             }
         }
         return nil

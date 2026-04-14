@@ -28,13 +28,14 @@ struct OnboardingPaywallView: View {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 0) {
                         heroBlock
-                            .padding(.top, 8)
+                            .padding(.top, 6)
+                            .padding(.bottom, 8)
 
                         Text("Continue to get\nfull access")
-                            .font(.evolventa(size: 49, weight: .heavy))
+                            .font(.antropicSans(size: 42, weight: .heavy))
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
-                            .lineSpacing(-3)
+                            .lineSpacing(-2)
                             .minimumScaleFactor(0.68)
                             .padding(.top, 4)
                             .padding(.bottom, 18)
@@ -91,7 +92,7 @@ struct OnboardingPaywallView: View {
             Spacer()
             Button(action: closePaywall) {
                 Image(systemName: "xmark")
-                    .font(.evolventa(size: 16, weight: .bold))
+                    .font(.antropicSerif(size: 16, weight: .bold))
                     .foregroundColor(.white.opacity(0.8))
                     .frame(width: 32, height: 32)
             }
@@ -100,37 +101,19 @@ struct OnboardingPaywallView: View {
     }
 
     private var heroBlock: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 24)
-                .fill(
-                    LinearGradient(
-                        colors: [Color(red: 1.0, green: 0.38, blue: 0.08), Color(red: 0.94, green: 0.2, blue: 0.1)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(width: 210, height: 236)
-
-            VStack(spacing: 0) {
-                Text("🕵️‍♂️")
-                    .font(.evolventa(size: 96))
-                RoundedRectangle(cornerRadius: 14)
-                    .fill(Color.black.opacity(0.28))
-                    .frame(width: 96, height: 122)
-                    .blur(radius: 4)
-                    .offset(y: -8)
+        Group {
+            if let heroImage = PlayerProfiles.loadBundledImage(named: "PaywallHeroTop") {
+                Image(uiImage: heroImage)
+                    .resizable()
+                    .scaledToFit()
+            } else {
+                RoundedRectangle(cornerRadius: 22)
+                    .fill(Color.white.opacity(0.08))
             }
-
-            Text("🎉")
-                .font(.evolventa(size: 28))
-                .offset(x: -88, y: -90)
-            Text("🎈")
-                .font(.evolventa(size: 24))
-                .offset(x: 78, y: -76)
-            Text("🎊")
-                .font(.evolventa(size: 26))
-                .offset(x: 90, y: 58)
         }
+        .frame(maxWidth: .infinity)
+        .frame(height: 285)
+        .padding(.horizontal, 2)
     }
 
     private var freeTrialCard: some View {
@@ -154,10 +137,10 @@ struct OnboardingPaywallView: View {
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text("Not sure yet?")
-                        .font(.evolventa(size: 16, weight: .bold))
+                        .font(.antropicSerif(size: 16, weight: .bold))
                         .foregroundColor(.white)
                     Text("Enable free access")
-                        .font(.evolventa(size: 14, weight: .regular))
+                        .font(.antropicSerif(size: 14, weight: .regular))
                         .foregroundColor(.white.opacity(0.88))
                 }
 
@@ -185,15 +168,15 @@ struct OnboardingPaywallView: View {
         HStack {
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
-                    .font(.evolventa(size: 17, weight: .bold))
+                    .font(.antropicSerif(size: 17, weight: .bold))
                     .foregroundColor(.white)
                 Text(subtitle)
-                    .font(.evolventa(size: 12.5, weight: .regular))
+                    .font(.antropicSerif(size: 12.5, weight: .regular))
                     .foregroundColor(.white.opacity(0.9))
             }
             Spacer()
             Text(price)
-                .font(.evolventa(size: 18, weight: .bold))
+                .font(.antropicSerif(size: 18, weight: .bold))
                 .foregroundColor(.white)
         }
         .padding(.horizontal, 15)
@@ -207,7 +190,7 @@ struct OnboardingPaywallView: View {
         .overlay(alignment: .topTrailing) {
             if let badgeText {
                 Text(badgeText)
-                    .font(.evolventa(size: 11, weight: .bold))
+                    .font(.antropicSerif(size: 11, weight: .bold))
                     .foregroundColor(.white)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 4)
@@ -228,11 +211,11 @@ struct OnboardingPaywallView: View {
         }) {
             HStack {
                 Text("Continue")
-                    .font(.evolventa(size: 21, weight: .heavy))
+                    .font(.antropicSerif(size: 21, weight: .heavy))
                     .foregroundColor(.white)
                 Spacer()
                 Image(systemName: "arrow.right")
-                    .font(.evolventa(size: 19, weight: .bold))
+                    .font(.antropicSerif(size: 19, weight: .bold))
                     .foregroundColor(.white)
             }
             .padding(.horizontal, 26)
@@ -252,7 +235,7 @@ struct OnboardingPaywallView: View {
                 showRestoreMessage = true
             }
         }
-        .font(.evolventa(size: 12, weight: .medium))
+        .font(.antropicSerif(size: 12, weight: .medium))
         .foregroundColor(.white.opacity(0.5))
     }
 

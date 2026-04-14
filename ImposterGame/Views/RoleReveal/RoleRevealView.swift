@@ -129,15 +129,16 @@ struct RoleRevealView: View {
             // Cover (draggable): centered portrait with top/bottom chrome overlaid.
             ZStack {
                 revealScreenColor
+                    .ignoresSafeArea()
 
                 Group {
                     if let portrait = PlayerProfiles.roleRevealUIImage(for: currentPlayer.avatarIndex) {
                         Image(uiImage: portrait)
                             .renderingMode(.original)
                             .resizable()
-                            .scaledToFit()
-                            .frame(maxWidth: geo.size.width * 0.9)
-                            .frame(maxHeight: geo.size.height * 0.52)
+                            .scaledToFill()
+                            .frame(width: geo.size.width * 0.9, height: geo.size.height * 0.52)
+                            .clipped()
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -235,6 +236,7 @@ struct RoleRevealView: View {
             )
         }
         }
+        .ignoresSafeArea()
     }
 
     private func continueTapped() {

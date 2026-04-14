@@ -4,6 +4,7 @@ import SwiftUI
 @main
 struct ImposterGameApp: App {
     init() {
+        AppFontRegistrar.registerAppFonts()
         FirebaseApp.configure()
     }
 

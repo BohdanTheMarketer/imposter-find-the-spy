@@ -24,6 +24,15 @@ settings:
     MARKETING_VERSION: "1.0.0"
     CURRENT_PROJECT_VERSION: "1"
     GENERATE_INFOPLIST_FILE: YES
+    INFOPLIST_KEY_UIAppFonts:
+      - LibreBaskerville-Regular.ttf
+      - LibreBaskerville-Medium.ttf
+      - LibreBaskerville-SemiBold.ttf
+      - LibreBaskerville-Bold.ttf
+      - LibreBaskerville-Italic.ttf
+      - LibreBaskerville-MediumItalic.ttf
+      - LibreBaskerville-SemiBoldItalic.ttf
+      - LibreBaskerville-BoldItalic.ttf
     INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
     INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
     INFOPLIST_KEY_UILaunchScreen_Generation: YES
@@ -35,8 +44,6 @@ targets:
     platform: iOS
     sources:
       - path: ImposterGame
-        excludes:
-          - "Resources/Fonts"
     dependencies:
       - package: Firebase
         product: FirebaseAnalytics
@@ -60,6 +67,22 @@ targets:
       - path: ImposterGame/Resources/PlayerAvatars
         buildPhase: resources
       - path: ImposterGame/Resources/CategoryIcons
+        buildPhase: resources
+      - path: ImposterGame/Resources/Fonts/LibreBaskerville-Regular.ttf
+        buildPhase: resources
+      - path: ImposterGame/Resources/Fonts/LibreBaskerville-Medium.ttf
+        buildPhase: resources
+      - path: ImposterGame/Resources/Fonts/LibreBaskerville-SemiBold.ttf
+        buildPhase: resources
+      - path: ImposterGame/Resources/Fonts/LibreBaskerville-Bold.ttf
+        buildPhase: resources
+      - path: ImposterGame/Resources/Fonts/LibreBaskerville-Italic.ttf
+        buildPhase: resources
+      - path: ImposterGame/Resources/Fonts/LibreBaskerville-MediumItalic.ttf
+        buildPhase: resources
+      - path: ImposterGame/Resources/Fonts/LibreBaskerville-SemiBoldItalic.ttf
+        buildPhase: resources
+      - path: ImposterGame/Resources/Fonts/LibreBaskerville-BoldItalic.ttf
         buildPhase: resources
       - path: ImposterGame/GoogleService-Info.plist
         buildPhase: resources

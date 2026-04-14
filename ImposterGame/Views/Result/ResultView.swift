@@ -16,6 +16,8 @@ struct ResultView: View {
     }
 
     private let intrigueTexts = ["THE", "MOMENT", "OF", "TRUTH"]
+    /// Keep the "Moment of Truth" sequence intentionally dramatic and slow.
+    private let intrigueSpeedMultiplier: Double = 4.0
 
     private var didPlayersWin: Bool {
         gameSession.gameResult == .playersWin
@@ -135,16 +137,24 @@ struct ResultView: View {
         ZStack {
             LinearGradient.gameplayBackground
                 .ignoresSafeArea()
+                .overlay(
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.05),
+                            Color.clear,
+                            outcomeAccentColor.opacity(0.08)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
 
             ResultAmbientGlowView(accent: outcomeAccentColor, secondary: Color.gameplayTitle.opacity(0.45))
 
-            GridPatternView()
-                .opacity(0.08)
-
             VStack(spacing: 0) {
                 resultsHeader
-                    .padding(.top, 16)
-                    .padding(.bottom, 20)
+                    .padding(.top, 20)
+                    .padding(.bottom, 22)
 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 18) {
@@ -183,9 +193,9 @@ struct ResultView: View {
                             router.navigateToCategories()
                         }) {
                             HStack(spacing: 10) {
-                                Text("PLAY AGAIN")
+                                Text("Play again")
                                 Image(systemName: "arrow.counterclockwise")
-                                    .font(.system(size: 17, weight: .semibold))
+                                    .font(.evolventa(size: 17, weight: .semibold))
                             }
                         }
                         .buttonStyle(GameplayPrimaryButtonStyle())
@@ -217,23 +227,23 @@ struct ResultView: View {
     private var resultsHeader: some View {
         HStack(spacing: 10) {
             Image(systemName: "sparkles")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [Color.gameplayTitle, Color.gameplayTitle.opacity(0.7)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .font(.system(size: 17, weight: .semibold, design: .rounded))
+                .foregroundStyle(Color.white.opacity(0.82))
                 .opacity(headerReveal ? 1 : 0)
                 .scaleEffect(headerReveal ? 1 : 0.5)
 
             Text("Round complete")
-                .font(.evolventa(size: 15, weight: .semibold))
-                .foregroundColor(.white.opacity(0.55))
-                .textCase(.uppercase)
-                .tracking(1.2)
+                .font(.system(size: 18, weight: .semibold, design: .rounded))
+                .foregroundColor(.white.opacity(0.9))
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(.ultraThinMaterial.opacity(0.7))
+        .clipShape(Capsule())
+        .overlay(
+            Capsule()
+                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+        )
         .frame(maxWidth: .infinity)
         .offset(y: headerReveal ? 0 : -12)
         .opacity(headerReveal ? 1 : 0)
@@ -273,14 +283,14 @@ struct ResultView: View {
         .background(
             ZStack {
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(Color.gameplaySurface)
+                    .fill(.ultraThinMaterial)
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
                     .fill(
                         LinearGradient(
                             colors: [
-                                outcomeAccentColor.opacity(0.14),
-                                outcomeAccentColor.opacity(0.04),
-                                Color.clear
+                                Color.white.opacity(0.16),
+                                Color.white.opacity(0.02),
+                                outcomeAccentColor.opacity(0.1)
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
@@ -293,45 +303,47 @@ struct ResultView: View {
                 .stroke(
                     LinearGradient(
                         colors: [
-                            outcomeAccentColor.opacity(0.65),
-                            outcomeAccentColor.opacity(0.2),
-                            Color.white.opacity(0.12)
+                            Color.white.opacity(0.35),
+                            Color.white.opacity(0.08),
+                            outcomeAccentColor.opacity(0.3)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ),
-                    lineWidth: 1.5
+                    lineWidth: 1.2
                 )
         )
-        .shadow(color: outcomeAccentColor.opacity(0.22), radius: 28, x: 0, y: 14)
-        .shadow(color: Color.black.opacity(0.35), radius: 16, x: 0, y: 8)
+        .shadow(color: Color.black.opacity(0.28), radius: 24, x: 0, y: 12)
         .accessibilityElement(children: .combine)
     }
 
     private var outcomeHeroBlock: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 16) {
             ZStack {
                 Circle()
                     .fill(outcomeAccentColor.opacity(0.2))
-                    .frame(width: 88, height: 88)
-                    .blur(radius: 12)
+                    .frame(width: 96, height: 96)
                 Circle()
-                    .stroke(outcomeAccentColor.opacity(0.35), lineWidth: 1)
-                    .frame(width: 76, height: 76)
+                    .fill(.ultraThinMaterial.opacity(0.95))
+                    .frame(width: 80, height: 80)
+                    .overlay(
+                        Circle()
+                            .stroke(Color.white.opacity(0.28), lineWidth: 1)
+                    )
                 Image(systemName: didPlayersWin ? "trophy.fill" : "theatermasks.fill")
-                    .font(.system(size: 34, weight: .semibold))
+                    .font(.system(size: 30, weight: .semibold, design: .rounded))
                     .foregroundStyle(headlineGradient)
             }
             .padding(.bottom, 4)
 
             Text(didPlayersWin ? "Players win" : "Imposter wins")
-                .font(.evolventa(size: 32, weight: .bold))
+                .font(.system(size: 34, weight: .bold, design: .rounded))
                 .foregroundStyle(headlineGradient)
                 .multilineTextAlignment(.center)
                 .minimumScaleFactor(0.85)
 
             Text(didPlayersWin ? "The imposter was caught" : "Slipped away undetected")
-                .font(.evolventa(size: 16))
+                .font(.system(size: 17, weight: .medium, design: .rounded))
                 .foregroundColor(.white.opacity(0.72))
                 .multilineTextAlignment(.center)
         }
@@ -390,17 +402,15 @@ struct ResultView: View {
         VStack(spacing: 10) {
             HStack(spacing: 6) {
                 Image(systemName: "lock.open.fill")
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
                     .foregroundColor(.white.opacity(0.45))
                 Text("Secret word")
-                    .font(.evolventa(size: 13, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.5))
-                    .textCase(.uppercase)
-                    .tracking(0.8)
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .foregroundColor(.white.opacity(0.7))
             }
 
             Text(gameSession.secretWord)
-                .font(.evolventa(size: 28, weight: .bold))
+                .font(.system(size: 30, weight: .bold, design: .rounded))
                 .foregroundStyle(
                     LinearGradient(
                         colors: [.white, Color.white.opacity(0.88)],
@@ -419,14 +429,14 @@ struct ResultView: View {
         .background(
             ZStack {
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(Color.gameplaySurface.opacity(0.92))
+                    .fill(.ultraThinMaterial)
                 RoundedRectangle(cornerRadius: 20, style: .continuous)
                     .fill(
                         LinearGradient(
                             colors: [
-                                Color.white.opacity(0.08),
+                                Color.white.opacity(0.18),
                                 Color.clear,
-                                Color.gameplayTitle.opacity(0.06)
+                                outcomeAccentColor.opacity(0.09)
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
@@ -436,7 +446,7 @@ struct ResultView: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                .stroke(Color.white.opacity(0.24), lineWidth: 1)
         )
         .accessibilityElement(children: .combine)
     }
@@ -444,10 +454,10 @@ struct ResultView: View {
     // MARK: - Intrigue Sequence
 
     private func startIntrigueSequence() {
-        let wordStep = 0.26
+        let wordStep = 0.26 * intrigueSpeedMultiplier
         for i in 0..<intrigueTexts.count {
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * wordStep) {
-                withAnimation(.spring(response: 0.32, dampingFraction: 0.86)) {
+                withAnimation(.easeInOut(duration: 0.2 * intrigueSpeedMultiplier)) {
                     intrigueTextIndex = i
                 }
                 HapticsManager.impact(i == intrigueTexts.count - 1 ? .medium : .light)
@@ -455,20 +465,20 @@ struct ResultView: View {
         }
 
         let lastWordDelay = Double(intrigueTexts.count - 1) * wordStep
-        let revealDelay = lastWordDelay + 0.28
+        let revealDelay = lastWordDelay + (0.28 * intrigueSpeedMultiplier)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + revealDelay) {
-            withAnimation(.easeInOut(duration: 0.38)) {
+            withAnimation(.easeInOut(duration: 0.42)) {
                 phase = .reveal
             }
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                withAnimation(.spring(response: 0.42, dampingFraction: 0.88)) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
+                withAnimation(.spring(response: 0.56, dampingFraction: 0.9)) {
                     headerReveal = true
                 }
             }
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.24) {
                 if let result = gameSession.gameResult {
                     switch result {
                     case .playersWin:
@@ -477,18 +487,18 @@ struct ResultView: View {
                         HapticsManager.notification(.warning)
                     }
                 }
-                withAnimation(.spring(response: 0.45, dampingFraction: 0.88)) {
+                withAnimation(.spring(response: 0.62, dampingFraction: 0.9)) {
                     showOutcomeSection = true
                 }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.04) {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.9)) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
+                    withAnimation(.spring(response: 0.56, dampingFraction: 0.92)) {
                         outcomeCardAppeared = true
                     }
                 }
             }
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.42) {
-                withAnimation(.spring(response: 0.42, dampingFraction: 0.88)) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.56) {
+                withAnimation(.spring(response: 0.58, dampingFraction: 0.9)) {
                     showSecretSection = true
                 }
                 HapticsManager.selection()

@@ -119,7 +119,7 @@ struct CategoriesView: View {
                     router.navigate(to: .gameSettings)
                 }) {
                     HStack(spacing: 14) {
-                        Text("PLAY")
+                        Text("Play")
                             .font(.evolventa(size: 20, weight: .bold))
                             .foregroundColor(.white)
 
