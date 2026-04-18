@@ -4,9 +4,21 @@ struct CategoryPaywallView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
 
     @State private var isTrialEnabled = false
+    @State private var selectedPlan: Plan = .yearly
     @State private var showRestoreMessage = false
+
+    private enum Plan {
+        case yearly
+        case weekly
+    }
+
+    private enum CategoryPaywallLinks {
+        static let privacyURL = URL(string: "https://www.verte-bro.com/privacy-policy")
+        static let termsURL = URL(string: "https://www.verte-bro.com/terms-and-conditions")
+    }
 
     var body: some View {
         ZStack {
@@ -26,10 +38,13 @@ struct CategoryPaywallView: View {
 
                 freeAccessCard
 
-                yearlyPlanCard(dimmed: isTrialEnabled)
+                yearlyPlanCard(selected: selectedPlan == .yearly, dimmed: isTrialEnabled)
                     .padding(.top, 12)
-                weeklyPlanCard(selected: isTrialEnabled)
-                    .padding(.top, 10)
+                weeklyPlanCard(
+                    selected: selectedPlan == .weekly,
+                    badgeText: selectedPlan == .weekly ? "Most popular" : nil
+                )
+                .padding(.top, 10)
 
                 ctaButton
                     .padding(.top, 16)
@@ -92,29 +107,30 @@ struct CategoryPaywallView: View {
     }
 
     private var freeAccessCard: some View {
-        VStack(spacing: 10) {
+        Button(action: {
+            HapticsManager.selection()
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isTrialEnabled.toggle()
+                if isTrialEnabled {
+                    selectedPlan = .weekly
+                }
+            }
+        }) {
+            VStack(spacing: 10) {
             HStack(spacing: 12) {
-                Button(action: {
-                    HapticsManager.selection()
-                    withAnimation(.easeInOut(duration: 0.2)) {
-                        isTrialEnabled.toggle()
-                    }
-                }) {
-                    ZStack {
+                ZStack {
+                    Circle()
+                        .stroke(Color.white.opacity(0.7), lineWidth: 2)
+                        .frame(width: 30, height: 30)
+                    if isTrialEnabled {
                         Circle()
-                            .stroke(Color.white.opacity(0.7), lineWidth: 2)
-                            .frame(width: 30, height: 30)
-                        if isTrialEnabled {
-                            Circle()
-                                .fill(Color.green)
-                                .frame(width: 28, height: 28)
-                            Image(systemName: "checkmark")
-                                .font(.antropicSerif(size: 14, weight: .bold))
-                                .foregroundColor(.white)
-                        }
+                            .fill(Color.green)
+                            .frame(width: 28, height: 28)
+                        Image(systemName: "checkmark")
+                            .font(.antropicSerif(size: 14, weight: .bold))
+                            .foregroundColor(.white)
                     }
                 }
-                .buttonStyle(.plain)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(isTrialEnabled ? "Free access enabled" : "Not sure yet?")
@@ -141,18 +157,27 @@ struct CategoryPaywallView: View {
                     .padding(.leading, 44)
             }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 13)
-        .background(Color.white.opacity(0.04))
-        .clipShape(RoundedRectangle(cornerRadius: 18))
-        .overlay(
-            RoundedRectangle(cornerRadius: 18)
-                .stroke(Color.white.opacity(0.7), lineWidth: 1.5)
-        )
+            .padding(.horizontal, 16)
+            .padding(.vertical, 13)
+            .background(Color.white.opacity(0.16))
+            .clipShape(RoundedRectangle(cornerRadius: 18))
+            .overlay(
+                RoundedRectangle(cornerRadius: 18)
+                    .stroke(Color.white.opacity(0.7), lineWidth: 1.5)
+            )
+        }
+        .buttonStyle(.plain)
     }
 
-    private func yearlyPlanCard(dimmed: Bool) -> some View {
-        HStack {
+    private func yearlyPlanCard(selected: Bool, dimmed: Bool) -> some View {
+        Button(action: {
+            HapticsManager.selection()
+            withAnimation(.easeInOut(duration: 0.2)) {
+                selectedPlan = .yearly
+                isTrialEnabled = false
+            }
+        }) {
+            HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Yearly")
                     .font(.antropicSerif(size: 16, weight: .bold))
@@ -165,32 +190,46 @@ struct CategoryPaywallView: View {
             Text("0,96 USD/week")
                 .font(.antropicSerif(size: 16.5, weight: .bold))
                 .foregroundColor(.white)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.white.opacity(selected ? 0.24 : (dimmed ? 0.14 : 0.19)))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.white.opacity(selected ? 1.0 : (dimmed ? 0.2 : 0.65)), lineWidth: selected ? 2.5 : 1.5)
+            )
+            .overlay(alignment: .topTrailing) {
+                if selected {
+                    Text("Best value")
+                        .font(.antropicSerif(size: 11, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(
+                            Capsule()
+                                .fill(Color(red: 0.95, green: 0.28, blue: 0.63))
+                        )
+                        .offset(x: -10, y: -10)
+                        .zIndex(2)
+                }
+            }
+            .opacity(dimmed && !selected ? 0.52 : 1.0)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 14)
-        .background(Color.white.opacity(dimmed ? 0.08 : 0.14))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .overlay(alignment: .topTrailing) {
-            Text("Best value")
-                .font(.antropicSerif(size: 11, weight: .bold))
-                .foregroundColor(.white)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
-                .background(
-                    Capsule()
-                        .fill(Color(red: 0.95, green: 0.28, blue: 0.63))
-                )
-                .offset(x: -10, y: -10)
-        }
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.white.opacity(dimmed ? 0.2 : 0.65), lineWidth: 1.5)
-        )
-        .opacity(dimmed ? 0.52 : 1.0)
+        .buttonStyle(.plain)
     }
 
-    private func weeklyPlanCard(selected: Bool) -> some View {
-        HStack {
+    private func weeklyPlanCard(selected: Bool, badgeText: String?) -> some View {
+        Button(action: {
+            HapticsManager.selection()
+            withAnimation(.easeInOut(duration: 0.2)) {
+                selectedPlan = .weekly
+                isTrialEnabled = true
+            }
+        }) {
+            HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Weekly")
                     .font(.antropicSerif(size: 16, weight: .bold))
@@ -203,15 +242,34 @@ struct CategoryPaywallView: View {
             Text("9,99 USD/week")
                 .font(.antropicSerif(size: 16.5, weight: .bold))
                 .foregroundColor(.white)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.white.opacity(selected ? 0.22 : 0.16))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.white.opacity(selected ? 0.95 : 0.45), lineWidth: 1.5)
+            )
+            .overlay(alignment: .topTrailing) {
+                if let badgeText {
+                    Text(badgeText)
+                        .font(.antropicSerif(size: 11, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(
+                            Capsule()
+                                .fill(Color(red: 0.95, green: 0.28, blue: 0.63))
+                        )
+                        .offset(x: -10, y: -10)
+                        .zIndex(2)
+                }
+            }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 14)
-        .background(Color.white.opacity(selected ? 0.18 : 0.12))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.white.opacity(selected ? 0.95 : 0.45), lineWidth: 1.5)
-        )
+        .buttonStyle(.plain)
     }
 
     private var ctaButton: some View {
@@ -238,8 +296,16 @@ struct CategoryPaywallView: View {
 
     private var footerLinks: some View {
         HStack(spacing: 26) {
-            Button("Terms") {}
-            Button("Privacy") {}
+            Button("Terms") {
+                if let url = CategoryPaywallLinks.termsURL {
+                    openURL(url)
+                }
+            }
+            Button("Privacy") {
+                if let url = CategoryPaywallLinks.privacyURL {
+                    openURL(url)
+                }
+            }
             Button("Restore") {
                 subscriptionManager.restorePurchases()
                 showRestoreMessage = true
@@ -251,6 +317,10 @@ struct CategoryPaywallView: View {
     }
 
     private func closePaywall() {
+        if router.path.count <= 1 {
+            router.navigate(to: .playerSetup)
+            return
+        }
         dismiss()
         if !router.path.isEmpty {
             router.pop()

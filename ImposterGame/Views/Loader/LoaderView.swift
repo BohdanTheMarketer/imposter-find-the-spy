@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LoaderView: View {
     @EnvironmentObject var router: AppRouter
+    @EnvironmentObject var subscriptionManager: SubscriptionManager
     /// Avoid re-running the post-splash navigation when the root loader briefly reappears (e.g. empty `NavigationPath`).
     private static var didScheduleInitialNavigation = false
     @State private var logoScale: CGFloat = 0.5
@@ -74,8 +75,13 @@ struct LoaderView: View {
             Self.didScheduleInitialNavigation = true
             // Short beat so the logo can begin its animation; avoid a multi-second artificial wait before onboarding.
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) {
-                // Onboarding is shown on every cold start; paywall / home follow after the flow.
-                router.navigate(to: .onboarding)
+                if !subscriptionManager.hasCompletedOnboarding {
+                    // First launch: onboarding flow includes onboarding paywall.
+                    router.navigate(to: .onboarding)
+                } else {
+                    // Later launches: always show category paywall before player setup.
+                    router.navigate(to: .categoryPaywall)
+                }
             }
         }
     }

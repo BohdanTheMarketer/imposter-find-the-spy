@@ -94,7 +94,7 @@ struct CategoriesView: View {
                                 onTap: {
                                     if index != 0 {
                                         HapticsManager.notification(.warning)
-                                        router.navigate(to: .paywall)
+                                        router.navigate(to: .categoryPaywall)
                                         return
                                     }
                                     HapticsManager.selection()
