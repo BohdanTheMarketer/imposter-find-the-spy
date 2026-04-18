@@ -3,9 +3,15 @@ import SwiftUI
 struct OnboardingPaywallView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var subscriptionManager: SubscriptionManager
+    @Environment(\.openURL) private var openURL
     @State private var enableFreeTrial = false
     @State private var appearAnimation = false
     @State private var showRestoreMessage = false
+
+    private enum OnboardingPaywallLinks {
+        static let privacyURL = URL(string: "https://www.verte-bro.com/privacy-policy")
+        static let termsURL = URL(string: "https://www.verte-bro.com/terms-and-conditions")
+    }
 
     var body: some View {
         ZStack {
@@ -228,8 +234,16 @@ struct OnboardingPaywallView: View {
 
     private var footerLinks: some View {
         HStack(spacing: 30) {
-            Button("Terms") {}
-            Button("Privacy") {}
+            Button("Terms") {
+                if let url = OnboardingPaywallLinks.termsURL {
+                    openURL(url)
+                }
+            }
+            Button("Privacy") {
+                if let url = OnboardingPaywallLinks.privacyURL {
+                    openURL(url)
+                }
+            }
             Button("Restore") {
                 subscriptionManager.restorePurchases()
                 showRestoreMessage = true
