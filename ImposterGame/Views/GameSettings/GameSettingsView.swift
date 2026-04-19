@@ -23,17 +23,18 @@ struct GameSettingsView: View {
 
             VStack(spacing: 0) {
                 topHeader
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 14) {
-                        impostersCard
-                        roundDurationCard
-                        hintsCard
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 92)
-                    .padding(.bottom, 120)
+                VStack(spacing: 14) {
+                    impostersCard
+                    roundDurationCard
+                    hintsCard
                 }
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+                .padding(.bottom, 8)
+
+                Spacer(minLength: 0)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
 
         .safeAreaInset(edge: .bottom) {
@@ -81,22 +82,10 @@ struct GameSettingsView: View {
     private var gameSettingsBackground: some View {
         ZStack {
             LinearGradient.gameplayBackground
-            .ignoresSafeArea()
+                .ignoresSafeArea()
 
             GridPatternView(lineColor: .white.opacity(0.10))
                 .ignoresSafeArea()
-
-            Circle()
-                .fill(Color.white.opacity(0.10))
-                .frame(width: 260, height: 260)
-                .blur(radius: 60)
-                .offset(x: -150, y: -220)
-
-            Circle()
-                .fill(Color(red: 1.0, green: 0.55, blue: 0.60).opacity(0.25))
-                .frame(width: 300, height: 300)
-                .blur(radius: 90)
-                .offset(x: 140, y: -120)
         }
         .ignoresSafeArea()
     }
@@ -116,6 +105,8 @@ struct GameSettingsView: View {
             Text("Game Settings")
                 .font(.evolventa(size: 30, weight: .bold))
                 .foregroundColor(.gameplayTitle)
+                .lineLimit(1)
+                .minimumScaleFactor(0.65)
 
             Spacer()
 
