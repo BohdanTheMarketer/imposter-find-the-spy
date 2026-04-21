@@ -82,7 +82,9 @@ struct CategoryPaywallView: View {
 
     private var heroBlock: some View {
         Group {
-            if let heroImage = PlayerProfiles.loadBundledImage(named: "PaywallHeroTop") {
+            if let heroImage =
+                PlayerProfiles.loadBundledImage(named: "CategoryPaywallHeroTop")
+                ?? PlayerProfiles.loadBundledImage(named: "PaywallHeroTop") {
                 Image(uiImage: heroImage)
                     .resizable()
                     .scaledToFit()

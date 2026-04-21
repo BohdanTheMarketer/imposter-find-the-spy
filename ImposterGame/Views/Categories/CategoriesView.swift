@@ -243,7 +243,7 @@ struct CategoryCard: View {
                 RoundedRectangle(cornerRadius: 30)
                     .stroke(isSelected ? Color.white.opacity(0.85) : Color.white.opacity(0.06), lineWidth: isSelected ? 2 : 1)
             )
-            .opacity(isLocked ? 0.78 : 1.0)
+            .opacity(1.0)
         }
         .buttonStyle(.plain)
     }

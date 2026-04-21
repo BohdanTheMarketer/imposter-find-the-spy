@@ -7,6 +7,7 @@ import Combine
 struct PlayerEntry: Identifiable {
     let id = UUID()
     var name: String
+    var avatarIndex: Int
 }
 
 struct PlayerSetupView: View {
@@ -153,10 +154,10 @@ struct PlayerSetupView: View {
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(spacing: 10) {
-                            ForEach(Array(players.enumerated()), id: \.element.id) { index, entry in
+                            ForEach(players) { entry in
                                 PlayerRow(
                                     name: entry.name,
-                                    avatarIndex: index,
+                                    avatarIndex: entry.avatarIndex,
                                     canDelete: true,
                                     onDelete: {
                                         withAnimation(.easeInOut(duration: 0.2)) {
@@ -253,10 +254,28 @@ struct PlayerSetupView: View {
         let uniqueName = nextAvailableName(from: trimmed)
 
         withAnimation(.easeInOut(duration: 0.2)) {
-            players.append(PlayerEntry(name: uniqueName))
+            players.append(
+                PlayerEntry(
+                    name: uniqueName,
+                    avatarIndex: nextRandomAvatarIndex()
+                )
+            )
         }
         newPlayerName = ""
         HapticsManager.impact(.light)
+    }
+
+    /// Prefer unused avatars first so early players look distinct.
+    private func nextRandomAvatarIndex() -> Int {
+        let allIndices = Set(0..<PlayerProfiles.count)
+        let usedIndices = Set(players.map(\.avatarIndex))
+        let available = Array(allIndices.subtracting(usedIndices))
+
+        if let uniquePick = available.randomElement() {
+            return uniquePick
+        }
+
+        return Int.random(in: 0..<PlayerProfiles.count)
     }
 
     /// If entered name already exists, append an incrementing suffix: "Name 2", "Name 3", ...
@@ -313,15 +332,15 @@ struct PlayerSetupView: View {
     }
 
     private func setupPlayers() {
-        gameSession.players = players.enumerated().map { index, entry in
-            Player(name: entry.name, avatarIndex: index)
+        gameSession.players = players.map { entry in
+            Player(name: entry.name, avatarIndex: entry.avatarIndex)
         }
     }
 
     /// `PlayerSetupView` keeps its own list until Continue; when returning from Categories or after Play Again, repopulate from the session.
     private func syncLocalPlayersFromSession() {
         guard !gameSession.players.isEmpty else { return }
-        players = gameSession.players.map { PlayerEntry(name: $0.name) }
+        players = gameSession.players.map { PlayerEntry(name: $0.name, avatarIndex: $0.avatarIndex) }
     }
 }
 

@@ -37,6 +37,7 @@
 		4B45873C322DAC732859D437 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8BE02C67520C3F41F354FFC4 /* GoogleService-Info.plist */; };
 		4E2A4D29676E08D801E8C5D7 /* category_film_fill.png in Resources */ = {isa = PBXBuildFile; fileRef = CF8DDF4ED263B824675B7838 /* category_film_fill.png */; };
 		4F010D568FCF96395B305F15 /* NanumMyeongjo-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7E8AE4E1F93C5FB479CACF5A /* NanumMyeongjo-Bold.ttf */; };
+		A4D26F7B9E4C1A23B7D8E901 /* CategoryPaywallHeroTop.png in Resources */ = {isa = PBXBuildFile; fileRef = F4C91D8A72B63E50A1D9C347 /* CategoryPaywallHeroTop.png */; };
 		5362C66EF8AA58DDB810F3CB /* PaywallHeroTop.png in Resources */ = {isa = PBXBuildFile; fileRef = 05121EE3AE1EBB1688E3042F /* PaywallHeroTop.png */; };
 		55BE5F5AC83E295982878890 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = F312ACA34110442A21E2C739 /* Player.swift */; };
 		56D2AA90912B97D89F371971 /* AppRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5E6668A898BCA70D1F2E53A /* AppRouter.swift */; };
@@ -203,6 +204,7 @@
 		ED521C6104609D6FD37E3EC4 /* GameSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSession.swift; sourceTree = "<group>"; };
 		EFECFF1ED3504600C902CFC8 /* LibreBaskerville-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "LibreBaskerville-Bold.ttf"; sourceTree = "<group>"; };
 		F0B134E6E41FA1B6CF210BD9 /* work_life.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = work_life.json; sourceTree = "<group>"; };
+		F4C91D8A72B63E50A1D9C347 /* CategoryPaywallHeroTop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = CategoryPaywallHeroTop.png; sourceTree = "<group>"; };
 		F1CBC0EF96B0B7AECBE21200 /* category_sportscourt_fill.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_sportscourt_fill.png; sourceTree = "<group>"; };
 		F312ACA34110442A21E2C739 /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		F92676F4326A652D8BB04B42 /* category_paintpalette_fill.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_paintpalette_fill.png; sourceTree = "<group>"; };
@@ -339,6 +341,7 @@
 		8733D288A5D2DF79B0412536 /* Onboarding */ = {
 			isa = PBXGroup;
 			children = (
+				F4C91D8A72B63E50A1D9C347 /* CategoryPaywallHeroTop.png */,
 				AA2C6AC8AA9C574611A86F36 /* OnboardingHero.jpg */,
 				05121EE3AE1EBB1688E3042F /* PaywallHeroTop.png */,
 			);
@@ -603,6 +606,7 @@
 				4F010D568FCF96395B305F15 /* NanumMyeongjo-Bold.ttf in Resources */,
 				0E6A4995B983DEC91E9581BB /* NanumMyeongjo-ExtraBold.ttf in Resources */,
 				FDCCC613281DAB0E1C331525 /* NanumMyeongjo-Regular.ttf in Resources */,
+				A4D26F7B9E4C1A23B7D8E901 /* CategoryPaywallHeroTop.png in Resources */,
 				3D6C45B010FD71B7AA7B5AF0 /* OnboardingHero.jpg in Resources */,
 				5362C66EF8AA58DDB810F3CB /* PaywallHeroTop.png in Resources */,
 				BBB9D5FCDADC50F5DF743A8A /* category_airplane.png in Resources */,
