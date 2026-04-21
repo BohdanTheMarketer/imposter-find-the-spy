@@ -212,8 +212,13 @@ struct OnboardingPaywallView: View {
     private var continueButton: some View {
         Button(action: {
             HapticsManager.impact(.medium)
-            subscriptionManager.purchaseSubscription()
-            router.navigate(to: .playerSetup)
+            let plan: SubscriptionManager.SubscriptionPlan = enableFreeTrial ? .weekly : .yearly
+            Task {
+                let didPurchase = await subscriptionManager.purchaseSubscription(plan: plan)
+                if didPurchase {
+                    router.navigate(to: .playerSetup)
+                }
+            }
         }) {
             HStack {
                 Text("Continue")

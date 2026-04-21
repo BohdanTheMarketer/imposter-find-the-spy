@@ -277,8 +277,13 @@ struct CategoryPaywallView: View {
     private var ctaButton: some View {
         Button(action: {
             HapticsManager.impact(.medium)
-            subscriptionManager.purchaseSubscription()
-            closePaywall()
+            let plan: SubscriptionManager.SubscriptionPlan = selectedPlan == .weekly ? .weekly : .yearly
+            Task {
+                let didPurchase = await subscriptionManager.purchaseSubscription(plan: plan)
+                if didPurchase {
+                    closePaywall()
+                }
+            }
         }) {
             HStack {
                 Text(isTrialEnabled ? "Try it for Free" : "Continue")

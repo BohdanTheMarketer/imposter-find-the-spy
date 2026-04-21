@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		02783BF3E33C4CFBBE974DC0 /* food.json in Resources */ = {isa = PBXBuildFile; fileRef = 85C7811EF9EFD2F14047A94A /* food.json */; };
+		03002BF94CA65504057D046F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9B8B4755C749B0A1468CA233 /* Assets.xcassets */; };
 		0B85C8105B10AB8074B2EC96 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8CD45AF718629C1648047AA /* OnboardingView.swift */; };
 		0C2F27840489DB3AF49E5759 /* GameTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54737C122B0879AC9573030F /* GameTimerView.swift */; };
 		0E6A4995B983DEC91E9581BB /* NanumMyeongjo-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 24EE87908C6DD0FD963B9F82 /* NanumMyeongjo-ExtraBold.ttf */; };
@@ -171,6 +172,7 @@
 		8E7956E43973E4945E852F34 /* music.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = music.json; sourceTree = "<group>"; };
 		9073AD54BA35B5586634CF4B /* player_8.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = player_8.png; sourceTree = "<group>"; };
 		90DEDF8DE2E05CA042C13513 /* small_player_10.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_player_10.png; sourceTree = "<group>"; };
+		9B8B4755C749B0A1468CA233 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A1B45AA5EC7D3A5D540E227C /* small_player_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_player_2.png; sourceTree = "<group>"; };
 		A377BEB2DDC8A0578C6B2763 /* LibreBaskerville-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "LibreBaskerville-Medium.ttf"; sourceTree = "<group>"; };
 		A5E6668A898BCA70D1F2E53A /* AppRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouter.swift; sourceTree = "<group>"; };
@@ -304,6 +306,7 @@
 		622494B8AE6D874736411B20 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				9B8B4755C749B0A1468CA233 /* Assets.xcassets */,
 				DEB5B799C990B021BD840655 /* CategoryIcons */,
 				87966D110047CCACEC8535E9 /* Fonts */,
 				8733D288A5D2DF79B0412536 /* Onboarding */,
@@ -590,6 +593,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				03002BF94CA65504057D046F /* Assets.xcassets in Resources */,
 				E537C6A60D252CB2788F2691 /* Evolventa-Bold.ttf in Resources */,
 				E073E44FA49C705E2CF762C5 /* Evolventa-BoldOblique.ttf in Resources */,
 				328E366D25C5378182D638A7 /* Evolventa-Oblique.ttf in Resources */,

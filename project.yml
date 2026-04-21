@@ -84,6 +84,8 @@ targets:
         buildPhase: resources
       - path: ImposterGame/Resources/Fonts/LibreBaskerville-BoldItalic.ttf
         buildPhase: resources
+      - path: ImposterGame/Resources/Assets.xcassets
+        buildPhase: resources
       - path: ImposterGame/GoogleService-Info.plist
         buildPhase: resources
     settings:

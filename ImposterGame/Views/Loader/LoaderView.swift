@@ -28,26 +28,22 @@ struct LoaderView: View {
                         .frame(width: 180, height: 180)
                         .scaleEffect(pulseScale)
 
-                    // App icon placeholder
+                    // Brand logo
                     RoundedRectangle(cornerRadius: 32)
-                        .fill(
-                            LinearGradient(
-                                colors: [Color.gameplayButtonPrimary, Color(red: 0.70, green: 0.03, blue: 0.43)],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
+                        .fill(Color.black.opacity(0.22))
                         .frame(width: 150, height: 150)
                         .overlay(
-                            VStack(spacing: 4) {
-                                Text("🕵️")
-                                    .font(.evolventa(size: 60))
-                                Text("❓")
-                                    .font(.evolventa(size: 30))
-                                    .offset(x: 30, y: -20)
-                            }
+                            Image("BrandLogo")
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 150, height: 150)
+                                .clipShape(RoundedRectangle(cornerRadius: 32))
                         )
-                        .shadow(color: Color.gameplayButtonPrimary.opacity(0.5), radius: 20)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 32)
+                                .stroke(.white.opacity(0.2), lineWidth: 1)
+                        )
+                        .shadow(color: Color.gameplayButtonPrimary.opacity(0.45), radius: 22)
                 }
                 .scaleEffect(logoScale)
                 .opacity(logoOpacity)
