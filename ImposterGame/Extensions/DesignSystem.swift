@@ -4,10 +4,15 @@ import CoreText
 
 // MARK: - Colors
 extension Color {
-    static let appBackground = Color(red: 0.1, green: 0.02, blue: 0.2)
-    static let appAccent = Color(red: 0.486, green: 0.227, blue: 0.929) // #7C3AED
-    static let appSurface = Color(red: 0.176, green: 0.106, blue: 0.306) // #2D1B4E
-    static let appCardBackground = Color(red: 0.15, green: 0.1, blue: 0.25)
+    // Claude Design system tokens (mapped to SwiftUI)
+    static let appBackground = Color(red: 0.055, green: 0.043, blue: 0.122) // #0E0B1F
+    static let appBackgroundElevated = Color(red: 0.082, green: 0.071, blue: 0.165) // #15122A
+    static let appAccent = Color(red: 1.0, green: 0.541, blue: 0.357) // #FF8A5B
+    static let appAccentHigh = Color(red: 1.0, green: 0.722, blue: 0.420) // #FFB86B
+    static let appTextOnAccent = Color(red: 0.102, green: 0.055, blue: 0.027) // #1A0E07
+    static let appSurface = Color(red: 0.102, green: 0.090, blue: 0.188) // #1A1730
+    static let appSurface2 = Color(red: 0.141, green: 0.125, blue: 0.239) // #24203D
+    static let appCardBackground = Color.appSurface
 
     // Gradient colors from reference images
     static let gradientRedTop = Color(red: 1.0, green: 0.25, blue: 0.3)
@@ -19,7 +24,9 @@ extension Color {
     static let onboardingGreen = Color(red: 0.35, green: 0.78, blue: 0.4)
     static let onboardingRed = Color(red: 0.95, green: 0.3, blue: 0.35)
     static let onboardingBlue = Color(red: 0.3, green: 0.7, blue: 0.95)
-    static let paywallPurple = Color(red: 0.45, green: 0.2, blue: 0.85)
+    static let paywallPurpleTop = Color(red: 0.478, green: 0.298, blue: 1.0) // #7A4CFF
+    static let paywallPurple = Color(red: 0.357, green: 0.169, blue: 0.878) // #5B2BE0
+    static let paywallPurpleDeep = Color(red: 0.243, green: 0.090, blue: 0.710) // #3E17B5
 
     // Stitch design guide (DESIGN.md) — onboarding / premium energy
     /// Electric Purple #8B44FF
@@ -37,12 +44,12 @@ extension Color {
     static let revealPink = Color(red: 0.95, green: 0.3, blue: 0.5)
 
     // Core gameplay theme (exclude onboarding/paywall/reveal).
-    static let gameplayBackgroundTop = Color(red: 0.05, green: 0.05, blue: 0.14)
-    static let gameplayBackgroundBottom = Color(red: 0.02, green: 0.02, blue: 0.10)
-    static let gameplayTitle = Color(red: 1.0, green: 0.06, blue: 0.62)
-    static let gameplaySurface = Color(red: 0.10, green: 0.10, blue: 0.20)
-    static let gameplayButtonPrimary = Color(red: 1.0, green: 0.06, blue: 0.62)
-    static let gameplayButtonSecondary = Color(red: 0.13, green: 0.13, blue: 0.22)
+    static let gameplayBackgroundTop = Color.appBackground
+    static let gameplayBackgroundBottom = Color.appBackgroundElevated
+    static let gameplayTitle = Color.white
+    static let gameplaySurface = Color.appSurface
+    static let gameplayButtonPrimary = Color.appAccent
+    static let gameplayButtonSecondary = Color.appSurface2
 }
 
 // MARK: - Gradients
@@ -60,7 +67,7 @@ extension LinearGradient {
     )
 
     static let appPurpleGradient = LinearGradient(
-        colors: [Color.paywallPurple, Color(red: 0.25, green: 0.1, blue: 0.5)],
+        colors: [Color.paywallPurpleTop, Color.paywallPurple, Color.paywallPurpleDeep],
         startPoint: .top,
         endPoint: .bottom
     )
@@ -96,11 +103,16 @@ struct PrimaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.evolventa(size: 18, weight: .bold))
-            .foregroundColor(.white)
+            .foregroundColor(.appTextOnAccent)
             .frame(maxWidth: .infinity)
             .frame(height: 56)
             .background(backgroundColor)
             .clipShape(RoundedRectangle(cornerRadius: 28))
+            .overlay(
+                RoundedRectangle(cornerRadius: 28)
+                    .stroke(Color.white.opacity(0.22), lineWidth: 1)
+            )
+            .shadow(color: Color.appAccent.opacity(0.45), radius: 12, x: 0, y: 6)
             .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
     }
@@ -110,11 +122,16 @@ struct GameplayPrimaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.evolventa(size: 18, weight: .bold))
-            .foregroundColor(.white)
+            .foregroundColor(.appTextOnAccent)
             .frame(maxWidth: .infinity)
             .frame(height: 56)
             .background(Color.gameplayButtonPrimary)
             .clipShape(RoundedRectangle(cornerRadius: 28))
+            .overlay(
+                RoundedRectangle(cornerRadius: 28)
+                    .stroke(Color.white.opacity(0.22), lineWidth: 1)
+            )
+            .shadow(color: Color.appAccent.opacity(0.45), radius: 12, x: 0, y: 6)
             .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
             .animation(.easeInOut(duration: 0.12), value: configuration.isPressed)
     }
@@ -149,41 +166,41 @@ extension View {
     }
 }
 
-// MARK: - App fonts (bundled TTF; register in Info.plist UIAppFonts)
+// MARK: - App fonts (design-system aligned sans typography)
 
 extension Font {
-    /// Legacy app font helper now mapped to Libre Baskerville.
+    /// Legacy app font helper now mapped to the app sans family.
     static func evolventa(size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        libreBaskerville(size: size, weight: weight)
+        appSans(size: size, weight: weight)
     }
 
-    /// Kept for compatibility; app-wide typography uses Libre Baskerville.
+    /// Kept for compatibility; app-wide typography uses app sans.
     static func antropicSans(size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        libreBaskerville(size: size, weight: weight)
+        appSans(size: size, weight: weight)
     }
 
-    /// Kept for compatibility; app-wide typography uses Libre Baskerville.
+    /// Kept for compatibility; app-wide typography uses app sans.
     static func antropicSerif(size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        libreBaskerville(size: size, weight: weight)
+        appSans(size: size, weight: weight)
     }
 
     /// Kept for backward compatibility with previous name.
     static func nanumMyeongjo(size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        libreBaskerville(size: size, weight: weight)
+        appSans(size: size, weight: weight)
     }
 
-    /// Primary app font family: Libre Baskerville.
-    static func libreBaskerville(size: CGFloat, weight: Font.Weight = .regular) -> Font {
+    /// Primary app font family (Inter if available, otherwise system sans).
+    static func appSans(size: CGFloat, weight: Font.Weight = .regular) -> Font {
         let candidates: [String]
         switch weight {
         case .black, .heavy, .bold:
-            candidates = ["LibreBaskerville-Bold"]
+            candidates = ["Inter-Bold", "Inter-SemiBold", "SFProDisplay-Bold"]
         case .semibold:
-            candidates = ["LibreBaskerville-SemiBold", "LibreBaskerville-Medium"]
+            candidates = ["Inter-SemiBold", "Inter-Medium", "SFProText-Semibold"]
         case .medium:
-            candidates = ["LibreBaskerville-Medium", "LibreBaskerville-Regular"]
+            candidates = ["Inter-Medium", "Inter-Regular", "SFProText-Medium"]
         default:
-            candidates = ["LibreBaskerville-Regular"]
+            candidates = ["Inter-Regular", "Inter", "SFProText-Regular"]
         }
         return customFontFromCandidates(candidates, size: size, fallbackWeight: weight)
     }

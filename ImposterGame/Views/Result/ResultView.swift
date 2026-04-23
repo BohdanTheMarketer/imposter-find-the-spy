@@ -6,7 +6,7 @@ struct ResultView: View {
     @State private var phase: ResultPhase = .intrigue
     @State private var intrigueTextIndex = 0
     @State private var showOutcomeSection = false
-    @State private var showSecretSection = false
+    @State private var showActionButtons = false
     @State private var headerReveal = false
     @State private var outcomeCardAppeared = false
 
@@ -31,26 +31,32 @@ struct ResultView: View {
         didPlayersWin ? Color.revealGreen : Color.revealOrange
     }
 
+    private var outcomeTitle: String {
+        didPlayersWin ? "VICTORY!" : "IMPOSTER WINS"
+    }
+
+    private var outcomeSubtitle: String {
+        didPlayersWin ? "The imposter was caught" : "They slipped away undetected"
+    }
+
     private var headlineGradient: LinearGradient {
         if didPlayersWin {
             LinearGradient(
                 colors: [
-                    Color.white,
-                    Color.revealGreen.opacity(0.92),
-                    Color(red: 0.45, green: 0.95, blue: 0.55)
+                    Color.revealGreen,
+                    Color.appAccentHigh
                 ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
+                startPoint: .top,
+                endPoint: .bottom
             )
         } else {
             LinearGradient(
                 colors: [
-                    Color.white,
                     Color.revealOrange,
-                    Color(red: 1.0, green: 0.42, blue: 0.15)
+                    Color.appAccentHigh
                 ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
+                startPoint: .top,
+                endPoint: .bottom
             )
         }
     }
@@ -76,7 +82,7 @@ struct ResultView: View {
             phase = .intrigue
             intrigueTextIndex = 0
             showOutcomeSection = false
-            showSecretSection = false
+            showActionButtons = false
             headerReveal = false
             outcomeCardAppeared = false
             if let result = gameSession.gameResult {
@@ -149,43 +155,37 @@ struct ResultView: View {
                     )
                 )
 
-            ResultAmbientGlowView(accent: outcomeAccentColor, secondary: Color.gameplayTitle.opacity(0.45))
+            ResultConfettiView(
+                accent: outcomeAccentColor,
+                secondary: didPlayersWin ? .appAccentHigh : .revealPurple
+            )
+            .allowsHitTesting(false)
+
+            ResultAmbientGlowView(accent: outcomeAccentColor, secondary: Color.revealPurple.opacity(0.8))
 
             VStack(spacing: 0) {
                 resultsHeader
-                    .padding(.top, 20)
-                    .padding(.bottom, 22)
+                    .padding(.top, 18)
+                    .padding(.bottom, 14)
 
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 18) {
-                        if showOutcomeSection {
-                            outcomeCard
-                                .scaleEffect(outcomeCardAppeared ? 1 : 0.92)
-                                .transition(
-                                    .asymmetric(
-                                        insertion: .opacity.combined(with: .offset(y: 24)),
-                                        removal: .opacity
-                                    )
-                                )
-                        }
-                        if showSecretSection {
-                            secretWordCard
-                                .transition(
-                                    .asymmetric(
-                                        insertion: .opacity.combined(with: .offset(y: 18)).combined(with: .scale(scale: 0.98)),
-                                        removal: .opacity
-                                    )
-                                )
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 8)
+                if showOutcomeSection {
+                    outcomeCard
+                        .scaleEffect(outcomeCardAppeared ? 1 : 0.92)
+                        .transition(
+                            .asymmetric(
+                                insertion: .opacity.combined(with: .offset(y: 24)),
+                                removal: .opacity
+                            )
+                        )
+                        .padding(.horizontal, 20)
+                } else {
+                    Spacer(minLength: 0)
                 }
 
                 Spacer(minLength: 0)
             }
             .safeAreaInset(edge: .bottom, spacing: 0) {
-                if showSecretSection {
+                if showActionButtons {
                     VStack(spacing: 10) {
                         Button(action: {
                             HapticsManager.impact(.medium)
@@ -205,13 +205,17 @@ struct ResultView: View {
                             gameSession.resetForNewRound()
                             router.navigateToPlayerSetup()
                         }) {
-                            Text("New Game")
+                            Text("New game")
                                 .font(.evolventa(size: 17, weight: .semibold))
-                                .foregroundColor(.white.opacity(0.7))
+                                .foregroundColor(.white.opacity(0.76))
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 50)
-                                .background(Color.white.opacity(0.08))
+                                .background(Color.appSurface2)
                                 .clipShape(Capsule())
+                                .overlay(
+                                    Capsule()
+                                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                                )
                         }
                     }
                     .padding(.horizontal, 20)
@@ -221,30 +225,32 @@ struct ResultView: View {
                 }
             }
         }
-        .animation(.spring(response: 0.52, dampingFraction: 0.86), value: showSecretSection)
+        .animation(.spring(response: 0.52, dampingFraction: 0.86), value: showActionButtons)
     }
 
     private var resultsHeader: some View {
         HStack(spacing: 10) {
             Image(systemName: "sparkles")
-                .font(.system(size: 17, weight: .semibold, design: .rounded))
-                .foregroundStyle(Color.white.opacity(0.82))
+                .font(.system(size: 12, weight: .bold, design: .rounded))
+                .foregroundStyle(outcomeAccentColor)
                 .opacity(headerReveal ? 1 : 0)
                 .scaleEffect(headerReveal ? 1 : 0.5)
 
             Text("Round complete")
-                .font(.system(size: 18, weight: .semibold, design: .rounded))
-                .foregroundColor(.white.opacity(0.9))
+                .font(.evolventa(size: 12, weight: .bold))
+                .foregroundColor(outcomeAccentColor)
+                .textCase(.uppercase)
+                .tracking(1.1)
         }
         .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .background(.ultraThinMaterial.opacity(0.7))
+        .padding(.vertical, 8)
+        .background(outcomeAccentColor.opacity(0.14))
         .clipShape(Capsule())
         .overlay(
             Capsule()
-                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                .stroke(outcomeAccentColor.opacity(0.45), lineWidth: 1)
         )
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, alignment: .center)
         .offset(y: headerReveal ? 0 : -12)
         .opacity(headerReveal ? 1 : 0)
     }
@@ -253,112 +259,116 @@ struct ResultView: View {
         VStack(spacing: 0) {
             outcomeHeroBlock
 
-            Rectangle()
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            outcomeAccentColor.opacity(0),
-                            outcomeAccentColor.opacity(0.45),
-                            outcomeAccentColor.opacity(0)
-                        ],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
-                .frame(height: 1)
-                .padding(.vertical, 18)
-
             Text(imposters.count > 1 ? "The imposters" : "The imposter")
                 .font(.evolventa(size: 12, weight: .semibold))
                 .foregroundColor(.white.opacity(0.45))
                 .textCase(.uppercase)
                 .tracking(1.1)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.bottom, 14)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.top, 6)
+                .padding(.bottom, 10)
 
             imposterRevealSection
         }
-        .padding(22)
+        .padding(18)
         .frame(maxWidth: .infinity)
         .background(
-            ZStack {
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(.ultraThinMaterial)
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color.white.opacity(0.16),
-                                Color.white.opacity(0.02),
-                                outcomeAccentColor.opacity(0.1)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-            }
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(Color.appSurface)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .stroke(
-                    LinearGradient(
-                        colors: [
-                            Color.white.opacity(0.35),
-                            Color.white.opacity(0.08),
-                            outcomeAccentColor.opacity(0.3)
-                        ],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 1.2
-                )
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .stroke(Color.white.opacity(0.08), lineWidth: 1)
         )
-        .shadow(color: Color.black.opacity(0.28), radius: 24, x: 0, y: 12)
+        .shadow(color: Color.black.opacity(0.22), radius: 20, x: 0, y: 10)
         .accessibilityElement(children: .combine)
     }
 
     private var outcomeHeroBlock: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 12) {
             ZStack {
+                ResultBurstRaysView(primary: outcomeAccentColor, secondary: Color.appAccent)
+                    .frame(width: 170, height: 170)
+                    .opacity(0.5)
+
                 Circle()
-                    .fill(outcomeAccentColor.opacity(0.2))
-                    .frame(width: 96, height: 96)
+                    .fill(outcomeAccentColor.opacity(0.25))
+                    .frame(width: 120, height: 120)
+                    .blur(radius: 12)
+
                 Circle()
-                    .fill(.ultraThinMaterial.opacity(0.95))
-                    .frame(width: 80, height: 80)
+                    .fill(
+                        LinearGradient(
+                            colors: [outcomeAccentColor, Color.appSurface2],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 104, height: 104)
                     .overlay(
                         Circle()
-                            .stroke(Color.white.opacity(0.28), lineWidth: 1)
+                            .stroke(outcomeAccentColor.opacity(0.9), lineWidth: 2)
                     )
-                Image(systemName: didPlayersWin ? "trophy.fill" : "theatermasks.fill")
-                    .font(.system(size: 30, weight: .semibold, design: .rounded))
-                    .foregroundStyle(headlineGradient)
-            }
-            .padding(.bottom, 4)
 
-            Text(didPlayersWin ? "Players win" : "Imposter wins")
-                .font(.system(size: 34, weight: .bold, design: .rounded))
+                Image(systemName: didPlayersWin ? "trophy.fill" : "theatermasks.fill")
+                    .font(.system(size: 42, weight: .bold, design: .rounded))
+                    .foregroundColor(Color.black.opacity(0.62))
+            }
+            .padding(.top, 2)
+            .padding(.bottom, 6)
+
+            Text(outcomeTitle)
+                .font(.evolventa(size: 44, weight: .bold))
                 .foregroundStyle(headlineGradient)
                 .multilineTextAlignment(.center)
-                .minimumScaleFactor(0.85)
+                .minimumScaleFactor(0.82)
+                .tracking(-1.2)
 
-            Text(didPlayersWin ? "The imposter was caught" : "Slipped away undetected")
-                .font(.system(size: 17, weight: .medium, design: .rounded))
+            Text(outcomeSubtitle)
+                .font(.evolventa(size: 16, weight: .medium))
                 .foregroundColor(.white.opacity(0.72))
                 .multilineTextAlignment(.center)
         }
+        .frame(maxWidth: .infinity)
+        .padding(.bottom, 12)
     }
 
     @ViewBuilder
     private var imposterRevealSection: some View {
-        if imposters.count <= 1 {
-            ForEach(Array(imposters.enumerated()), id: \.element.id) { index, imposter in
-                imposterCell(imposter: imposter, size: 124, corner: 20, index: index)
+        if imposters.isEmpty {
+            Text("No imposter found")
+                .font(.evolventa(size: 16, weight: .medium))
+                .foregroundColor(.white.opacity(0.75))
+                .frame(maxWidth: .infinity, alignment: .leading)
+        } else if imposters.count == 1, let imposter = imposters.first {
+            HStack(spacing: 14) {
+                PlayerAvatarThumbnailView(
+                    avatarIndex: imposter.avatarIndex,
+                    size: 64,
+                    cornerRadius: 18
+                )
+                .shadow(color: Color.black.opacity(0.25), radius: 8, x: 0, y: 4)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(imposter.name)
+                        .font(.evolventa(size: 22, weight: .bold))
+                        .foregroundColor(.white)
+                    HStack(spacing: 6) {
+                        Image(systemName: "lock.open.fill")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.55))
+                        Text("word was \(gameSession.secretWord)")
+                            .font(.evolventa(size: 13, weight: .medium))
+                            .foregroundColor(.white.opacity(0.72))
+                    }
+                }
+                Spacer(minLength: 0)
             }
+            .padding(.vertical, 2)
         } else {
             LazyVGrid(columns: imposterGridColumns, spacing: 18) {
                 ForEach(Array(imposters.enumerated()), id: \.element.id) { index, imposter in
-                    imposterCell(imposter: imposter, size: 104, corner: 18, index: index)
+                    imposterCell(imposter: imposter, size: 96, corner: 16, index: index)
                 }
             }
         }
@@ -396,59 +406,6 @@ struct ResultView: View {
                 .delay(Double(index) * 0.11),
             value: showOutcomeSection
         )
-    }
-
-    private var secretWordCard: some View {
-        VStack(spacing: 10) {
-            HStack(spacing: 6) {
-                Image(systemName: "lock.open.fill")
-                    .font(.system(size: 13, weight: .semibold, design: .rounded))
-                    .foregroundColor(.white.opacity(0.45))
-                Text("Secret word")
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
-                    .foregroundColor(.white.opacity(0.7))
-            }
-
-            Text(gameSession.secretWord)
-                .font(.system(size: 30, weight: .bold, design: .rounded))
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [.white, Color.white.opacity(0.88)],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
-                .multilineTextAlignment(.center)
-                .minimumScaleFactor(0.7)
-                .lineLimit(2)
-                .padding(.top, 2)
-        }
-        .padding(.vertical, 22)
-        .padding(.horizontal, 20)
-        .frame(maxWidth: .infinity)
-        .background(
-            ZStack {
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(.ultraThinMaterial)
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [
-                                Color.white.opacity(0.18),
-                                Color.clear,
-                                outcomeAccentColor.opacity(0.09)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-            }
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .stroke(Color.white.opacity(0.24), lineWidth: 1)
-        )
-        .accessibilityElement(children: .combine)
     }
 
     // MARK: - Intrigue Sequence
@@ -499,7 +456,7 @@ struct ResultView: View {
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.56) {
                 withAnimation(.spring(response: 0.58, dampingFraction: 0.9)) {
-                    showSecretSection = true
+                    showActionButtons = true
                 }
                 HapticsManager.selection()
             }
@@ -508,6 +465,69 @@ struct ResultView: View {
 }
 
 // MARK: - Ambient background
+
+private struct ResultConfettiView: View {
+    let accent: Color
+    let secondary: Color
+    private let pieces: [ConfettiPiece] = (0..<34).map { index in
+        let x = Double((index * 29) % 100) / 100.0
+        let delay = Double((index * 7) % 24) / 10.0
+        let duration = 3.2 + Double((index * 11) % 18) / 10.0
+        let size = CGFloat(6 + (index % 7))
+        let drift = CGFloat((index % 5) * 12) - 24
+        return ConfettiPiece(id: index, x: x, delay: delay, duration: duration, size: size, drift: drift)
+    }
+
+    var body: some View {
+        GeometryReader { geo in
+            ZStack {
+                ForEach(pieces) { piece in
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(piece.id.isMultiple(of: 2) ? accent : secondary)
+                        .frame(width: piece.id.isMultiple(of: 3) ? piece.size * 0.45 : piece.size, height: piece.size)
+                        .position(x: geo.size.width * piece.x, y: -12)
+                        .opacity(0.82)
+                        .modifier(
+                            FallingConfettiAnimation(
+                                delay: piece.delay,
+                                duration: piece.duration,
+                                dropDistance: geo.size.height + 90,
+                                drift: piece.drift
+                            )
+                        )
+                }
+            }
+        }
+    }
+}
+
+private struct ConfettiPiece: Identifiable {
+    let id: Int
+    let x: Double
+    let delay: Double
+    let duration: Double
+    let size: CGFloat
+    let drift: CGFloat
+}
+
+private struct FallingConfettiAnimation: ViewModifier {
+    let delay: Double
+    let duration: Double
+    let dropDistance: CGFloat
+    let drift: CGFloat
+    @State private var animate = false
+
+    func body(content: Content) -> some View {
+        content
+            .rotationEffect(.degrees(animate ? 280 : 0))
+            .offset(x: animate ? drift : 0, y: animate ? dropDistance : -10)
+            .onAppear {
+                withAnimation(.linear(duration: duration).repeatForever(autoreverses: false).delay(delay)) {
+                    animate = true
+                }
+            }
+    }
+}
 
 private struct ResultAmbientGlowView: View {
     let accent: Color
@@ -533,5 +553,28 @@ private struct ResultAmbientGlowView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .allowsHitTesting(false)
+    }
+}
+
+private struct ResultBurstRaysView: View {
+    let primary: Color
+    let secondary: Color
+
+    var body: some View {
+        TimelineView(.animation) { timeline in
+            let date = timeline.date.timeIntervalSinceReferenceDate
+            let angle = Angle.degrees((date.truncatingRemainder(dividingBy: 24)) / 24 * 360)
+
+            ZStack {
+                ForEach(0..<12, id: \.self) { index in
+                    Capsule(style: .continuous)
+                        .fill(index.isMultiple(of: 2) ? primary.opacity(0.4) : secondary.opacity(0.25))
+                        .frame(width: 4, height: 68)
+                        .offset(y: -52)
+                        .rotationEffect(.degrees(Double(index) * 30))
+                }
+            }
+            .rotationEffect(angle)
+        }
     }
 }

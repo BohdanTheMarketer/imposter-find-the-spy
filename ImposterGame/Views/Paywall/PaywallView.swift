@@ -15,11 +15,7 @@ struct OnboardingPaywallView: View {
 
     var body: some View {
         ZStack {
-            LinearGradient(
-                colors: [Color(red: 0.56, green: 0.26, blue: 1.0), Color(red: 0.43, green: 0.18, blue: 0.87)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
+            LinearGradient.appPurpleGradient
                 .ignoresSafeArea()
                 .overlay(
                     GridPatternView(lineColor: .white.opacity(0.18))
@@ -202,7 +198,7 @@ struct OnboardingPaywallView: View {
                     .padding(.vertical, 4)
                     .background(
                         Capsule()
-                            .fill(Color(red: 0.95, green: 0.2, blue: 0.58))
+                            .fill(Color.appAccent)
                     )
                     .offset(x: -8, y: -10)
             }
@@ -223,15 +219,15 @@ struct OnboardingPaywallView: View {
             HStack {
                 Text("Continue")
                     .font(.antropicSerif(size: 21, weight: .heavy))
-                    .foregroundColor(.white)
+                    .foregroundColor(.appTextOnAccent)
                 Spacer()
                 Image(systemName: "arrow.right")
                     .font(.antropicSerif(size: 19, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(.appTextOnAccent)
             }
             .padding(.horizontal, 26)
             .frame(height: 66)
-            .background(Color(red: 0.09, green: 0.08, blue: 0.15))
+            .background(Color.appAccent)
             .clipShape(Capsule())
         }
         .buttonStyle(.plain)

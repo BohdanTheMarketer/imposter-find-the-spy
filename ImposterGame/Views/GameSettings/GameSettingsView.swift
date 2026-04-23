@@ -50,13 +50,13 @@ struct GameSettingsView: View {
                 HStack(spacing: 10) {
                     Text("PLAY")
                         .font(.evolventa(size: 18, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundColor(.appTextOnAccent)
                     Text("|")
                         .font(.evolventa(size: 14, weight: .bold))
-                        .foregroundColor(.white.opacity(0.65))
+                        .foregroundColor(.appTextOnAccent.opacity(0.65))
                     Text(imposterCountLabel)
                         .font(.evolventa(size: 18, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundColor(.appTextOnAccent)
                 }
                 .padding(.horizontal, 26)
                 .frame(height: 56)

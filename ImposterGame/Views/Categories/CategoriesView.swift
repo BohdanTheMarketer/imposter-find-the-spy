@@ -121,15 +121,15 @@ struct CategoriesView: View {
                     HStack(spacing: 14) {
                         Text("Play")
                             .font(.evolventa(size: 20, weight: .bold))
-                            .foregroundColor(.white)
+                            .foregroundColor(.appTextOnAccent)
 
                         Rectangle()
-                            .fill(Color.white.opacity(0.35))
+                            .fill(Color.appTextOnAccent.opacity(0.25))
                             .frame(width: 1, height: 26)
 
                         Text("\(selectedCategoryCount) Category")
                             .font(.evolventa(size: 20, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.85))
+                            .foregroundColor(.appTextOnAccent.opacity(0.85))
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 56)
@@ -355,7 +355,7 @@ struct CategoryInfoOverlay: View {
                 Button(action: nextTapped) {
                     Text(steps[currentStep].buttonTitle)
                         .font(.evolventa(size: 20, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundColor(.appTextOnAccent)
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
                         .background(Color.gameplayButtonPrimary)

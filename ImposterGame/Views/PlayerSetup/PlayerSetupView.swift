@@ -18,6 +18,7 @@ struct PlayerSetupView: View {
     /// Bumped to programmatically focus the UIKit name field (see `PlayerNameEntryField`).
     @State private var nameFieldFocusToken = 0
     @State private var keyboardHeight: CGFloat = 0
+    @State private var listScrollProxy: ScrollViewProxy?
     private let inputRowScrollId = "player-input-row"
 
     private let minPlayers = 3
@@ -88,13 +89,13 @@ struct PlayerSetupView: View {
                     HStack(spacing: 14) {
                         Text("CONTINUE")
                             .font(.evolventa(size: 20, weight: .bold))
-                            .foregroundColor(.white)
+                            .foregroundColor(.appTextOnAccent)
                         Rectangle()
-                            .fill(Color.white.opacity(0.35))
+                            .fill(Color.appTextOnAccent.opacity(0.25))
                             .frame(width: 1, height: 26)
                         Text(playerCountLabel)
                             .font(.evolventa(size: 20, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.85))
+                            .foregroundColor(.appTextOnAccent.opacity(0.85))
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 56)
@@ -183,6 +184,7 @@ struct PlayerSetupView: View {
                         scrollToLastPlayer(using: proxy)
                     }
                     .onAppear {
+                        listScrollProxy = proxy
                         scrollToLastPlayer(using: proxy)
                     }
                 }
@@ -241,6 +243,15 @@ struct PlayerSetupView: View {
         }
     }
 
+    private func scrollInputRowToVisible() {
+        guard players.count < maxPlayers, let proxy = listScrollProxy else { return }
+        DispatchQueue.main.async {
+            withAnimation(.easeOut(duration: 0.22)) {
+                proxy.scrollTo(inputRowScrollId, anchor: .bottom)
+            }
+        }
+    }
+
     private func addPlayer() {
         let trimmed = newPlayerName.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty, players.count < maxPlayers else { return }
@@ -261,6 +272,7 @@ struct PlayerSetupView: View {
             )
         }
         newPlayerName = ""
+        scrollInputRowToVisible()
         HapticsManager.impact(.light)
     }
 
@@ -328,6 +340,9 @@ struct PlayerSetupView: View {
 
         let overlap = max(0, UIScreen.main.bounds.height - frame.minY)
         keyboardHeight = overlap
+        if overlap > 0 {
+            scrollInputRowToVisible()
+        }
     }
 
     private func setupPlayers() {
@@ -366,7 +381,7 @@ private struct PlayerNameEntryField: UIViewRepresentable {
         let tf = UITextField()
         tf.textColor = .white
         tf.tintColor = .white
-        tf.font = UIFont(name: "Evolventa-Bold", size: 17) ?? .systemFont(ofSize: 17, weight: .semibold)
+        tf.font = UIFont(name: "Inter-SemiBold", size: 17) ?? .systemFont(ofSize: 17, weight: .semibold)
         tf.attributedPlaceholder = NSAttributedString(
             string: placeholder,
             attributes: [.foregroundColor: UIColor.white.withAlphaComponent(0.45)]
@@ -486,7 +501,7 @@ struct PlayerOptionsSheet: View {
                 }) {
                     Text("Close")
                         .font(.evolventa(size: 18, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundColor(.appTextOnAccent)
                         .frame(maxWidth: .infinity)
                         .frame(height: 56)
                         .background(Color.gameplayButtonPrimary)
