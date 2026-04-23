@@ -1,4 +1,3 @@
-import FirebaseAnalytics
 import FirebaseInstallations
 import SwiftUI
 import UIKit
@@ -558,8 +557,6 @@ struct PlayerOptionsSheet: View {
             DispatchQueue.main.async {
                 if let id, !id.isEmpty {
                     firebaseInstallationId = id
-                } else if let analyticsId = Analytics.appInstanceID(), !analyticsId.isEmpty {
-                    firebaseInstallationId = analyticsId
                 } else {
                     firebaseInstallationId = ""
                 }
