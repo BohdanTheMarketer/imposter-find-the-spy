@@ -29,31 +29,35 @@ struct CategoryPaywallView: View {
                         .opacity(0.1)
                 )
 
-            VStack(spacing: 0) {
-                topBar
-                heroBlock
-                titleBlock
+            GeometryReader { proxy in
+                let isCompactHeight = proxy.size.height < 780
 
-                Spacer(minLength: 20)
+                VStack(spacing: 0) {
+                    topBar(topPadding: isCompactHeight ? 2 : 10)
+                    heroBlock(height: isCompactHeight ? 240 : 285, topPadding: isCompactHeight ? -6 : 4, bottomPadding: isCompactHeight ? 2 : 10)
+                    titleBlock(isCompactHeight: isCompactHeight)
 
-                freeAccessCard
+                    Spacer(minLength: isCompactHeight ? 8 : 20)
 
-                yearlyPlanCard(selected: selectedPlan == .yearly, dimmed: isTrialEnabled)
-                    .padding(.top, 12)
-                weeklyPlanCard(
-                    selected: selectedPlan == .weekly,
-                    badgeText: selectedPlan == .weekly ? "Most popular" : nil
-                )
-                .padding(.top, 10)
+                    freeAccessCard
 
-                ctaButton
-                    .padding(.top, 16)
-
-                footerLinks
+                    yearlyPlanCard(selected: selectedPlan == .yearly, dimmed: isTrialEnabled)
+                        .padding(.top, 12)
+                    weeklyPlanCard(
+                        selected: selectedPlan == .weekly,
+                        badgeText: selectedPlan == .weekly ? "Most popular" : nil
+                    )
                     .padding(.top, 10)
+
+                    ctaButton
+                        .padding(.top, 16)
+
+                    footerLinks
+                        .padding(.top, 10)
+                }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 10)
             }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 10)
         }
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
@@ -65,9 +69,13 @@ struct CategoryPaywallView: View {
         .onAppear {
             AnalyticsService.logEvent("paywall_show", parameters: ["context": "category"])
         }
+        .onChange(of: subscriptionManager.isPremium) { isPremium in
+            guard isPremium else { return }
+            closePaywall()
+        }
     }
 
-    private var topBar: some View {
+    private func topBar(topPadding: CGFloat) -> some View {
         HStack {
             Spacer()
             Button(action: { closePaywall() }) {
@@ -77,10 +85,10 @@ struct CategoryPaywallView: View {
                     .frame(width: 32, height: 32)
             }
         }
-        .padding(.top, 10)
+        .padding(.top, topPadding)
     }
 
-    private var heroBlock: some View {
+    private func heroBlock(height: CGFloat, topPadding: CGFloat, bottomPadding: CGFloat) -> some View {
         Group {
             if let heroImage =
                 PlayerProfiles.loadBundledImage(named: "CategoryPaywallHeroTop")
@@ -94,18 +102,19 @@ struct CategoryPaywallView: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 285)
-        .padding(.top, 4)
-        .padding(.bottom, 10)
+        .frame(height: height)
+        .padding(.top, topPadding)
+        .padding(.bottom, bottomPadding)
     }
 
-    private var titleBlock: some View {
+    private func titleBlock(isCompactHeight: Bool) -> some View {
         Text("Continue to get\nfull access")
-            .font(.antropicSans(size: 42, weight: .bold))
+            .font(.antropicSans(size: isCompactHeight ? 38 : 42, weight: .bold))
             .minimumScaleFactor(0.6)
             .multilineTextAlignment(.center)
             .foregroundColor(.white)
             .lineSpacing(-2)
+            .fixedSize(horizontal: false, vertical: true)
     }
 
     private var freeAccessCard: some View {
@@ -184,12 +193,12 @@ struct CategoryPaywallView: View {
                 Text("Yearly")
                     .font(.antropicSerif(size: 16, weight: .bold))
                     .foregroundColor(.white)
-                Text("Just 49,99 USD/year")
+                Text(subscriptionManager.yearlyPlanSubtitleText)
                     .font(.antropicSerif(size: 12, weight: .medium))
                     .foregroundColor(.white.opacity(0.85))
             }
             Spacer()
-            Text("0,96 USD/week")
+            Text(subscriptionManager.yearlyPlanWeeklyEquivalentText)
                 .font(.antropicSerif(size: 16.5, weight: .bold))
                 .foregroundColor(.white)
             }
@@ -241,7 +250,7 @@ struct CategoryPaywallView: View {
                     .foregroundColor(.white.opacity(0.85))
             }
             Spacer()
-            Text("9,99 USD/week")
+            Text(subscriptionManager.weeklyPlanWeeklyPriceText)
                 .font(.antropicSerif(size: 16.5, weight: .bold))
                 .foregroundColor(.white)
             }

@@ -2,7 +2,7 @@
   "category": "Food",
   "icon": "fork.knife",
   "description": "Delicious secrets and kitchen disasters. Don't let your story leave a bad taste!",
-  "isPremium": false,
+  "isPremium": true,
   "words": [
     "Ice cream",
     "Burger",

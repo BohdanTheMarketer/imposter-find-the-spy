@@ -86,13 +86,14 @@ struct CategoriesView: View {
                 // Category list
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 12) {
-                        ForEach(Array(categories.enumerated()), id: \.element.id) { index, category in
+                        ForEach(categories, id: \.id) { category in
+                            let isLocked = category.isPremium && !subscriptionManager.isPremium
                             CategoryCard(
                                 category: category,
                                 isSelected: selectedCategoryID == category.id,
-                                isLocked: index != 0,
+                                isLocked: isLocked,
                                 onTap: {
-                                    if index != 0 {
+                                    if isLocked {
                                         HapticsManager.notification(.warning)
                                         router.navigate(to: .categoryPaywall)
                                         return
@@ -169,6 +170,9 @@ struct CategoriesView: View {
             categories = CategoryLoader.loadCategories()
             restoreSelection()
         }
+        .onChange(of: subscriptionManager.isPremium) { _ in
+            restoreSelection()
+        }
     }
 
     private func restoreSelection() {
@@ -191,9 +195,12 @@ struct CategoriesView: View {
             return
         }
 
-        if let firstCategory = categories.first {
+        if let firstCategory = categories.first(where: { !($0.isPremium && !subscriptionManager.isPremium) }) {
             selectedCategoryID = firstCategory.id
             gameSession.selectedCategory = firstCategory
+        } else {
+            selectedCategoryID = nil
+            gameSession.selectedCategory = nil
         }
     }
 }

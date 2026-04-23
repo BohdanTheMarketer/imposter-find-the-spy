@@ -2,7 +2,7 @@
   "category": "Hobbies",
   "icon": "paintpalette.fill",
   "description": "Weird passions and weekend vibes. Can you talk the talk without doing the walk?",
-  "isPremium": false,
+  "isPremium": true,
   "words": [
     "Painting",
     "Reading",

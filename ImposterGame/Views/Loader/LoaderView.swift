@@ -384,6 +384,10 @@ struct LoaderView: View {
     // MARK: - Animation sequencer
 
     private func triggerAnimation() {
+        Task {
+            await subscriptionManager.refreshSubscriptionStatus()
+        }
+
         // ── Background breathing ──────────────────────────────────
         withAnimation(.easeInOut(duration: 4.0)) {
             bgScale = 1.0
@@ -541,7 +545,11 @@ struct LoaderView: View {
         guard !Self.didScheduleInitialNavigation else { return }
         Self.didScheduleInitialNavigation = true
         after(4.2) {
-            self.router.navigate(to: .onboarding)
+            if self.subscriptionManager.isPremium {
+                self.router.navigate(to: .playerSetup)
+            } else {
+                self.router.navigate(to: .onboarding)
+            }
         }
     }
 

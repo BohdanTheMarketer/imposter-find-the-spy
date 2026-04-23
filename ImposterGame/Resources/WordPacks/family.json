@@ -2,7 +2,7 @@
   "category": "Family",
   "icon": "house.fill",
   "description": "Awkward dinners and relative drama. Prove you're part of the tree or get chopped!",
-  "isPremium": false,
+  "isPremium": true,
   "words": [
     "Wedding",
     "Grandma",

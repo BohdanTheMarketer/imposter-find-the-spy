@@ -2,7 +2,7 @@
   "category": "Music",
   "icon": "music.note",
   "description": "Headphones on, world off! Drop the beat or face the music if you go off-key!",
-  "isPremium": false,
+  "isPremium": true,
   "words": [
     "Guitar",
     "Piano",

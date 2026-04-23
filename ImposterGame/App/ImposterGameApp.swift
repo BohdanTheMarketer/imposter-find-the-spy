@@ -11,6 +11,7 @@ struct ImposterGameApp: App {
     @StateObject private var router = AppRouter()
     @StateObject private var gameSession = GameSession()
     @StateObject private var subscriptionManager = SubscriptionManager()
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
         WindowGroup {
@@ -45,6 +46,12 @@ struct ImposterGameApp: App {
             .environmentObject(gameSession)
             .environmentObject(subscriptionManager)
             .preferredColorScheme(.dark)
+            .onChange(of: scenePhase) { phase in
+                guard phase == .active else { return }
+                Task {
+                    await subscriptionManager.refreshSubscriptionStatus()
+                }
+            }
         }
     }
 }

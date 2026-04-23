@@ -40,7 +40,7 @@ class SubscriptionManager: ObservableObject {
         transactionUpdatesTask = observeTransactionUpdates()
         Task {
             await loadProducts()
-            await refreshEntitlements()
+            await refreshSubscriptionStatus()
         }
     }
 
@@ -90,6 +90,39 @@ class SubscriptionManager: ObservableObject {
         }
     }
 
+    func refreshSubscriptionStatus() async {
+        await refreshEntitlements()
+    }
+
+    var yearlyPlanSubtitleText: String {
+        guard let product = productsByID[SubscriptionPlan.yearly.productID] else {
+            return isStoreLoading ? "Loading price..." : "Just --/year"
+        }
+        return "Just \(product.displayPrice)/year"
+    }
+
+    var yearlyPlanWeeklyEquivalentText: String {
+        guard let product = productsByID[SubscriptionPlan.yearly.productID] else {
+            return isStoreLoading ? "Loading price..." : "--/week"
+        }
+
+        let yearlyPrice = NSDecimalNumber(decimal: product.price)
+        let weeklyEquivalent = yearlyPrice
+            .dividing(by: NSDecimalNumber(value: 365))
+            .multiplying(by: NSDecimalNumber(value: 7))
+            .decimalValue
+
+        let localizedValue = weeklyEquivalent.formatted(product.priceFormatStyle)
+        return "\(localizedValue)/week"
+    }
+
+    var weeklyPlanWeeklyPriceText: String {
+        guard let product = productsByID[SubscriptionPlan.weekly.productID] else {
+            return isStoreLoading ? "Loading price..." : "--/week"
+        }
+        return "\(product.displayPrice)/week"
+    }
+
     private func loadProducts() async {
         isStoreLoading = true
         defer { isStoreLoading = false }
@@ -120,7 +153,7 @@ class SubscriptionManager: ObservableObject {
                     return false
                 }
                 await transaction.finish()
-                await refreshEntitlements()
+                await refreshSubscriptionStatus()
                 if isPremium {
                     hasCompletedOnboarding = true
                 }
@@ -140,7 +173,7 @@ class SubscriptionManager: ObservableObject {
         AnalyticsService.logSubscriptionAttempt(source: "restore")
         do {
             try await AppStore.sync()
-            await refreshEntitlements()
+            await refreshSubscriptionStatus()
         } catch {
             print("SubscriptionManager: restore failed - \(error)")
         }
@@ -170,7 +203,7 @@ class SubscriptionManager: ObservableObject {
             for await result in Transaction.updates {
                 guard case let .verified(transaction) = result else { continue }
                 await transaction.finish()
-                await self?.refreshEntitlements()
+                await self?.refreshSubscriptionStatus()
             }
         }
     }

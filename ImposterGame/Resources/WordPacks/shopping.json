@@ -2,7 +2,7 @@
   "category": "Shopping",
   "icon": "bag.fill",
   "description": "Retail therapy and impulse buys. Buy the lie or return it for a full refund!",
-  "isPremium": false,
+  "isPremium": true,
   "words": [
     "Mall",
     "Sale",

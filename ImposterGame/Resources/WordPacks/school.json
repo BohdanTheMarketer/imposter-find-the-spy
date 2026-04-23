@@ -2,7 +2,7 @@
   "category": "School",
   "icon": "book.fill",
   "description": "Cramming, exams, and cafeteria mystery meat. Don't fail this social test!",
-  "isPremium": false,
+  "isPremium": true,
   "words": [
     "Exam",
     "Graduation",
