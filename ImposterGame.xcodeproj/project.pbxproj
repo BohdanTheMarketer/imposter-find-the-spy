@@ -154,7 +154,7 @@
 		57B1A59DC496A37029B24E08 /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
 		57BC9CB184283EAE65342ACE /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
 		59D6E6DDD49C2175CD72FDF4 /* category_bolt_fill.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_bolt_fill.png; sourceTree = "<group>"; };
-		5A3D39D79EBFEE259F695500 /* ImposterGame.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ImposterGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A3D39D79EBFEE259F695500 /* ImposterGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImposterGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A45FF697C805ABE39A790E9 /* movies.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = movies.json; sourceTree = "<group>"; };
 		5FC8A6DC10ADD0B1DCAA5B16 /* spicy.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = spicy.json; sourceTree = "<group>"; };
 		644E5C57C317FC091BAE626B /* Evolventa-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Evolventa-Regular.ttf"; sourceTree = "<group>"; };
@@ -785,16 +785,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleIconName = AppIcon;
-				INFOPLIST_KEY_UIAppFonts = (
-					"LibreBaskerville-Regular.ttf",
-					"LibreBaskerville-Medium.ttf",
-					"LibreBaskerville-SemiBold.ttf",
-					"LibreBaskerville-Bold.ttf",
-					"LibreBaskerville-Italic.ttf",
-					"LibreBaskerville-MediumItalic.ttf",
-					"LibreBaskerville-SemiBoldItalic.ttf",
-					"LibreBaskerville-BoldItalic.ttf",
-				);
+				INFOPLIST_KEY_UIAppFonts = "LibreBaskerville-Regular.ttf LibreBaskerville-Medium.ttf LibreBaskerville-SemiBold.ttf LibreBaskerville-Bold.ttf LibreBaskerville-Italic.ttf LibreBaskerville-MediumItalic.ttf LibreBaskerville-SemiBoldItalic.ttf LibreBaskerville-BoldItalic.ttf";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -866,16 +857,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleIconName = AppIcon;
-				INFOPLIST_KEY_UIAppFonts = (
-					"LibreBaskerville-Regular.ttf",
-					"LibreBaskerville-Medium.ttf",
-					"LibreBaskerville-SemiBold.ttf",
-					"LibreBaskerville-Bold.ttf",
-					"LibreBaskerville-Italic.ttf",
-					"LibreBaskerville-MediumItalic.ttf",
-					"LibreBaskerville-SemiBoldItalic.ttf",
-					"LibreBaskerville-BoldItalic.ttf",
-				);
+				INFOPLIST_KEY_UIAppFonts = "LibreBaskerville-Regular.ttf LibreBaskerville-Medium.ttf LibreBaskerville-SemiBold.ttf LibreBaskerville-Bold.ttf LibreBaskerville-Italic.ttf LibreBaskerville-MediumItalic.ttf LibreBaskerville-SemiBoldItalic.ttf LibreBaskerville-BoldItalic.ttf";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -900,13 +882,16 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = Q35PSLMDJH;
-				INFOPLIST_KEY_CFBundleDisplayName = Imposter;
+				INFOPLIST_KEY_CFBundleDisplayName = "Imposter Game";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.danetka.Danetka;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -919,12 +904,15 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = Q35PSLMDJH;
-				INFOPLIST_KEY_CFBundleDisplayName = Imposter;
+				INFOPLIST_KEY_CFBundleDisplayName = "Imposter Game";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.danetka.Danetka;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";

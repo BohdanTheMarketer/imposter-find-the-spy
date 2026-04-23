@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 
 struct OnboardingPage {
-    let emoji: String
+    let imageName: String
     let title: String
     let subtitle: String
     let backgroundColor: Color
@@ -17,14 +17,14 @@ struct OnboardingView: View {
     /// Pages after the Stitch hero (glass & grid style from DESIGN.md).
     private let followPages: [OnboardingPage] = [
         OnboardingPage(
-            emoji: "🎉🕺💃",
+            imageName: "OnboardingScreen2",
             title: "Instant Fun\nAnywhere!",
             subtitle: "Game night, road trip, or\neven an awkward first meeting —\nFakeit breaks the ice and\nbrings the fun",
             backgroundColor: Color.brightGreenStitch,
             buttonTitle: "I'm In!"
         ),
         OnboardingPage(
-            emoji: "🧑‍🍳🥕👨‍🔧",
+            imageName: "OnboardingScreen3",
             title: "Who's Faking It?",
             subtitle: "One of you is lying.\nThe rest know the word.\nCan you spot the imposter\nbefore it's too late?",
             backgroundColor: Color.actionRedStitch,
@@ -86,67 +86,56 @@ struct OnboardingView: View {
             // Floating technical sketches
             BlueprintSketchOverlay()
 
-            VStack(spacing: 0) {
-                Spacer()
-                    .frame(height: 36)
+            GeometryReader { geo in
+                VStack(spacing: 0) {
+                    onboardingImage("OnboardingScreen1")
+                        .frame(maxWidth: min(geo.size.width * 0.88, 360))
+                        .frame(height: geo.size.height * 0.5)
+                        .padding(.top, 16)
 
-                // Hero (bundled PNG — character + speech bubble in art)
-                if let uiImage = UIImage(named: "OnboardingHero") {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: 320)
-                        .shadow(color: Color.black.opacity(0.35), radius: 24, y: 12)
-                } else {
-                    Text("🧓🌵🎤")
-                        .font(.evolventa(size: 72))
-                }
-
-                Spacer()
-                    .frame(minHeight: 12, maxHeight: 28)
-
-                Text("Talk Smarter")
-                    .font(.evolventa(size: 32, weight: .bold))
-                    .foregroundColor(.white)
-                    .shadow(color: .black.opacity(0.35), radius: 6, y: 3)
-                    .multilineTextAlignment(.center)
-
-                Text("Guess Better")
-                    .font(.evolventa(size: 32, weight: .bold))
-                    .foregroundColor(.white)
-                    .shadow(color: .black.opacity(0.35), radius: 6, y: 3)
-                    .multilineTextAlignment(.center)
-                    .padding(.bottom, 14)
-
-                Text("Describe the secret word without saying it.\nBut beware — the imposter is listening and trying to blend in")
-                    .font(.evolventa(size: 16, weight: .regular))
-                    .foregroundColor(.white.opacity(0.92))
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(4)
-                    .padding(.horizontal, 36)
-                    .padding(.bottom, 28)
-
-                Spacer(minLength: 8)
-
-                // Primary CTA — deep onyx + electric purple glow (DESIGN.md)
-                Button(action: { advanceFromOnboarding() }) {
-                    Text("Let's Play!")
-                        .font(.evolventa(size: 20, weight: .bold))
+                    Text("Talk Smarter")
+                        .font(.evolventa(size: 32, weight: .bold))
                         .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 58)
-                        .background(Color.stitchDeepOnyx)
-                        .clipShape(Capsule())
-                        .overlay(
-                            Capsule()
-                                .stroke(Color.stitchElectricPurple.opacity(0.95), lineWidth: 2)
-                        )
-                        .shadow(color: Color.stitchElectricPurple.opacity(0.75), radius: 16, y: 4)
-                        .shadow(color: Color.stitchElectricPurple.opacity(0.45), radius: 28, y: 0)
+                        .shadow(color: .black.opacity(0.35), radius: 6, y: 3)
+                        .multilineTextAlignment(.center)
+
+                    Text("Guess Better")
+                        .font(.evolventa(size: 32, weight: .bold))
+                        .foregroundColor(.white)
+                        .shadow(color: .black.opacity(0.35), radius: 6, y: 3)
+                        .multilineTextAlignment(.center)
+                        .padding(.bottom, 14)
+
+                    Text("Describe the secret word without saying it.\nBut beware — the imposter is listening and trying to blend in")
+                        .font(.evolventa(size: 16, weight: .regular))
+                        .foregroundColor(.white.opacity(0.92))
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(4)
+                        .padding(.horizontal, 36)
+                        .padding(.bottom, 28)
+
+                    Spacer(minLength: 8)
+
+                    // Primary CTA — deep onyx + electric purple glow (DESIGN.md)
+                    Button(action: { advanceFromOnboarding() }) {
+                        Text("Let's Play!")
+                            .font(.evolventa(size: 20, weight: .bold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 58)
+                            .background(Color.stitchDeepOnyx)
+                            .clipShape(Capsule())
+                            .overlay(
+                                Capsule()
+                                    .stroke(Color.stitchElectricPurple.opacity(0.95), lineWidth: 2)
+                            )
+                            .shadow(color: Color.stitchNightBase.opacity(0.75), radius: 16, y: 4)
+                            .shadow(color: Color.stitchNightBase.opacity(0.45), radius: 28, y: 0)
+                    }
+                    .buttonStyle(OnboardingSquishButtonStyle())
+                    .padding(.horizontal, 36)
+                    .padding(.bottom, 44)
                 }
-                .buttonStyle(OnboardingSquishButtonStyle())
-                .padding(.horizontal, 36)
-                .padding(.bottom, 44)
             }
         }
     }
@@ -163,48 +152,63 @@ struct OnboardingView: View {
                         .opacity(0.15)
                 )
 
-            VStack(spacing: 0) {
-                Spacer()
-                    .frame(height: 60)
+            GeometryReader { geo in
+                VStack(spacing: 0) {
+                    onboardingImage(page.imageName)
+                        .frame(maxWidth: min(geo.size.width * 0.88, 360))
+                        .frame(height: geo.size.height * 0.5)
+                        .padding(.top, 16)
 
-                Text(page.emoji)
-                    .font(.evolventa(size: 80))
-                    .padding(.bottom, 40)
-
-                Spacer()
-
-                Text(page.title)
-                    .font(.evolventa(size: 34, weight: .bold))
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                    .padding(.bottom, 16)
-
-                Text(page.subtitle)
-                    .font(.evolventa(size: 16, weight: .regular))
-                    .foregroundColor(.white.opacity(0.9))
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(4)
-                    .padding(.horizontal, 40)
-                    .padding(.bottom, 40)
-
-                Button(action: { advanceFromOnboarding() }) {
-                    Text(page.buttonTitle)
-                        .font(.evolventa(size: 20, weight: .bold))
+                    Text(page.title)
+                        .font(.evolventa(size: 34, weight: .bold))
                         .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 56)
-                        .background(Color.stitchDeepOnyx)
-                        .clipShape(RoundedRectangle(cornerRadius: 28))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 28)
-                                .stroke(Color.stitchElectricPurple.opacity(0.7), lineWidth: 1.5)
-                        )
-                        .shadow(color: Color.stitchElectricPurple.opacity(0.4), radius: 8, y: 2)
+                        .multilineTextAlignment(.center)
+                        .padding(.bottom, 16)
+
+                    Text(page.subtitle)
+                        .font(.evolventa(size: 16, weight: .regular))
+                        .foregroundColor(.white.opacity(0.9))
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(4)
+                        .padding(.horizontal, 40)
+                        .padding(.bottom, 40)
+
+                    Spacer(minLength: 8)
+
+                    Button(action: { advanceFromOnboarding() }) {
+                        Text(page.buttonTitle)
+                            .font(.evolventa(size: 20, weight: .bold))
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 56)
+                            .background(Color.stitchDeepOnyx)
+                            .clipShape(RoundedRectangle(cornerRadius: 28))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 28)
+                                    .stroke(Color.stitchElectricPurple.opacity(0.7), lineWidth: 1.5)
+                            )
+                            .shadow(color: page.backgroundColor.opacity(0.55), radius: 8, y: 2)
+                            .shadow(color: page.backgroundColor.opacity(0.35), radius: 16, y: 0)
+                    }
+                    .buttonStyle(OnboardingSquishButtonStyle())
+                    .padding(.horizontal, 40)
+                    .padding(.bottom, 50)
                 }
-                .buttonStyle(OnboardingSquishButtonStyle())
-                .padding(.horizontal, 40)
-                .padding(.bottom, 50)
             }
+        }
+    }
+
+    @ViewBuilder
+    private func onboardingImage(_ imageName: String) -> some View {
+        if let uiImage = UIImage(named: imageName) {
+            Image(uiImage: uiImage.removingBlackBackgroundFromEdges(cacheKey: imageName) ?? uiImage)
+                .resizable()
+                .scaledToFit()
+                .shadow(color: Color.black.opacity(0.35), radius: 20, y: 10)
+        } else {
+            Image(systemName: "photo")
+                .font(.system(size: 88, weight: .medium))
+                .foregroundColor(.white.opacity(0.6))
         }
     }
 
@@ -331,4 +335,91 @@ extension Color {
     fileprivate static let brightGreenStitch = Color(red: 0.141, green: 0.827, blue: 0.188)
     /// DESIGN.md — Action / Vivid Red #FF3B30
     fileprivate static let actionRedStitch = Color(red: 1.0, green: 0.231, blue: 0.188)
+}
+
+private extension UIImage {
+    private static let transparentBgCache = NSCache<NSString, UIImage>()
+
+    func removingBlackBackgroundFromEdges(cacheKey: String) -> UIImage? {
+        if let cached = Self.transparentBgCache.object(forKey: cacheKey as NSString) {
+            return cached
+        }
+
+        guard let sourceCG = cgImage else { return nil }
+
+        let width = sourceCG.width
+        let height = sourceCG.height
+        let bytesPerPixel = 4
+        let bytesPerRow = width * bytesPerPixel
+        let totalBytes = bytesPerRow * height
+        var pixels = [UInt8](repeating: 0, count: totalBytes)
+
+        guard let context = CGContext(
+            data: &pixels,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: bytesPerRow,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ) else {
+            return nil
+        }
+
+        context.draw(sourceCG, in: CGRect(x: 0, y: 0, width: width, height: height))
+
+        func offset(_ x: Int, _ y: Int) -> Int {
+            (y * width + x) * bytesPerPixel
+        }
+
+        func isNearBlack(_ i: Int) -> Bool {
+            let r = Int(pixels[i])
+            let g = Int(pixels[i + 1])
+            let b = Int(pixels[i + 2])
+            let a = Int(pixels[i + 3])
+            return a > 0 && r <= 26 && g <= 26 && b <= 26
+        }
+
+        var visited = [Bool](repeating: false, count: width * height)
+        var queue: [(Int, Int)] = []
+        queue.reserveCapacity((width + height) * 2)
+
+        func enqueueIfBackground(_ x: Int, _ y: Int) {
+            guard x >= 0, x < width, y >= 0, y < height else { return }
+            let idx = y * width + x
+            guard !visited[idx] else { return }
+            let p = offset(x, y)
+            guard isNearBlack(p) else { return }
+            visited[idx] = true
+            queue.append((x, y))
+        }
+
+        for x in 0..<width {
+            enqueueIfBackground(x, 0)
+            enqueueIfBackground(x, height - 1)
+        }
+        for y in 0..<height {
+            enqueueIfBackground(0, y)
+            enqueueIfBackground(width - 1, y)
+        }
+
+        var qIndex = 0
+        while qIndex < queue.count {
+            let (x, y) = queue[qIndex]
+            qIndex += 1
+
+            let p = offset(x, y)
+            pixels[p + 3] = 0
+
+            enqueueIfBackground(x + 1, y)
+            enqueueIfBackground(x - 1, y)
+            enqueueIfBackground(x, y + 1)
+            enqueueIfBackground(x, y - 1)
+        }
+
+        guard let output = context.makeImage() else { return nil }
+        let result = UIImage(cgImage: output, scale: scale, orientation: imageOrientation)
+        Self.transparentBgCache.setObject(result, forKey: cacheKey as NSString)
+        return result
+    }
 }
