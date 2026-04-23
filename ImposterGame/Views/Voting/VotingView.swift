@@ -90,7 +90,7 @@ struct VotingView: View {
                     }) {
                         Text("Reveal")
                             .font(.evolventa(size: 20, weight: .bold))
-                            .foregroundColor(.white)
+                            .foregroundColor(.appTextOnAccent)
                             .frame(maxWidth: .infinity)
                             .frame(height: 56)
                             .background(Color.gameplayButtonPrimary)

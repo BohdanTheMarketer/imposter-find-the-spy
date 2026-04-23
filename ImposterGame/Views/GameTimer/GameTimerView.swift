@@ -7,6 +7,7 @@ struct GameTimerView: View {
     @State private var isPaused = false
     @State private var timer: Timer?
     @State private var showPauseMenu = false
+    private let timerRingSize: CGFloat = 240
 
     private var formattedTime: String {
         let minutes = timeRemaining / 60
@@ -14,9 +15,19 @@ struct GameTimerView: View {
         return String(format: "%02d:%02d", minutes, seconds)
     }
 
-    private var startingPlayerName: String {
-        guard gameSession.startingPlayerIndex < gameSession.players.count else { return "?" }
-        return gameSession.players[gameSession.startingPlayerIndex].name
+    private var totalDuration: Int {
+        max(gameSession.settings.roundDuration, 1)
+    }
+
+    private var progress: CGFloat {
+        CGFloat(max(timeRemaining, 0)) / CGFloat(totalDuration)
+    }
+
+    private var ringColor: Color {
+        if timeRemaining <= 10 {
+            return .revealOrange
+        }
+        return .appAccent
     }
 
     var body: some View {
@@ -29,7 +40,6 @@ struct GameTimerView: View {
                 )
 
             VStack(spacing: 0) {
-                // Header
                 HStack {
                     Button(action: {
                         HapticsManager.impact(.light)
@@ -39,8 +49,11 @@ struct GameTimerView: View {
                         pauseTimer()
                     }) {
                         Image(systemName: "chevron.left")
-                            .font(.evolventa(size: 18, weight: .semibold))
+                            .font(.evolventa(size: 18, weight: .bold))
                             .foregroundColor(.white)
+                            .frame(width: 36, height: 36)
+                            .background(Color.gameplaySurface.opacity(0.9))
+                            .clipShape(Circle())
                     }
 
                     Spacer()
@@ -50,29 +63,43 @@ struct GameTimerView: View {
 
                 Spacer()
 
-                // Starting player info
                 VStack(spacing: 4) {
                     Text("\(gameSession.startingPlayerIndex + 1)")
-                        .font(.evolventa(size: 40, weight: .bold))
+                        .font(.evolventa(size: 56, weight: .bold))
                         .foregroundColor(.white)
 
                     Text("Starts Asking!")
-                        .font(.evolventa(size: 16))
-                        .foregroundColor(.white.opacity(0.7))
+                        .font(.evolventa(size: 16, weight: .medium))
+                        .foregroundColor(.white.opacity(0.72))
                 }
 
                 Spacer()
 
-                // Timer display
-                VStack(spacing: 8) {
+                VStack(spacing: 14) {
                     Text("Timer")
-                        .font(.evolventa(size: 20, weight: .bold))
-                        .foregroundColor(.gameplayTitle)
+                        .font(.evolventa(size: 12, weight: .bold))
+                        .foregroundColor(.appAccent)
+                        .tracking(1.3)
+                        .textCase(.uppercase)
 
-                    Text(formattedTime)
-                        .font(.evolventa(size: 72, weight: .bold))
-                        .foregroundColor(.white)
-                        .monospacedDigit()
+                    ZStack {
+                        Circle()
+                            .stroke(Color.gameplayButtonSecondary, lineWidth: 6)
+                        Circle()
+                            .trim(from: 0, to: progress)
+                            .stroke(
+                                ringColor,
+                                style: StrokeStyle(lineWidth: 6, lineCap: .round)
+                            )
+                            .rotationEffect(.degrees(-90))
+                            .animation(.linear(duration: 0.8), value: progress)
+
+                        Text(formattedTime)
+                            .font(.evolventa(size: 58, weight: .bold))
+                            .foregroundColor(.white)
+                            .monospacedDigit()
+                    }
+                    .frame(width: timerRingSize, height: timerRingSize)
                 }
 
                 Spacer()
@@ -140,7 +167,7 @@ struct GameTimerView: View {
                             }) {
                                 Text("Vote Now")
                                     .font(.evolventa(size: 17, weight: .bold))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.appTextOnAccent)
                                     .frame(maxWidth: .infinity)
                                     .frame(height: 52)
                                     .background(Color.gameplayButtonPrimary)

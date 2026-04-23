@@ -212,7 +212,7 @@ struct CategoryPaywallView: View {
                         .padding(.vertical, 4)
                         .background(
                             Capsule()
-                                .fill(Color(red: 0.95, green: 0.28, blue: 0.63))
+                                .fill(Color.appAccent)
                         )
                         .offset(x: -10, y: -10)
                         .zIndex(2)
@@ -264,7 +264,7 @@ struct CategoryPaywallView: View {
                         .padding(.vertical, 4)
                         .background(
                             Capsule()
-                                .fill(Color(red: 0.95, green: 0.28, blue: 0.63))
+                                .fill(Color.appAccent)
                         )
                         .offset(x: -10, y: -10)
                         .zIndex(2)
@@ -288,15 +288,15 @@ struct CategoryPaywallView: View {
             HStack {
                 Text(isTrialEnabled ? "Try it for Free" : "Continue")
                     .font(.antropicSerif(size: 19.5, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(.appTextOnAccent)
                 Spacer()
                 Image(systemName: "arrow.right")
                     .font(.antropicSerif(size: 18, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(.appTextOnAccent)
             }
             .padding(.horizontal, 26)
             .frame(height: 64)
-            .background(Color(red: 0.13, green: 0.12, blue: 0.2))
+            .background(Color.appAccent)
             .clipShape(Capsule())
         }
     }
