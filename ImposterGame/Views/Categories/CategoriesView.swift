@@ -37,6 +37,39 @@ struct CategoriesView: View {
     @State private var showInfoOverlay = false
     @State private var onboardingStep = 0
 
+    private static let categoryBackgroundPalette: [LinearGradient] = [
+        LinearGradient(
+            colors: [Color(red: 0.15, green: 0.17, blue: 0.24), Color(red: 0.09, green: 0.11, blue: 0.17)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        ),
+        LinearGradient(
+            colors: [Color(red: 0.20, green: 0.12, blue: 0.34), Color(red: 0.11, green: 0.10, blue: 0.24)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        ),
+        LinearGradient(
+            colors: [Color(red: 0.06, green: 0.20, blue: 0.35), Color(red: 0.05, green: 0.12, blue: 0.23)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        ),
+        LinearGradient(
+            colors: [Color(red: 0.22, green: 0.13, blue: 0.17), Color(red: 0.11, green: 0.08, blue: 0.13)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        ),
+        LinearGradient(
+            colors: [Color(red: 0.14, green: 0.15, blue: 0.25), Color(red: 0.08, green: 0.09, blue: 0.18)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        ),
+        LinearGradient(
+            colors: [Color(red: 0.18, green: 0.21, blue: 0.14), Color(red: 0.09, green: 0.12, blue: 0.08)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    ]
+
     private var selectedCategoryCount: Int {
         selectedCategoryID == nil ? 0 : 1
     }
@@ -92,6 +125,7 @@ struct CategoriesView: View {
                                 category: category,
                                 isSelected: selectedCategoryID == category.id,
                                 isLocked: isLocked,
+                                background: backgroundForCategory(category, in: categories),
                                 onTap: {
                                     if isLocked {
                                         HapticsManager.notification(.warning)
@@ -203,12 +237,43 @@ struct CategoriesView: View {
             gameSession.selectedCategory = nil
         }
     }
+
+    private func backgroundForCategory(_ category: Category, in allCategories: [Category]) -> LinearGradient {
+        let paletteCount = Self.categoryBackgroundPalette.count
+        guard paletteCount > 0 else {
+            return LinearGradient(colors: [.black, .black], startPoint: .topLeading, endPoint: .bottomTrailing)
+        }
+
+        guard let currentIndex = allCategories.firstIndex(where: { $0.id == category.id }) else {
+            let fallback = deterministicPaletteIndex(for: category.name, paletteCount: paletteCount)
+            return Self.categoryBackgroundPalette[fallback]
+        }
+
+        var paletteIndex = deterministicPaletteIndex(for: category.name, paletteCount: paletteCount)
+        if currentIndex > 0 {
+            let previousName = allCategories[currentIndex - 1].name
+            let previousIndex = deterministicPaletteIndex(for: previousName, paletteCount: paletteCount)
+            if previousIndex == paletteIndex {
+                paletteIndex = (paletteIndex + 1) % paletteCount
+            }
+        }
+
+        return Self.categoryBackgroundPalette[paletteIndex]
+    }
+
+    private func deterministicPaletteIndex(for key: String, paletteCount: Int) -> Int {
+        var hasher = Hasher()
+        hasher.combine(key.lowercased())
+        let value = hasher.finalize()
+        return Int(UInt(bitPattern: value) % UInt(paletteCount))
+    }
 }
 
 struct CategoryCard: View {
     let category: Category
     let isSelected: Bool
     let isLocked: Bool
+    let background: LinearGradient
     let onTap: () -> Void
 
     var body: some View {
@@ -244,7 +309,7 @@ struct CategoryCard: View {
             .padding(.vertical, 12)
             .background(
                 RoundedRectangle(cornerRadius: 30)
-                    .fill(cardBackground)
+                    .fill(background)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 30)
@@ -281,20 +346,6 @@ struct CategoryCard: View {
         }
     }
 
-    private var cardBackground: LinearGradient {
-        switch category.name {
-        case "Food":
-            return LinearGradient(colors: [Color(red: 0.15, green: 0.17, blue: 0.24), Color(red: 0.09, green: 0.11, blue: 0.17)], startPoint: .topLeading, endPoint: .bottomTrailing)
-        case "Celebrities":
-            return LinearGradient(colors: [Color(red: 0.20, green: 0.12, blue: 0.34), Color(red: 0.11, green: 0.10, blue: 0.24)], startPoint: .topLeading, endPoint: .bottomTrailing)
-        case "Hobbies":
-            return LinearGradient(colors: [Color(red: 0.06, green: 0.20, blue: 0.35), Color(red: 0.05, green: 0.12, blue: 0.23)], startPoint: .topLeading, endPoint: .bottomTrailing)
-        case "Family":
-            return LinearGradient(colors: [Color(red: 0.22, green: 0.13, blue: 0.17), Color(red: 0.11, green: 0.08, blue: 0.13)], startPoint: .topLeading, endPoint: .bottomTrailing)
-        default:
-            return LinearGradient(colors: [Color(red: 0.14, green: 0.15, blue: 0.25), Color(red: 0.08, green: 0.09, blue: 0.18)], startPoint: .topLeading, endPoint: .bottomTrailing)
-        }
-    }
 }
 
 struct CategoryInfoOverlay: View {
@@ -335,9 +386,11 @@ struct CategoryInfoOverlay: View {
             VStack(spacing: 0) {
                 Text(steps[currentStep].title)
                     .font(.evolventa(size: 44, weight: .bold))
-                    .minimumScaleFactor(0.7)
-                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
                     .foregroundColor(.gameplayTitle)
+                    .padding(.horizontal, 22)
                     .padding(.top, 42)
 
                 Text(steps[currentStep].subtitle)
@@ -388,7 +441,7 @@ struct CategoryInfoOverlay: View {
         switch step.content {
         case .emoji(let text):
             Text(text)
-                .font(.evolventa(size: 60))
+                .font(.system(size: 60, weight: .heavy))
                 .padding(.horizontal, 20)
 
         case .chips(let chips, let emoji):
@@ -409,7 +462,7 @@ struct CategoryInfoOverlay: View {
                     }
                 }
                 Text(emoji)
-                    .font(.evolventa(size: 76))
+                    .font(.system(size: 76))
             }
             .padding(.horizontal, 20)
 
