@@ -98,6 +98,7 @@ struct OnboardingPaywallView: View {
         }
         .onAppear {
             AnalyticsService.logEvent("paywall_show", parameters: ["context": "onboarding"])
+            AnalyticsService.logPaywallViewed(context: .onboarding)
             isCloseButtonVisible = false
             scheduleCloseButtonReveal()
             withAnimation(.easeOut(duration: 0.5)) {
@@ -109,7 +110,7 @@ struct OnboardingPaywallView: View {
         }
         .onChange(of: subscriptionManager.isPremium) { isPremium in
             guard isPremium else { return }
-            closePaywall()
+            closePaywall(reason: .purchaseSuccess)
         }
     }
 
@@ -118,7 +119,9 @@ struct OnboardingPaywallView: View {
             Spacer()
             Group {
                 if isCloseButtonVisible {
-                    Button(action: closePaywall) {
+                    Button(action: {
+                        closePaywall(reason: .closeButton)
+                    }) {
                         Image(systemName: "xmark")
                             .font(.antropicSerif(size: 16, weight: .bold))
                             .foregroundColor(.white.opacity(0.8))
@@ -159,6 +162,12 @@ struct OnboardingPaywallView: View {
                     selectedPlan = .weekly
                 }
             }
+            AnalyticsService.logPaywallTrialToggled(context: .onboarding, enabled: enableFreeTrial)
+            AnalyticsService.logPaywallPlanSelected(
+                context: .onboarding,
+                plan: selectedPlan == .weekly ? "weekly" : "yearly",
+                trialEnabled: enableFreeTrial
+            )
         }) {
             VStack(spacing: 10) {
                 HStack(spacing: 12) {
@@ -233,6 +242,11 @@ struct OnboardingPaywallView: View {
                     enableFreeTrial = true
                 }
             }
+            AnalyticsService.logPaywallPlanSelected(
+                context: .onboarding,
+                plan: selectedPlan == .weekly ? "weekly" : "yearly",
+                trialEnabled: enableFreeTrial
+            )
         }) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
@@ -282,8 +296,13 @@ struct OnboardingPaywallView: View {
         Button(action: {
             HapticsManager.impact(.medium)
             let plan: SubscriptionManager.SubscriptionPlan = selectedPlan == .weekly ? .weekly : .yearly
+            AnalyticsService.logPaywallContinueTapped(
+                context: .onboarding,
+                plan: selectedPlan == .weekly ? "weekly" : "yearly",
+                trialEnabled: enableFreeTrial
+            )
             Task {
-                let didPurchase = await subscriptionManager.purchaseSubscription(plan: plan)
+                let didPurchase = await subscriptionManager.purchaseSubscription(plan: plan, context: .onboarding)
                 if didPurchase {
                     router.navigate(to: .playerSetup)
                 }
@@ -309,20 +328,23 @@ struct OnboardingPaywallView: View {
     private var footerLinks: some View {
         HStack(spacing: 30) {
             Button("Terms") {
+                AnalyticsService.logPaywallLinkTapped(context: .onboarding, linkType: "terms")
                 if let url = OnboardingPaywallLinks.termsURL {
                     openURL(url)
                 }
             }
             Button("Privacy") {
+                AnalyticsService.logPaywallLinkTapped(context: .onboarding, linkType: "privacy")
                 if let url = OnboardingPaywallLinks.privacyURL {
                     openURL(url)
                 }
             }
             Button("Skip") {
-                closePaywall()
+                closePaywall(reason: .skip)
             }
             Button("Restore") {
-                subscriptionManager.restorePurchases()
+                AnalyticsService.logPaywallRestoreTapped(context: .onboarding)
+                subscriptionManager.restorePurchases(context: .onboarding)
                 showRestoreMessage = true
             }
         }
@@ -330,7 +352,8 @@ struct OnboardingPaywallView: View {
         .foregroundColor(.white.opacity(0.5))
     }
 
-    private func closePaywall() {
+    private func closePaywall(reason: AnalyticsService.PaywallCloseReason) {
+        AnalyticsService.logPaywallClosed(context: .onboarding, reason: reason)
         router.navigateToPlayerSetup()
     }
 

@@ -9,6 +9,13 @@ class SubscriptionManager: ObservableObject {
         case weekly
         case yearly
 
+        var analyticsValue: String {
+            switch self {
+            case .weekly: return "weekly"
+            case .yearly: return "yearly"
+            }
+        }
+
         var productID: String {
             switch self {
             case .weekly:
@@ -19,12 +26,18 @@ class SubscriptionManager: ObservableObject {
         }
     }
 
+    enum AnalyticsSource: String {
+        case inApp = "in_app"
+        case restore = "restore"
+    }
+
     private let isPremiumKey = "com.imposter.isPremium"
     private let premiumProductIDs = [
         "com.vertebro.imposter.weekly",
         "com.vertebro.imposter.yearly"
     ]
     private var transactionUpdatesTask: Task<Void, Never>?
+    private var lastEntitlementState: AnalyticsService.SubscriptionEntitlementState?
 
     @Published var isPremium: Bool {
         didSet { keychainWrite(key: isPremiumKey, value: isPremium) }
@@ -37,10 +50,11 @@ class SubscriptionManager: ObservableObject {
 
     init() {
         self.isPremium = Self.keychainReadStatic(key: "com.imposter.isPremium")
+        self.lastEntitlementState = self.isPremium ? .activeYearly : .inactive
         transactionUpdatesTask = observeTransactionUpdates()
         Task {
             await loadProducts()
-            await refreshSubscriptionStatus()
+            await refreshSubscriptionStatus(trigger: "init")
         }
     }
 
@@ -80,18 +94,21 @@ class SubscriptionManager: ObservableObject {
         }
     }
 
-    func purchaseSubscription(plan: SubscriptionPlan = .yearly) async -> Bool {
-        await purchase(plan: plan)
+    func purchaseSubscription(
+        plan: SubscriptionPlan = .yearly,
+        context: AnalyticsService.PaywallContext? = nil
+    ) async -> Bool {
+        await purchase(plan: plan, context: context)
     }
 
-    func restorePurchases() {
+    func restorePurchases(context: AnalyticsService.PaywallContext? = nil) {
         Task {
-            await restore()
+            await restore(context: context)
         }
     }
 
-    func refreshSubscriptionStatus() async {
-        await refreshEntitlements()
+    func refreshSubscriptionStatus(trigger: String = "manual_refresh") async {
+        await refreshEntitlements(trigger: trigger)
     }
 
     var yearlyPlanSubtitleText: String {
@@ -134,14 +151,27 @@ class SubscriptionManager: ObservableObject {
         }
     }
 
-    private func purchase(plan: SubscriptionPlan) async -> Bool {
-        AnalyticsService.logSubscriptionAttempt(source: "in_app")
+    private func purchase(plan: SubscriptionPlan, context: AnalyticsService.PaywallContext?) async -> Bool {
+        AnalyticsService.logSubscriptionAttempt(source: AnalyticsSource.inApp.rawValue)
+        AnalyticsService.logPurchaseStarted(
+            source: AnalyticsSource.inApp.rawValue,
+            context: context,
+            plan: plan.analyticsValue,
+            productID: plan.productID
+        )
         do {
             if productsByID[plan.productID] == nil {
                 await loadProducts()
             }
             guard let product = productsByID[plan.productID] else {
                 print("SubscriptionManager: product not found for \(plan.productID)")
+                AnalyticsService.logPurchaseResult(
+                    source: AnalyticsSource.inApp.rawValue,
+                    context: context,
+                    plan: plan.analyticsValue,
+                    productID: plan.productID,
+                    result: "product_not_found"
+                )
                 return false
             }
 
@@ -150,52 +180,135 @@ class SubscriptionManager: ObservableObject {
             case let .success(verification):
                 guard case let .verified(transaction) = verification else {
                     print("SubscriptionManager: unverified transaction")
+                    AnalyticsService.logPurchaseResult(
+                        source: AnalyticsSource.inApp.rawValue,
+                        context: context,
+                        plan: plan.analyticsValue,
+                        productID: plan.productID,
+                        result: "success_unverified"
+                    )
                     return false
                 }
                 await transaction.finish()
-                await refreshSubscriptionStatus()
+                await refreshSubscriptionStatus(trigger: "purchase_success")
                 if isPremium {
                     hasCompletedOnboarding = true
                 }
+                AnalyticsService.logPurchaseResult(
+                    source: AnalyticsSource.inApp.rawValue,
+                    context: context,
+                    plan: plan.analyticsValue,
+                    productID: plan.productID,
+                    result: isPremium ? "success_verified" : "success_no_entitlement"
+                )
                 return isPremium
-            case .userCancelled, .pending:
+            case .userCancelled:
+                AnalyticsService.logPurchaseResult(
+                    source: AnalyticsSource.inApp.rawValue,
+                    context: context,
+                    plan: plan.analyticsValue,
+                    productID: plan.productID,
+                    result: "user_cancelled"
+                )
+                return false
+            case .pending:
+                AnalyticsService.logPurchaseResult(
+                    source: AnalyticsSource.inApp.rawValue,
+                    context: context,
+                    plan: plan.analyticsValue,
+                    productID: plan.productID,
+                    result: "pending"
+                )
                 return false
             @unknown default:
+                AnalyticsService.logPurchaseResult(
+                    source: AnalyticsSource.inApp.rawValue,
+                    context: context,
+                    plan: plan.analyticsValue,
+                    productID: plan.productID,
+                    result: "unknown"
+                )
                 return false
             }
         } catch {
             print("SubscriptionManager: purchase failed - \(error)")
+            AnalyticsService.logPurchaseResult(
+                source: AnalyticsSource.inApp.rawValue,
+                context: context,
+                plan: plan.analyticsValue,
+                productID: plan.productID,
+                result: "error",
+                errorCode: String(describing: error)
+            )
             return false
         }
     }
 
-    private func restore() async {
-        AnalyticsService.logSubscriptionAttempt(source: "restore")
+    private func restore(context: AnalyticsService.PaywallContext?) async {
+        AnalyticsService.logSubscriptionAttempt(source: AnalyticsSource.restore.rawValue)
+        AnalyticsService.logRestoreStarted(source: AnalyticsSource.restore.rawValue, context: context)
         do {
             try await AppStore.sync()
-            await refreshSubscriptionStatus()
+            await refreshSubscriptionStatus(trigger: "restore_success")
+            AnalyticsService.logRestoreResult(source: AnalyticsSource.restore.rawValue, context: context, result: "success")
         } catch {
             print("SubscriptionManager: restore failed - \(error)")
+            AnalyticsService.logRestoreResult(
+                source: AnalyticsSource.restore.rawValue,
+                context: context,
+                result: "error",
+                errorCode: String(describing: error)
+            )
         }
     }
 
-    private func refreshEntitlements() async {
+    private func refreshEntitlements(trigger: String) async {
         var hasActiveSubscription = false
+        var activeProductID: String?
+        var activePlan: String?
+        var hasRevokedSubscription = false
 
         for await result in Transaction.currentEntitlements {
             guard case let .verified(transaction) = result else { continue }
             guard premiumProductIDs.contains(transaction.productID) else { continue }
-            guard transaction.revocationDate == nil else { continue }
+
+            if transaction.revocationDate != nil {
+                hasRevokedSubscription = true
+                continue
+            }
 
             if let expirationDate = transaction.expirationDate, expirationDate <= Date() {
                 continue
             }
 
             hasActiveSubscription = true
+            activeProductID = transaction.productID
+            activePlan = transaction.productID == SubscriptionPlan.weekly.productID ? "weekly" : "yearly"
             break
         }
 
+        let newState: AnalyticsService.SubscriptionEntitlementState
+        if hasActiveSubscription {
+            newState = activePlan == "weekly" ? .activeWeekly : .activeYearly
+        } else if hasRevokedSubscription {
+            newState = .revoked
+        } else {
+            newState = .inactive
+        }
+
+        if lastEntitlementState != newState {
+            AnalyticsService.logEntitlementStateChanged(
+                from: lastEntitlementState,
+                to: newState,
+                plan: activePlan,
+                productID: activeProductID,
+                trigger: trigger
+            )
+            lastEntitlementState = newState
+        }
+
         isPremium = hasActiveSubscription
+        syncSubscriptionUserProperties(plan: activePlan)
     }
 
     private func observeTransactionUpdates() -> Task<Void, Never> {
@@ -203,8 +316,14 @@ class SubscriptionManager: ObservableObject {
             for await result in Transaction.updates {
                 guard case let .verified(transaction) = result else { continue }
                 await transaction.finish()
-                await self?.refreshSubscriptionStatus()
+                await self?.refreshSubscriptionStatus(trigger: "transaction_update")
             }
         }
+    }
+
+    private func syncSubscriptionUserProperties(plan: String?) {
+        AnalyticsService.setUserProperty(isPremium ? "true" : "false", for: "is_premium")
+        AnalyticsService.setUserProperty(plan ?? "none", for: "active_plan")
+        AnalyticsService.setUserProperty(hasCompletedOnboarding ? "true" : "false", for: "onboarding_completed")
     }
 }

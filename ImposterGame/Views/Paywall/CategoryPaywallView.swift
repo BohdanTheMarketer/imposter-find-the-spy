@@ -68,17 +68,18 @@ struct CategoryPaywallView: View {
         }
         .onAppear {
             AnalyticsService.logEvent("paywall_show", parameters: ["context": "category"])
+            AnalyticsService.logPaywallViewed(context: .category)
         }
         .onChange(of: subscriptionManager.isPremium) { isPremium in
             guard isPremium else { return }
-            closePaywall()
+            closePaywall(reason: .purchaseSuccess)
         }
     }
 
     private func topBar(topPadding: CGFloat) -> some View {
         HStack {
             Spacer()
-            Button(action: { closePaywall() }) {
+            Button(action: { closePaywall(reason: .closeButton) }) {
                 Image(systemName: "xmark")
                     .font(.antropicSerif(size: 16, weight: .semibold))
                     .foregroundColor(.white.opacity(0.7))
@@ -126,6 +127,12 @@ struct CategoryPaywallView: View {
                     selectedPlan = .weekly
                 }
             }
+            AnalyticsService.logPaywallTrialToggled(context: .category, enabled: isTrialEnabled)
+            AnalyticsService.logPaywallPlanSelected(
+                context: .category,
+                plan: selectedPlan == .weekly ? "weekly" : "yearly",
+                trialEnabled: isTrialEnabled
+            )
         }) {
             VStack(spacing: 10) {
             HStack(spacing: 12) {
@@ -187,6 +194,7 @@ struct CategoryPaywallView: View {
                 selectedPlan = .yearly
                 isTrialEnabled = false
             }
+            AnalyticsService.logPaywallPlanSelected(context: .category, plan: "yearly", trialEnabled: false)
         }) {
             HStack {
             VStack(alignment: .leading, spacing: 2) {
@@ -239,6 +247,7 @@ struct CategoryPaywallView: View {
                 selectedPlan = .weekly
                 isTrialEnabled = true
             }
+            AnalyticsService.logPaywallPlanSelected(context: .category, plan: "weekly", trialEnabled: true)
         }) {
             HStack {
             VStack(alignment: .leading, spacing: 2) {
@@ -287,10 +296,15 @@ struct CategoryPaywallView: View {
         Button(action: {
             HapticsManager.impact(.medium)
             let plan: SubscriptionManager.SubscriptionPlan = selectedPlan == .weekly ? .weekly : .yearly
+            AnalyticsService.logPaywallContinueTapped(
+                context: .category,
+                plan: selectedPlan == .weekly ? "weekly" : "yearly",
+                trialEnabled: isTrialEnabled
+            )
             Task {
-                let didPurchase = await subscriptionManager.purchaseSubscription(plan: plan)
+                let didPurchase = await subscriptionManager.purchaseSubscription(plan: plan, context: .category)
                 if didPurchase {
-                    closePaywall()
+                    closePaywall(reason: .purchaseSuccess)
                 }
             }
         }) {
@@ -313,17 +327,20 @@ struct CategoryPaywallView: View {
     private var footerLinks: some View {
         HStack(spacing: 26) {
             Button("Terms") {
+                AnalyticsService.logPaywallLinkTapped(context: .category, linkType: "terms")
                 if let url = CategoryPaywallLinks.termsURL {
                     openURL(url)
                 }
             }
             Button("Privacy") {
+                AnalyticsService.logPaywallLinkTapped(context: .category, linkType: "privacy")
                 if let url = CategoryPaywallLinks.privacyURL {
                     openURL(url)
                 }
             }
             Button("Restore") {
-                subscriptionManager.restorePurchases()
+                AnalyticsService.logPaywallRestoreTapped(context: .category)
+                subscriptionManager.restorePurchases(context: .category)
                 showRestoreMessage = true
             }
         }
@@ -332,7 +349,8 @@ struct CategoryPaywallView: View {
         .padding(.bottom, 6)
     }
 
-    private func closePaywall() {
+    private func closePaywall(reason: AnalyticsService.PaywallCloseReason) {
+        AnalyticsService.logPaywallClosed(context: .category, reason: reason)
         if router.path.count <= 1 {
             router.navigate(to: .playerSetup)
             return
