@@ -142,38 +142,8 @@ struct CategoriesView: View {
                         }
                     }
                     .padding(.horizontal, 20)
-                    .padding(.bottom, 18)
+                    .padding(.bottom, 110)
                 }
-
-                Button(action: {
-                    guard selectedCategoryID != nil else {
-                        HapticsManager.notification(.warning)
-                        return
-                    }
-                    HapticsManager.impact(.medium)
-                    router.navigate(to: .gameSettings)
-                }) {
-                    HStack(spacing: 14) {
-                        Text("Play")
-                            .font(.evolventa(size: 20, weight: .bold))
-                            .foregroundColor(.appTextOnAccent)
-
-                        Rectangle()
-                            .fill(Color.appTextOnAccent.opacity(0.25))
-                            .frame(width: 1, height: 26)
-
-                        Text("\(selectedCategoryCount) Category")
-                            .font(.evolventa(size: 20, weight: .semibold))
-                            .foregroundColor(.appTextOnAccent.opacity(0.85))
-                    }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 56)
-                    .background(Color.gameplayButtonPrimary)
-                    .clipShape(RoundedRectangle(cornerRadius: 28))
-                }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 30)
-                .opacity(selectedCategoryID == nil ? 0.85 : 1.0)
             }
 
             if showInfoOverlay {
@@ -200,6 +170,43 @@ struct CategoriesView: View {
         }
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
+        .safeAreaInset(edge: .bottom) {
+            Group {
+                if showInfoOverlay {
+                    Color.clear.frame(height: 0)
+                } else {
+                    Button(action: {
+                        guard selectedCategoryID != nil else {
+                            HapticsManager.notification(.warning)
+                            return
+                        }
+                        HapticsManager.impact(.medium)
+                        router.navigate(to: .gameSettings)
+                    }) {
+                        HStack(spacing: 14) {
+                            Text("Play")
+                                .font(.evolventa(size: 20, weight: .bold))
+                                .foregroundColor(.appTextOnAccent)
+
+                            Rectangle()
+                                .fill(Color.appTextOnAccent.opacity(0.25))
+                                .frame(width: 1, height: 26)
+
+                            Text("\(selectedCategoryCount) Category")
+                                .font(.evolventa(size: 20, weight: .semibold))
+                                .foregroundColor(.appTextOnAccent.opacity(0.85))
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 56)
+                        .background(Color.gameplayButtonPrimary)
+                        .clipShape(RoundedRectangle(cornerRadius: 28))
+                }
+                    .opacity(selectedCategoryID == nil ? 0.85 : 1.0)
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 10)
+        }
         .onAppear {
             categories = CategoryLoader.loadCategories()
             restoreSelection()

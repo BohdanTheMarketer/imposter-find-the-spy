@@ -70,12 +70,16 @@ struct VotingView: View {
                         }
                     }
                     .padding(.horizontal, 20)
-                    .padding(.bottom, 100)
+                    .padding(.bottom, 110)
                 }
 
                 Spacer()
-
-                // Reveal button
+            }
+        }
+        .navigationBarHidden(true)
+        .navigationBarBackButtonHidden(true)
+        .safeAreaInset(edge: .bottom) {
+            Group {
                 if hasRequiredSelectionCount {
                     Button(action: {
                         HapticsManager.impact(.heavy)
@@ -96,13 +100,15 @@ struct VotingView: View {
                             .background(Color.gameplayButtonPrimary)
                             .clipShape(RoundedRectangle(cornerRadius: 28))
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 30)
+                    .buttonStyle(.plain)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                } else {
+                    Color.clear.frame(height: 56)
                 }
             }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 10)
         }
-        .navigationBarHidden(true)
-        .navigationBarBackButtonHidden(true)
         .onAppear {
             selectedPlayerIDs = []
         }

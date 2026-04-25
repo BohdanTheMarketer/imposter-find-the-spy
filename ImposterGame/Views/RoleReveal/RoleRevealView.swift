@@ -160,7 +160,7 @@ struct RoleRevealView: View {
                         Spacer()
                     }
                     .padding(.horizontal, 20)
-                    .padding(.top, 16)
+                    .padding(.top, 52)
 
                     Text("\(currentIndex + 1)")
                         .font(.evolventa(size: 40, weight: .black))

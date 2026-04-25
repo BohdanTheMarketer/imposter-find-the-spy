@@ -35,7 +35,9 @@ class AppRouter: ObservableObject {
     func navigateToPlayerSetup() {
         var next = NavigationPath()
         next.append(AppScreen.playerSetup)
-        path = next
+        withTransaction(Transaction(animation: nil)) {
+            path = next
+        }
         AnalyticsService.logScreenView(for: .playerSetup)
     }
 
@@ -44,7 +46,9 @@ class AppRouter: ObservableObject {
         var next = NavigationPath()
         next.append(AppScreen.playerSetup)
         next.append(AppScreen.categories)
-        path = next
+        withTransaction(Transaction(animation: nil)) {
+            path = next
+        }
         AnalyticsService.logScreenView(for: .categories)
     }
 }
