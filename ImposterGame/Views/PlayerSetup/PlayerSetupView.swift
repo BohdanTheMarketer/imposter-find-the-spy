@@ -471,7 +471,8 @@ struct PlayerOptionsSheet: View {
 
                 VStack(spacing: 10) {
                     optionRow(title: "Language", systemImage: "globe") {
-                        openURLString(UIApplication.openSettingsURLString)
+                        showToast(message: "Coming soon")
+                        HapticsManager.impact(.light)
                     }
                     optionRow(title: "Contact Us", systemImage: "envelope") {
                         if let url = URL(string: "mailto:\(PlayerOptionsLinks.contactEmail)") {
