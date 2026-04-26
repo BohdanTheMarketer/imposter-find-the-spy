@@ -111,6 +111,16 @@ class SubscriptionManager: ObservableObject {
         await refreshEntitlements(trigger: trigger)
     }
 
+    /// Hidden local unlock used for internal QA/demo flow.
+    func unlockAllPremiumPackagesLocally() {
+        isPremium = true
+        hasCompletedOnboarding = true
+        hasSeenPaywall = true
+        lastEntitlementState = .activeYearly
+        AnalyticsService.setUserProperty("true", for: "is_premium")
+        AnalyticsService.logEvent("premium_unlocked_locally", parameters: ["source": "onboarding_secret_code"])
+    }
+
     var yearlyPlanSubtitleText: String {
         guard let product = productsByID[SubscriptionPlan.yearly.productID] else {
             return isStoreLoading ? "Loading price..." : "Just --/year"

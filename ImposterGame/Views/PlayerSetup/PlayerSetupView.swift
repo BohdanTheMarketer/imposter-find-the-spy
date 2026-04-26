@@ -12,6 +12,7 @@ struct PlayerEntry: Identifiable {
 struct PlayerSetupView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var gameSession: GameSession
+    @EnvironmentObject var subscriptionManager: SubscriptionManager
     @State private var players: [PlayerEntry] = []
     @State private var newPlayerName: String = ""
     @State private var showOptionsMenu = false
@@ -19,6 +20,9 @@ struct PlayerSetupView: View {
     @State private var nameFieldFocusToken = 0
     @State private var keyboardHeight: CGFloat = 0
     @State private var listScrollProxy: ScrollViewProxy?
+    @State private var showPremiumUnlockPopup = false
+    @State private var premiumUnlockCode = ""
+    @State private var premiumUnlockError: String?
     private let inputRowScrollId = "player-input-row"
 
     private let minPlayers = 3
@@ -146,6 +150,10 @@ struct PlayerSetupView: View {
                             .background(Color.gameplayButtonSecondary)
                             .clipShape(Circle())
                     }
+                    .simultaneousGesture(
+                        LongPressGesture(minimumDuration: 5)
+                            .onEnded { _ in openPremiumUnlockPopup() }
+                    )
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 16)
@@ -202,6 +210,11 @@ struct PlayerSetupView: View {
         }
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
+        .overlay {
+            if showPremiumUnlockPopup {
+                secretPremiumUnlockPopup
+            }
+        }
         .onAppear {
             syncLocalPlayersFromSession()
             let shouldShowKeyboard = players.count < maxPlayers
@@ -348,6 +361,81 @@ struct PlayerSetupView: View {
     private func setupPlayers() {
         gameSession.players = players.map { entry in
             Player(name: entry.name, avatarIndex: entry.avatarIndex)
+        }
+    }
+
+    private func openPremiumUnlockPopup() {
+        HapticsManager.impact(.medium)
+        premiumUnlockCode = ""
+        premiumUnlockError = nil
+        showPremiumUnlockPopup = true
+    }
+
+    private func unlockPremiumIfCodeValid() {
+        guard premiumUnlockCode.trimmingCharacters(in: .whitespacesAndNewlines) == "1111" else {
+            premiumUnlockError = "Invalid code"
+            HapticsManager.notification(.error)
+            return
+        }
+        subscriptionManager.unlockAllPremiumPackagesLocally()
+        HapticsManager.notification(.success)
+        showPremiumUnlockPopup = false
+        premiumUnlockCode = ""
+        premiumUnlockError = nil
+    }
+
+    private var secretPremiumUnlockPopup: some View {
+        ZStack {
+            Color.black.opacity(0.25)
+                .ignoresSafeArea()
+                .onTapGesture {
+                    showPremiumUnlockPopup = false
+                    premiumUnlockCode = ""
+                    premiumUnlockError = nil
+                }
+
+            VStack(spacing: 14) {
+                Text("Enter Access Code")
+                    .font(.evolventa(size: 20, weight: .bold))
+                    .foregroundColor(.stitchDeepOnyx)
+
+                TextField("Code", text: $premiumUnlockCode)
+                    .font(.evolventa(size: 16, weight: .regular))
+                    .textInputAutocapitalization(.never)
+                    .disableAutocorrection(true)
+                    .keyboardType(.numberPad)
+                    .padding(.horizontal, 14)
+                    .frame(height: 44)
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.black.opacity(0.1), lineWidth: 1)
+                    )
+
+                if let premiumUnlockError {
+                    Text(premiumUnlockError)
+                        .font(.evolventa(size: 14, weight: .regular))
+                        .foregroundColor(.red.opacity(0.8))
+                }
+
+                Button(action: unlockPremiumIfCodeValid) {
+                    Text("Continue")
+                        .font(.evolventa(size: 17, weight: .bold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 46)
+                        .background(Color.stitchDeepOnyx)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+                .buttonStyle(GameplayPrimaryButtonStyle())
+            }
+            .padding(20)
+            .frame(maxWidth: 320)
+            .background(Color.white.opacity(0.98))
+            .clipShape(RoundedRectangle(cornerRadius: 18))
+            .shadow(color: .black.opacity(0.16), radius: 14, y: 6)
+            .padding(.horizontal, 28)
         }
     }
 

@@ -20,14 +20,14 @@ struct OnboardingView: View {
             imageName: "OnboardingScreen2",
             title: "Instant Fun\nAnywhere!",
             subtitle: "Game night, road trip, or\neven an awkward first meeting —\nFakeit breaks the ice and\nbrings the fun",
-            backgroundColor: Color.brightGreenStitch,
+            backgroundColor: Color.pastelOrangeOnboarding,
             buttonTitle: "I'm In!"
         ),
         OnboardingPage(
             imageName: "OnboardingScreen3",
             title: "Who's Faking It?",
             subtitle: "One of you is lying.\nThe rest know the word.\nCan you spot the imposter\nbefore it's too late?",
-            backgroundColor: Color.actionRedStitch,
+            backgroundColor: Color.pastelGreenOnboarding,
             buttonTitle: "Got It"
         )
     ]
@@ -57,31 +57,10 @@ struct OnboardingView: View {
 
     private var stitchFirstOnboardingPage: some View {
         ZStack {
-            // Stage lighting (radial) + deep night base — Stitch “toy-box” depth
-            LinearGradient(
-                colors: [
-                    Color.stitchElectricPurple.opacity(0.38),
-                    Color.stitchNightBase,
-                    Color(red: 0.04, green: 0.03, blue: 0.09)
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
+            Color.pastelYellowOnboarding
             .ignoresSafeArea()
 
-            RadialGradient(
-                colors: [
-                    Color.stitchElectricPurple.opacity(0.28),
-                    Color.clear
-                ],
-                center: UnitPoint(x: 0.5, y: 0.15),
-                startRadius: 10,
-                endRadius: 340
-            )
-            .ignoresSafeArea()
-
-            // Blueprint grid (glass & grid)
-            BlueprintGridOverlay(lineColor: Color.stitchElectricPurple.opacity(0.22), spacing: 28)
+            BlueprintGridOverlay(lineColor: Color.black.opacity(0.1), spacing: 28)
 
             // Floating technical sketches
             BlueprintSketchOverlay()
@@ -96,13 +75,13 @@ struct OnboardingView: View {
                     Text("Talk Smarter")
                         .font(.evolventa(size: 32, weight: .bold))
                         .foregroundColor(.white)
-                        .shadow(color: .black.opacity(0.35), radius: 6, y: 3)
+                        .shadow(color: .black.opacity(0.2), radius: 4, y: 2)
                         .multilineTextAlignment(.center)
 
                     Text("Guess Better")
                         .font(.evolventa(size: 32, weight: .bold))
                         .foregroundColor(.white)
-                        .shadow(color: .black.opacity(0.35), radius: 6, y: 3)
+                        .shadow(color: .black.opacity(0.2), radius: 4, y: 2)
                         .multilineTextAlignment(.center)
                         .padding(.bottom, 14)
 
@@ -129,8 +108,8 @@ struct OnboardingView: View {
                                 Capsule()
                                     .stroke(Color.stitchElectricPurple.opacity(0.95), lineWidth: 2)
                             )
-                            .shadow(color: Color.stitchNightBase.opacity(0.75), radius: 16, y: 4)
-                            .shadow(color: Color.stitchNightBase.opacity(0.45), radius: 28, y: 0)
+                            .shadow(color: Color.black.opacity(0.2), radius: 12, y: 4)
+                            .shadow(color: Color.black.opacity(0.1), radius: 22, y: 0)
                     }
                     .buttonStyle(OnboardingSquishButtonStyle())
                     .padding(.horizontal, 36)
@@ -187,8 +166,8 @@ struct OnboardingView: View {
                                 RoundedRectangle(cornerRadius: 28)
                                     .stroke(Color.stitchElectricPurple.opacity(0.7), lineWidth: 1.5)
                             )
-                            .shadow(color: page.backgroundColor.opacity(0.55), radius: 8, y: 2)
-                            .shadow(color: page.backgroundColor.opacity(0.35), radius: 16, y: 0)
+                            .shadow(color: Color.black.opacity(0.2), radius: 8, y: 2)
+                            .shadow(color: Color.black.opacity(0.1), radius: 16, y: 0)
                     }
                     .buttonStyle(OnboardingSquishButtonStyle())
                     .padding(.horizontal, 40)
@@ -204,7 +183,7 @@ struct OnboardingView: View {
             Image(uiImage: uiImage.removingBlackBackgroundFromEdges(cacheKey: imageName) ?? uiImage)
                 .resizable()
                 .scaledToFit()
-                .shadow(color: Color.black.opacity(0.35), radius: 20, y: 10)
+                .shadow(color: Color.black.opacity(0.18), radius: 16, y: 8)
         } else {
             Image(systemName: "photo")
                 .font(.system(size: 88, weight: .medium))
@@ -227,6 +206,7 @@ struct OnboardingView: View {
             }
         }
     }
+
 }
 
 // MARK: - Blueprint grid (purple graph paper)
@@ -331,10 +311,9 @@ private struct OnboardingSquishButtonStyle: ButtonStyle {
 }
 
 extension Color {
-    /// DESIGN.md — Success / Fresh #24D330
-    fileprivate static let brightGreenStitch = Color(red: 0.141, green: 0.827, blue: 0.188)
-    /// DESIGN.md — Action / Vivid Red #FF3B30
-    fileprivate static let actionRedStitch = Color(red: 1.0, green: 0.231, blue: 0.188)
+    fileprivate static let pastelYellowOnboarding = Color(red: 1.0, green: 0.84, blue: 0.25)
+    fileprivate static let pastelOrangeOnboarding = Color(red: 1.0, green: 0.58, blue: 0.32)
+    fileprivate static let pastelGreenOnboarding = Color(red: 0.35, green: 0.78, blue: 0.34)
 }
 
 private extension UIImage {
