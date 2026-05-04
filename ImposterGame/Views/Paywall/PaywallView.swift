@@ -4,7 +4,6 @@ struct OnboardingPaywallView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @Environment(\.openURL) private var openURL
-    @State private var enableFreeTrial = false
     @State private var selectedPlan: Plan = .yearly
     @State private var appearAnimation = false
     @State private var showRestoreMessage = false
@@ -53,16 +52,12 @@ struct OnboardingPaywallView: View {
 
                     Spacer(minLength: isCompactHeight ? 8 : 20)
 
-                    freeTrialCard
-                        .padding(.bottom, 12)
-
                     pricingCard(
                         plan: .yearly,
                         title: "Yearly",
-                        subtitle: subscriptionManager.yearlyPlanSubtitleText,
+                        subtitle: "\(subscriptionManager.yearlyPlanSubtitleText), auto-renews",
                         price: subscriptionManager.yearlyPlanWeeklyEquivalentText,
                         selected: selectedPlan == .yearly,
-                        dimmed: enableFreeTrial,
                         badgeText: selectedPlan == .yearly ? "Best value" : nil
                     )
                     .padding(.bottom, 10)
@@ -70,16 +65,22 @@ struct OnboardingPaywallView: View {
                     pricingCard(
                         plan: .weekly,
                         title: "Weekly",
-                        subtitle: "Cancel anytime",
+                        subtitle: "\(subscriptionManager.weeklyPlanWeeklyPriceText), auto-renews",
                         price: subscriptionManager.weeklyPlanWeeklyPriceText,
                         selected: selectedPlan == .weekly,
-                        dimmed: false,
                         badgeText: selectedPlan == .weekly ? "Most popular" : nil
                     )
                     .padding(.bottom, 16)
 
                     continueButton
-                        .padding(.bottom, 10)
+                        .padding(.bottom, 6)
+
+                    Text(selectedPlanTerms)
+                        .font(.antropicSerif(size: 11.5, weight: .medium))
+                        .foregroundColor(.white.opacity(0.78))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 8)
+                        .padding(.bottom, 8)
 
                     footerLinks
                         .padding(.bottom, 12)
@@ -99,6 +100,9 @@ struct OnboardingPaywallView: View {
         .onAppear {
             AnalyticsService.logEvent("paywall_show", parameters: ["context": "onboarding"])
             AnalyticsService.logPaywallViewed(context: .onboarding)
+            Task {
+                await subscriptionManager.refreshStoreProducts(trigger: "onboarding_paywall_appear")
+            }
             isCloseButtonVisible = false
             scheduleCloseButtonReveal()
             withAnimation(.easeOut(duration: 0.5)) {
@@ -153,99 +157,23 @@ struct OnboardingPaywallView: View {
         .padding(.horizontal, 2)
     }
 
-    private var freeTrialCard: some View {
-        Button(action: {
-            HapticsManager.selection()
-            withAnimation(.easeInOut(duration: 0.2)) {
-                enableFreeTrial.toggle()
-                if enableFreeTrial {
-                    selectedPlan = .weekly
-                }
-            }
-            AnalyticsService.logPaywallTrialToggled(context: .onboarding, enabled: enableFreeTrial)
-            AnalyticsService.logPaywallPlanSelected(
-                context: .onboarding,
-                plan: selectedPlan == .weekly ? "weekly" : "yearly",
-                trialEnabled: enableFreeTrial
-            )
-        }) {
-            VStack(spacing: 10) {
-                HStack(spacing: 12) {
-                    ZStack {
-                        Circle()
-                            .stroke(Color.white.opacity(0.7), lineWidth: 2)
-                            .frame(width: 30, height: 30)
-                        if enableFreeTrial {
-                            Circle()
-                                .fill(Color.green)
-                                .frame(width: 28, height: 28)
-                            Image(systemName: "checkmark")
-                                .font(.antropicSerif(size: 14, weight: .bold))
-                                .foregroundColor(.white)
-                        }
-                    }
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Not sure yet?")
-                            .font(.antropicSerif(size: 15.5, weight: .bold))
-                            .foregroundColor(.white)
-                        Text("Enable free access")
-                            .font(.antropicSerif(size: 13.5, weight: .medium))
-                            .foregroundColor(.white.opacity(0.85))
-                    }
-
-                    Spacer()
-                }
-
-                if enableFreeTrial {
-                    Rectangle()
-                        .fill(Color.white.opacity(0.35))
-                        .frame(height: 1)
-                        .padding(.leading, 44)
-
-                    Text("0 USD due today \u{2022} 3 days FREE")
-                        .font(.antropicSerif(size: 16, weight: .bold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.leading, 44)
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 13)
-            .background(Color.white.opacity(0.16))
-            .clipShape(RoundedRectangle(cornerRadius: 18))
-            .overlay(
-                RoundedRectangle(cornerRadius: 18)
-                    .stroke(Color.white.opacity(0.7), lineWidth: 1.5)
-            )
-        }
-        .buttonStyle(.plain)
-    }
-
     private func pricingCard(
         plan: Plan,
         title: String,
         subtitle: String,
         price: String,
         selected: Bool,
-        dimmed: Bool,
         badgeText: String? = nil
     ) -> some View {
         Button(action: {
             HapticsManager.selection()
             withAnimation(.easeInOut(duration: 0.2)) {
-                if plan == .yearly {
-                    selectedPlan = .yearly
-                    enableFreeTrial = false
-                } else {
-                    selectedPlan = .weekly
-                    enableFreeTrial = true
-                }
+                selectedPlan = plan
             }
             AnalyticsService.logPaywallPlanSelected(
                 context: .onboarding,
                 plan: selectedPlan == .weekly ? "weekly" : "yearly",
-                trialEnabled: enableFreeTrial
+                trialEnabled: selectedPlanHasTrial
             )
         }) {
             HStack {
@@ -266,11 +194,11 @@ struct OnboardingPaywallView: View {
             .padding(.vertical, 14)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white.opacity(selected ? 0.24 : (dimmed ? 0.14 : 0.19)))
+                    .fill(Color.white.opacity(selected ? 0.24 : 0.19))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.white.opacity(selected ? 1.0 : (dimmed ? 0.2 : 0.65)), lineWidth: selected ? 2.5 : 1.5)
+                    .stroke(Color.white.opacity(selected ? 1.0 : 0.65), lineWidth: selected ? 2.5 : 1.5)
             )
             .overlay(alignment: .topTrailing) {
                 if let badgeText {
@@ -287,7 +215,6 @@ struct OnboardingPaywallView: View {
                         .zIndex(2)
                 }
             }
-            .opacity(dimmed && !selected ? 0.52 : 1.0)
         }
         .buttonStyle(.plain)
     }
@@ -299,7 +226,7 @@ struct OnboardingPaywallView: View {
             AnalyticsService.logPaywallContinueTapped(
                 context: .onboarding,
                 plan: selectedPlan == .weekly ? "weekly" : "yearly",
-                trialEnabled: enableFreeTrial
+                trialEnabled: selectedPlanHasTrial
             )
             Task {
                 let didPurchase = await subscriptionManager.purchaseSubscription(plan: plan, context: .onboarding)
@@ -350,6 +277,18 @@ struct OnboardingPaywallView: View {
         }
         .font(.antropicSerif(size: 12, weight: .medium))
         .foregroundColor(.white.opacity(0.5))
+    }
+
+    private var selectedSubscriptionPlan: SubscriptionManager.SubscriptionPlan {
+        selectedPlan == .weekly ? .weekly : .yearly
+    }
+
+    private var selectedPlanHasTrial: Bool {
+        subscriptionManager.hasIntroOffer(for: selectedSubscriptionPlan)
+    }
+
+    private var selectedPlanTerms: String {
+        subscriptionManager.displayTerms(for: selectedSubscriptionPlan)
     }
 
     private func closePaywall(reason: AnalyticsService.PaywallCloseReason) {

@@ -53,7 +53,7 @@ class SubscriptionManager: ObservableObject {
         self.lastEntitlementState = self.isPremium ? .activeYearly : .inactive
         transactionUpdatesTask = observeTransactionUpdates()
         Task {
-            await loadProducts()
+            await loadProducts(trigger: "init")
             await refreshSubscriptionStatus(trigger: "init")
         }
     }
@@ -111,6 +111,10 @@ class SubscriptionManager: ObservableObject {
         await refreshEntitlements(trigger: trigger)
     }
 
+    func refreshStoreProducts(trigger: String = "manual_refresh") async {
+        await loadProducts(trigger: trigger)
+    }
+
     var yearlyPlanSubtitleText: String {
         guard let product = productsByID[SubscriptionPlan.yearly.productID] else {
             return isStoreLoading ? "Loading price..." : "Just --/year"
@@ -140,12 +144,62 @@ class SubscriptionManager: ObservableObject {
         return "\(product.displayPrice)/week"
     }
 
-    private func loadProducts() async {
+    func hasIntroOffer(for plan: SubscriptionPlan) -> Bool {
+        guard let product = productsByID[plan.productID] else { return false }
+        return product.subscription?.introductoryOffer != nil
+    }
+
+    func displayTerms(for plan: SubscriptionPlan) -> String {
+        guard let product = productsByID[plan.productID] else {
+            return "Auto-renews until canceled."
+        }
+
+        let recurringPrice = recurringPriceText(for: product)
+        if let introOffer = product.subscription?.introductoryOffer {
+            let introDuration = subscriptionPeriodText(for: introOffer.period)
+            return "Free for \(introDuration), then \(recurringPrice). Auto-renews until canceled."
+        }
+
+        return "\(recurringPrice). Auto-renews until canceled."
+    }
+
+    private func recurringPriceText(for product: Product) -> String {
+        guard let subscriptionPeriod = product.subscription?.subscriptionPeriod else {
+            return product.displayPrice
+        }
+        return "\(product.displayPrice)/\(subscriptionUnitText(for: subscriptionPeriod.unit))"
+    }
+
+    private func subscriptionPeriodText(for period: Product.SubscriptionPeriod) -> String {
+        let unit = subscriptionUnitText(for: period.unit)
+        if period.value == 1 {
+            return "1 \(unit)"
+        }
+        return "\(period.value) \(unit)s"
+    }
+
+    private func subscriptionUnitText(for unit: Product.SubscriptionPeriod.Unit) -> String {
+        switch unit {
+        case .day:
+            return "day"
+        case .week:
+            return "week"
+        case .month:
+            return "month"
+        case .year:
+            return "year"
+        @unknown default:
+            return "period"
+        }
+    }
+
+    private func loadProducts(trigger: String = "load_products") async {
         isStoreLoading = true
         defer { isStoreLoading = false }
         do {
             let products = try await Product.products(for: premiumProductIDs)
             productsByID = Dictionary(uniqueKeysWithValues: products.map { ($0.id, $0) })
+            logLoadedProductPricing(trigger: trigger, products: products)
         } catch {
             print("SubscriptionManager: failed loading products - \(error)")
         }
@@ -161,7 +215,7 @@ class SubscriptionManager: ObservableObject {
         )
         do {
             if productsByID[plan.productID] == nil {
-                await loadProducts()
+                await loadProducts(trigger: "purchase_missing_product")
             }
             guard let product = productsByID[plan.productID] else {
                 print("SubscriptionManager: product not found for \(plan.productID)")
@@ -325,5 +379,14 @@ class SubscriptionManager: ObservableObject {
         AnalyticsService.setUserProperty(isPremium ? "true" : "false", for: "is_premium")
         AnalyticsService.setUserProperty(plan ?? "none", for: "active_plan")
         AnalyticsService.setUserProperty(hasCompletedOnboarding ? "true" : "false", for: "onboarding_completed")
+    }
+
+    private func logLoadedProductPricing(trigger: String, products: [Product]) {
+#if DEBUG
+        for product in products {
+            let value = NSDecimalNumber(decimal: product.price).stringValue
+            print("SubscriptionManager: product loaded [\(trigger)] id=\(product.id) displayPrice=\(product.displayPrice) value=\(value)")
+        }
+#endif
     }
 }

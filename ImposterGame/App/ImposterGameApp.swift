@@ -49,6 +49,7 @@ struct ImposterGameApp: App {
             .onChange(of: scenePhase) { phase in
                 guard phase == .active else { return }
                 Task {
+                    await subscriptionManager.refreshStoreProducts(trigger: "scene_active")
                     await subscriptionManager.refreshSubscriptionStatus()
                 }
             }

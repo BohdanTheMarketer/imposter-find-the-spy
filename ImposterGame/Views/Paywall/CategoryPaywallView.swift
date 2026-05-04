@@ -6,7 +6,6 @@ struct CategoryPaywallView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
 
-    @State private var isTrialEnabled = false
     @State private var selectedPlan: Plan = .yearly
     @State private var showRestoreMessage = false
 
@@ -39,9 +38,7 @@ struct CategoryPaywallView: View {
 
                     Spacer(minLength: isCompactHeight ? 8 : 20)
 
-                    freeAccessCard
-
-                    yearlyPlanCard(selected: selectedPlan == .yearly, dimmed: isTrialEnabled)
+                    yearlyPlanCard(selected: selectedPlan == .yearly)
                         .padding(.top, 12)
                     weeklyPlanCard(
                         selected: selectedPlan == .weekly,
@@ -52,8 +49,15 @@ struct CategoryPaywallView: View {
                     ctaButton
                         .padding(.top, 16)
 
+                    Text(selectedPlanTerms)
+                        .font(.antropicSerif(size: 11.5, weight: .medium))
+                        .foregroundColor(.white.opacity(0.78))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 8)
+                        .padding(.top, 8)
+
                     footerLinks
-                        .padding(.top, 10)
+                        .padding(.top, 8)
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 10)
@@ -69,6 +73,9 @@ struct CategoryPaywallView: View {
         .onAppear {
             AnalyticsService.logEvent("paywall_show", parameters: ["context": "category"])
             AnalyticsService.logPaywallViewed(context: .category)
+            Task {
+                await subscriptionManager.refreshStoreProducts(trigger: "category_paywall_appear")
+            }
         }
         .onChange(of: subscriptionManager.isPremium) { isPremium in
             guard isPremium else { return }
@@ -118,90 +125,24 @@ struct CategoryPaywallView: View {
             .fixedSize(horizontal: false, vertical: true)
     }
 
-    private var freeAccessCard: some View {
-        Button(action: {
-            HapticsManager.selection()
-            withAnimation(.easeInOut(duration: 0.2)) {
-                isTrialEnabled.toggle()
-                if isTrialEnabled {
-                    selectedPlan = .weekly
-                }
-            }
-            AnalyticsService.logPaywallTrialToggled(context: .category, enabled: isTrialEnabled)
-            AnalyticsService.logPaywallPlanSelected(
-                context: .category,
-                plan: selectedPlan == .weekly ? "weekly" : "yearly",
-                trialEnabled: isTrialEnabled
-            )
-        }) {
-            VStack(spacing: 10) {
-            HStack(spacing: 12) {
-                ZStack {
-                    Circle()
-                        .stroke(Color.white.opacity(0.7), lineWidth: 2)
-                        .frame(width: 30, height: 30)
-                    if isTrialEnabled {
-                        Circle()
-                            .fill(Color.green)
-                            .frame(width: 28, height: 28)
-                        Image(systemName: "checkmark")
-                            .font(.antropicSerif(size: 14, weight: .bold))
-                            .foregroundColor(.white)
-                    }
-                }
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(isTrialEnabled ? "Free access enabled" : "Not sure yet?")
-                        .font(.antropicSerif(size: 15.5, weight: .bold))
-                        .foregroundColor(.white)
-                    Text(isTrialEnabled ? "No commitment, cancel anytime" : "Enable free access")
-                        .font(.antropicSerif(size: 13.5, weight: .medium))
-                        .foregroundColor(.white.opacity(0.85))
-                }
-
-                Spacer()
-            }
-
-            if isTrialEnabled {
-                Rectangle()
-                    .fill(Color.white.opacity(0.35))
-                    .frame(height: 1)
-                    .padding(.leading, 44)
-
-                Text("0 USD due today \u{2022} 3 days FREE")
-                    .font(.antropicSerif(size: 16, weight: .bold))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading, 44)
-            }
-        }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 13)
-            .background(Color.white.opacity(0.16))
-            .clipShape(RoundedRectangle(cornerRadius: 18))
-            .overlay(
-                RoundedRectangle(cornerRadius: 18)
-                    .stroke(Color.white.opacity(0.7), lineWidth: 1.5)
-            )
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func yearlyPlanCard(selected: Bool, dimmed: Bool) -> some View {
+    private func yearlyPlanCard(selected: Bool) -> some View {
         Button(action: {
             HapticsManager.selection()
             withAnimation(.easeInOut(duration: 0.2)) {
                 selectedPlan = .yearly
-                isTrialEnabled = false
             }
-            AnalyticsService.logPaywallPlanSelected(context: .category, plan: "yearly", trialEnabled: false)
+            AnalyticsService.logPaywallPlanSelected(
+                context: .category,
+                plan: "yearly",
+                trialEnabled: selectedPlanHasTrial
+            )
         }) {
             HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Yearly")
                     .font(.antropicSerif(size: 16, weight: .bold))
                     .foregroundColor(.white)
-                Text(subscriptionManager.yearlyPlanSubtitleText)
+                Text("\(subscriptionManager.yearlyPlanSubtitleText), auto-renews")
                     .font(.antropicSerif(size: 12, weight: .medium))
                     .foregroundColor(.white.opacity(0.85))
             }
@@ -214,11 +155,11 @@ struct CategoryPaywallView: View {
             .padding(.vertical, 14)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white.opacity(selected ? 0.24 : (dimmed ? 0.14 : 0.19)))
+                    .fill(Color.white.opacity(selected ? 0.24 : 0.19))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.white.opacity(selected ? 1.0 : (dimmed ? 0.2 : 0.65)), lineWidth: selected ? 2.5 : 1.5)
+                    .stroke(Color.white.opacity(selected ? 1.0 : 0.65), lineWidth: selected ? 2.5 : 1.5)
             )
             .overlay(alignment: .topTrailing) {
                 if selected {
@@ -235,7 +176,6 @@ struct CategoryPaywallView: View {
                         .zIndex(2)
                 }
             }
-            .opacity(dimmed && !selected ? 0.52 : 1.0)
         }
         .buttonStyle(.plain)
     }
@@ -245,16 +185,19 @@ struct CategoryPaywallView: View {
             HapticsManager.selection()
             withAnimation(.easeInOut(duration: 0.2)) {
                 selectedPlan = .weekly
-                isTrialEnabled = true
             }
-            AnalyticsService.logPaywallPlanSelected(context: .category, plan: "weekly", trialEnabled: true)
+            AnalyticsService.logPaywallPlanSelected(
+                context: .category,
+                plan: "weekly",
+                trialEnabled: selectedPlanHasTrial
+            )
         }) {
             HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Weekly")
                     .font(.antropicSerif(size: 16, weight: .bold))
                     .foregroundColor(.white)
-                Text("Cancel anytime")
+                Text("\(subscriptionManager.weeklyPlanWeeklyPriceText), auto-renews")
                     .font(.antropicSerif(size: 12, weight: .medium))
                     .foregroundColor(.white.opacity(0.85))
             }
@@ -299,7 +242,7 @@ struct CategoryPaywallView: View {
             AnalyticsService.logPaywallContinueTapped(
                 context: .category,
                 plan: selectedPlan == .weekly ? "weekly" : "yearly",
-                trialEnabled: isTrialEnabled
+                trialEnabled: selectedPlanHasTrial
             )
             Task {
                 let didPurchase = await subscriptionManager.purchaseSubscription(plan: plan, context: .category)
@@ -309,7 +252,7 @@ struct CategoryPaywallView: View {
             }
         }) {
             HStack {
-                Text(isTrialEnabled ? "Try it for Free" : "Continue")
+                Text("Continue")
                     .font(.antropicSerif(size: 19.5, weight: .bold))
                     .foregroundColor(.appTextOnAccent)
                 Spacer()
@@ -347,6 +290,18 @@ struct CategoryPaywallView: View {
         .font(.antropicSerif(size: 12, weight: .medium))
         .foregroundColor(.white.opacity(0.45))
         .padding(.bottom, 6)
+    }
+
+    private var selectedSubscriptionPlan: SubscriptionManager.SubscriptionPlan {
+        selectedPlan == .weekly ? .weekly : .yearly
+    }
+
+    private var selectedPlanHasTrial: Bool {
+        subscriptionManager.hasIntroOffer(for: selectedSubscriptionPlan)
+    }
+
+    private var selectedPlanTerms: String {
+        subscriptionManager.displayTerms(for: selectedSubscriptionPlan)
     }
 
     private func closePaywall(reason: AnalyticsService.PaywallCloseReason) {
