@@ -4,7 +4,7 @@ struct OnboardingPaywallView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @Environment(\.openURL) private var openURL
-    @State private var selectedPlan: Plan = .yearly
+    @State private var selectedPlan: Plan = .weekly
     @State private var appearAnimation = false
     @State private var showRestoreMessage = false
     @State private var isCloseButtonVisible = false
@@ -53,22 +53,22 @@ struct OnboardingPaywallView: View {
                     Spacer(minLength: isCompactHeight ? 8 : 20)
 
                     pricingCard(
-                        plan: .yearly,
-                        title: "Yearly",
-                        subtitle: "\(subscriptionManager.yearlyPlanSubtitleText), auto-renews",
-                        price: subscriptionManager.yearlyPlanWeeklyEquivalentText,
-                        selected: selectedPlan == .yearly,
-                        badgeText: selectedPlan == .yearly ? "Best value" : nil
-                    )
-                    .padding(.bottom, 10)
-
-                    pricingCard(
                         plan: .weekly,
                         title: "Weekly",
                         subtitle: "\(subscriptionManager.weeklyPlanWeeklyPriceText), auto-renews",
                         price: subscriptionManager.weeklyPlanWeeklyPriceText,
                         selected: selectedPlan == .weekly,
                         badgeText: selectedPlan == .weekly ? "Most popular" : nil
+                    )
+                    .padding(.bottom, 10)
+
+                    pricingCard(
+                        plan: .yearly,
+                        title: "Yearly",
+                        subtitle: "\(subscriptionManager.yearlyPlanSubtitleText), auto-renews",
+                        price: subscriptionManager.yearlyPlanWeeklyEquivalentText,
+                        selected: selectedPlan == .yearly,
+                        badgeText: selectedPlan == .yearly ? "Best value" : nil
                     )
                     .padding(.bottom, 16)
 

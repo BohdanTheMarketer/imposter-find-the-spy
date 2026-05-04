@@ -6,7 +6,7 @@ struct CategoryPaywallView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
 
-    @State private var selectedPlan: Plan = .yearly
+    @State private var selectedPlan: Plan = .weekly
     @State private var showRestoreMessage = false
 
     private enum Plan {
@@ -38,12 +38,12 @@ struct CategoryPaywallView: View {
 
                     Spacer(minLength: isCompactHeight ? 8 : 20)
 
-                    yearlyPlanCard(selected: selectedPlan == .yearly)
-                        .padding(.top, 12)
                     weeklyPlanCard(
                         selected: selectedPlan == .weekly,
                         badgeText: selectedPlan == .weekly ? "Most popular" : nil
                     )
+                    .padding(.top, 12)
+                    yearlyPlanCard(selected: selectedPlan == .yearly)
                     .padding(.top, 10)
 
                     ctaButton
