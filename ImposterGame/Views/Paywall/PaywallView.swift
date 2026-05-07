@@ -56,7 +56,8 @@ struct OnboardingPaywallView: View {
                         plan: .weekly,
                         title: "Weekly",
                         subtitle: "\(subscriptionManager.weeklyPlanWeeklyPriceText), auto-renews",
-                        price: subscriptionManager.weeklyPlanWeeklyPriceText,
+                        primaryPrice: subscriptionManager.weeklyPlanWeeklyPriceText,
+                        secondaryPrice: "Billed weekly",
                         selected: selectedPlan == .weekly,
                         badgeText: selectedPlan == .weekly ? "Most popular" : nil
                     )
@@ -66,7 +67,8 @@ struct OnboardingPaywallView: View {
                         plan: .yearly,
                         title: "Yearly",
                         subtitle: "\(subscriptionManager.yearlyPlanSubtitleText), auto-renews",
-                        price: subscriptionManager.yearlyPlanWeeklyEquivalentText,
+                        primaryPrice: subscriptionManager.yearlyPlanBilledPriceText,
+                        secondaryPrice: subscriptionManager.yearlyPlanWeeklyEquivalentText,
                         selected: selectedPlan == .yearly,
                         badgeText: selectedPlan == .yearly ? "Best value" : nil
                     )
@@ -161,7 +163,8 @@ struct OnboardingPaywallView: View {
         plan: Plan,
         title: String,
         subtitle: String,
-        price: String,
+        primaryPrice: String,
+        secondaryPrice: String,
         selected: Bool,
         badgeText: String? = nil
     ) -> some View {
@@ -186,9 +189,14 @@ struct OnboardingPaywallView: View {
                         .foregroundColor(.white.opacity(0.85))
                 }
                 Spacer()
-                Text(price)
-                    .font(.antropicSerif(size: 16.5, weight: .bold))
-                    .foregroundColor(.white)
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(primaryPrice)
+                        .font(.antropicSerif(size: 16.5, weight: .bold))
+                        .foregroundColor(.white)
+                    Text(secondaryPrice)
+                        .font(.antropicSerif(size: 12, weight: .medium))
+                        .foregroundColor(.white.opacity(0.72))
+                }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 14)

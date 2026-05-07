@@ -137,6 +137,13 @@ class SubscriptionManager: ObservableObject {
         return "\(localizedValue)/week"
     }
 
+    var yearlyPlanBilledPriceText: String {
+        guard let product = productsByID[SubscriptionPlan.yearly.productID] else {
+            return isStoreLoading ? "Loading price..." : "--/year"
+        }
+        return "\(product.displayPrice)/year"
+    }
+
     var weeklyPlanWeeklyPriceText: String {
         guard let product = productsByID[SubscriptionPlan.weekly.productID] else {
             return isStoreLoading ? "Loading price..." : "--/week"

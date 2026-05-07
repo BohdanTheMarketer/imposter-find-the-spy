@@ -147,9 +147,14 @@ struct CategoryPaywallView: View {
                     .foregroundColor(.white.opacity(0.85))
             }
             Spacer()
-            Text(subscriptionManager.yearlyPlanWeeklyEquivalentText)
-                .font(.antropicSerif(size: 16.5, weight: .bold))
-                .foregroundColor(.white)
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(subscriptionManager.yearlyPlanBilledPriceText)
+                    .font(.antropicSerif(size: 16.5, weight: .bold))
+                    .foregroundColor(.white)
+                Text(subscriptionManager.yearlyPlanWeeklyEquivalentText)
+                    .font(.antropicSerif(size: 12, weight: .medium))
+                    .foregroundColor(.white.opacity(0.72))
+            }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
@@ -202,9 +207,14 @@ struct CategoryPaywallView: View {
                     .foregroundColor(.white.opacity(0.85))
             }
             Spacer()
-            Text(subscriptionManager.weeklyPlanWeeklyPriceText)
-                .font(.antropicSerif(size: 16.5, weight: .bold))
-                .foregroundColor(.white)
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(subscriptionManager.weeklyPlanWeeklyPriceText)
+                    .font(.antropicSerif(size: 16.5, weight: .bold))
+                    .foregroundColor(.white)
+                Text("Billed weekly")
+                    .font(.antropicSerif(size: 12, weight: .medium))
+                    .foregroundColor(.white.opacity(0.72))
+            }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
