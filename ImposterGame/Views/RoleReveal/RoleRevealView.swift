@@ -47,10 +47,6 @@ struct RoleRevealView: View {
             dragOffset = 0
             hasSeenCurrentWord = false
             syncRevealBackdrop()
-            if AppStoreScreenshotMode.isEnabled {
-                hasSeenCurrentWord = true
-                dragOffset = -UIScreen.main.bounds.height * 0.48
-            }
         }
         .onChange(of: currentIndex) { _ in
             syncRevealBackdrop()

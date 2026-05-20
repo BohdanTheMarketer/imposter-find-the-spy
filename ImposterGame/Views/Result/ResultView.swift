@@ -82,15 +82,7 @@ struct ResultView: View {
                     duration: gameSession.settings.roundDuration
                 )
             }
-            if AppStoreScreenshotMode.isEnabled {
-                phase = .reveal
-                headerReveal = true
-                showOutcomeSection = true
-                outcomeCardAppeared = true
-                showActionButtons = true
-            } else {
-                startIntrigueSequence()
-            }
+            startIntrigueSequence()
         }
     }
 

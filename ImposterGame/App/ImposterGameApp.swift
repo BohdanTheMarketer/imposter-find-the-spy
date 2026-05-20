@@ -16,20 +16,31 @@ struct ImposterGameApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationStack(path: $router.path) {
-                Group {
-                    #if DEBUG
-                    if AppStoreScreenshotMode.isEnabled {
-                        AppStoreScreenshotMenuView()
-                    } else {
-                        LoaderView()
+                LoaderView()
+                    .navigationDestination(for: AppScreen.self) { screen in
+                        switch screen {
+                        case .onboarding:
+                            OnboardingView()
+                        case .paywall:
+                            OnboardingPaywallView()
+                        case .categoryPaywall:
+                            CategoryPaywallView()
+                        case .playerSetup:
+                            PlayerSetupView()
+                        case .categories:
+                            CategoriesView()
+                        case .gameSettings:
+                            GameSettingsView()
+                        case .roleReveal:
+                            RoleRevealView()
+                        case .gameTimer:
+                            GameTimerView()
+                        case .voting:
+                            VotingView()
+                        case .result:
+                            ResultView()
+                        }
                     }
-                    #else
-                    LoaderView()
-                    #endif
-                }
-                .navigationDestination(for: AppScreen.self) { screen in
-                    AppNavigationDestinationView(screen: screen)
-                }
             }
             .environmentObject(router)
             .environmentObject(gameSession)

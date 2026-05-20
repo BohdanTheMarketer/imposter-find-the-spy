@@ -214,10 +214,6 @@ struct GameTimerView: View {
         .navigationBarBackButtonHidden(true)
         .onAppear {
             timeRemaining = gameSession.settings.roundDuration
-            if AppStoreScreenshotMode.isEnabled {
-                timeRemaining = min(max(timeRemaining, 1), 92)
-                return
-            }
             startTimer()
         }
         .onDisappear {
