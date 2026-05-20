@@ -1,8 +1,5 @@
-import Foundation
-
-#if canImport(FirebaseAnalytics)
 import FirebaseAnalytics
-#endif
+import Foundation
 
 enum AnalyticsService {
     enum PaywallContext: String {
@@ -24,18 +21,14 @@ enum AnalyticsService {
     }
 
     static func logScreenView(for screen: AppScreen) {
-        #if canImport(FirebaseAnalytics)
         Analytics.logEvent(AnalyticsEventScreenView, parameters: [
             AnalyticsParameterScreenName: screen.rawValue,
             AnalyticsParameterScreenClass: screen.rawValue
         ])
-        #endif
     }
 
     static func logEvent(_ name: String, parameters: [String: Any]? = nil) {
-        #if canImport(FirebaseAnalytics)
         Analytics.logEvent(name, parameters: parameters)
-        #endif
     }
 
     static func logGameStart(category: String, playerCount: Int, imposterCount: Int) {
@@ -58,9 +51,7 @@ enum AnalyticsService {
     }
 
     static func setUserProperty(_ value: String?, for key: String) {
-        #if canImport(FirebaseAnalytics)
         Analytics.setUserProperty(value, forName: key)
-        #endif
     }
 
     static func logPaywallViewed(context: PaywallContext) {

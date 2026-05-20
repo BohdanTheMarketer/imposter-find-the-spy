@@ -204,6 +204,7 @@ struct PlayerSetupView: View {
         .navigationBarBackButtonHidden(true)
         .onAppear {
             syncLocalPlayersFromSession()
+            guard !AppStoreScreenshotMode.isEnabled else { return }
             let shouldShowKeyboard = players.count < maxPlayers
             guard shouldShowKeyboard else { return }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
