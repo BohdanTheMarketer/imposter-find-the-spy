@@ -3,10 +3,10 @@ import UIKit
 
 struct OnboardingPage {
     let imageName: String
-    let title: String
-    let subtitle: String
+    let titleKey: LocalizedStringKey
+    let subtitleKey: LocalizedStringKey
     let backgroundColor: Color
-    let buttonTitle: String
+    let buttonTitleKey: LocalizedStringKey
 }
 
 struct OnboardingView: View {
@@ -18,17 +18,17 @@ struct OnboardingView: View {
     private let followPages: [OnboardingPage] = [
         OnboardingPage(
             imageName: "OnboardingScreen2",
-            title: "Instant Fun\nAnywhere!",
-            subtitle: "Game night, road trip, or\neven an awkward first meeting —\nFakeit breaks the ice and\nbrings the fun",
+            titleKey: "onboarding.page2_title",
+            subtitleKey: "onboarding.page2_subtitle",
             backgroundColor: Color.brightGreenStitch,
-            buttonTitle: "I'm In!"
+            buttonTitleKey: "onboarding.page2_cta"
         ),
         OnboardingPage(
             imageName: "OnboardingScreen3",
-            title: "Who's Faking It?",
-            subtitle: "One of you is lying.\nThe rest know the word.\nCan you spot the imposter\nbefore it's too late?",
+            titleKey: "onboarding.page3_title",
+            subtitleKey: "onboarding.page3_subtitle",
             backgroundColor: Color.actionRedStitch,
-            buttonTitle: "Got It"
+            buttonTitleKey: "onboarding.page3_cta"
         )
     ]
 
@@ -93,20 +93,20 @@ struct OnboardingView: View {
                         .frame(height: geo.size.height * 0.5)
                         .padding(.top, 16)
 
-                    Text("Talk Smarter")
+                    Text("onboarding.hero_talk_smarter")
                         .font(.evolventa(size: 32, weight: .bold))
                         .foregroundColor(.white)
                         .shadow(color: .black.opacity(0.35), radius: 6, y: 3)
                         .multilineTextAlignment(.center)
 
-                    Text("Guess Better")
+                    Text("onboarding.hero_guess_better")
                         .font(.evolventa(size: 32, weight: .bold))
                         .foregroundColor(.white)
                         .shadow(color: .black.opacity(0.35), radius: 6, y: 3)
                         .multilineTextAlignment(.center)
                         .padding(.bottom, 14)
 
-                    Text("Describe the secret word without saying it.\nBut beware — the imposter is listening and trying to blend in")
+                    Text("onboarding.hero_body")
                         .font(.evolventa(size: 16, weight: .regular))
                         .foregroundColor(.white.opacity(0.92))
                         .multilineTextAlignment(.center)
@@ -118,7 +118,7 @@ struct OnboardingView: View {
 
                     // Primary CTA — deep onyx + electric purple glow (DESIGN.md)
                     Button(action: { advanceFromOnboarding() }) {
-                        Text("Let's Play!")
+                        Text("onboarding.hero_cta")
                             .font(.evolventa(size: 20, weight: .bold))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
@@ -159,13 +159,13 @@ struct OnboardingView: View {
                         .frame(height: geo.size.height * 0.5)
                         .padding(.top, 16)
 
-                    Text(page.title)
+                    Text(page.titleKey)
                         .font(.evolventa(size: 34, weight: .bold))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
                         .padding(.bottom, 16)
 
-                    Text(page.subtitle)
+                    Text(page.subtitleKey)
                         .font(.evolventa(size: 16, weight: .regular))
                         .foregroundColor(.white.opacity(0.9))
                         .multilineTextAlignment(.center)
@@ -176,7 +176,7 @@ struct OnboardingView: View {
                     Spacer(minLength: 8)
 
                     Button(action: { advanceFromOnboarding() }) {
-                        Text(page.buttonTitle)
+                        Text(page.buttonTitleKey)
                             .font(.evolventa(size: 20, weight: .bold))
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)

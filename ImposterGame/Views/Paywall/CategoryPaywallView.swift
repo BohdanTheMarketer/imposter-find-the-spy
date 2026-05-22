@@ -40,7 +40,7 @@ struct CategoryPaywallView: View {
 
                     weeklyPlanCard(
                         selected: selectedPlan == .weekly,
-                        badgeText: selectedPlan == .weekly ? "Most popular" : nil
+                        badgeText: selectedPlan == .weekly ? String(localized: "paywall.badge_most_popular") : nil
                     )
                     .padding(.top, 12)
                     yearlyPlanCard(selected: selectedPlan == .yearly)
@@ -49,7 +49,7 @@ struct CategoryPaywallView: View {
                     ctaButton
                         .padding(.top, 16)
 
-                    Text(selectedPlanTerms)
+                    Text(verbatim: selectedPlanTerms)
                         .font(.antropicSerif(size: 11.5, weight: .medium))
                         .foregroundColor(.white.opacity(0.78))
                         .multilineTextAlignment(.center)
@@ -65,10 +65,13 @@ struct CategoryPaywallView: View {
         }
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
-        .alert("Restore Purchases", isPresented: $showRestoreMessage) {
-            Button("OK", role: .cancel) { }
+        .alert(
+            String(localized: "paywall.restore_alert_title"),
+            isPresented: $showRestoreMessage
+        ) {
+            Button(String(localized: "common.ok"), role: .cancel) { }
         } message: {
-            Text("If you have an active subscription, it will be restored shortly.")
+            Text("paywall.restore_alert_message")
         }
         .onAppear {
             AnalyticsService.logEvent("paywall_show", parameters: ["context": "category"])
@@ -116,7 +119,7 @@ struct CategoryPaywallView: View {
     }
 
     private func titleBlock(isCompactHeight: Bool) -> some View {
-        Text("Continue to get\nfull access")
+        Text("paywall.headline")
             .font(.antropicSans(size: isCompactHeight ? 38 : 42, weight: .bold))
             .minimumScaleFactor(0.6)
             .multilineTextAlignment(.center)
@@ -139,19 +142,19 @@ struct CategoryPaywallView: View {
         }) {
             HStack {
             VStack(alignment: .leading, spacing: 2) {
-                Text("Yearly")
+                Text("paywall.plan_yearly")
                     .font(.antropicSerif(size: 16, weight: .bold))
                     .foregroundColor(.white)
-                Text("\(subscriptionManager.yearlyPlanSubtitleText), auto-renews")
+                Text(verbatim: "\(subscriptionManager.yearlyPlanSubtitleText), \(String(localized: "paywall.auto_renews_suffix"))")
                     .font(.antropicSerif(size: 12, weight: .medium))
                     .foregroundColor(.white.opacity(0.85))
             }
             Spacer()
             VStack(alignment: .trailing, spacing: 2) {
-                Text(subscriptionManager.yearlyPlanBilledPriceText)
+                Text(verbatim: subscriptionManager.yearlyPlanBilledPriceText)
                     .font(.antropicSerif(size: 16.5, weight: .bold))
                     .foregroundColor(.white)
-                Text(subscriptionManager.yearlyPlanWeeklyEquivalentText)
+                Text(verbatim: subscriptionManager.yearlyPlanWeeklyEquivalentText)
                     .font(.antropicSerif(size: 12, weight: .medium))
                     .foregroundColor(.white.opacity(0.72))
             }
@@ -168,7 +171,7 @@ struct CategoryPaywallView: View {
             )
             .overlay(alignment: .topTrailing) {
                 if selected {
-                    Text("Best value")
+                    Text("paywall.badge_best_value")
                         .font(.antropicSerif(size: 11, weight: .bold))
                         .foregroundColor(.white)
                         .padding(.horizontal, 10)
@@ -199,19 +202,19 @@ struct CategoryPaywallView: View {
         }) {
             HStack {
             VStack(alignment: .leading, spacing: 2) {
-                Text("Weekly")
+                Text("paywall.plan_weekly")
                     .font(.antropicSerif(size: 16, weight: .bold))
                     .foregroundColor(.white)
-                Text("\(subscriptionManager.weeklyPlanWeeklyPriceText), auto-renews")
+                Text(verbatim: "\(subscriptionManager.weeklyPlanWeeklyPriceText), \(String(localized: "paywall.auto_renews_suffix"))")
                     .font(.antropicSerif(size: 12, weight: .medium))
                     .foregroundColor(.white.opacity(0.85))
             }
             Spacer()
             VStack(alignment: .trailing, spacing: 2) {
-                Text(subscriptionManager.weeklyPlanWeeklyPriceText)
+                Text(verbatim: subscriptionManager.weeklyPlanWeeklyPriceText)
                     .font(.antropicSerif(size: 16.5, weight: .bold))
                     .foregroundColor(.white)
-                Text("Billed weekly")
+                Text("paywall.cancel_anytime")
                     .font(.antropicSerif(size: 12, weight: .medium))
                     .foregroundColor(.white.opacity(0.72))
             }
@@ -228,7 +231,7 @@ struct CategoryPaywallView: View {
             )
             .overlay(alignment: .topTrailing) {
                 if let badgeText {
-                    Text(badgeText)
+                    Text(verbatim: badgeText)
                         .font(.antropicSerif(size: 11, weight: .bold))
                         .foregroundColor(.white)
                         .padding(.horizontal, 10)
@@ -262,7 +265,7 @@ struct CategoryPaywallView: View {
             }
         }) {
             HStack {
-                Text("Continue")
+                Text("paywall.continue")
                     .font(.antropicSerif(size: 19.5, weight: .bold))
                     .foregroundColor(.appTextOnAccent)
                 Spacer()
@@ -279,19 +282,19 @@ struct CategoryPaywallView: View {
 
     private var footerLinks: some View {
         HStack(spacing: 26) {
-            Button("Terms") {
+            Button(String(localized: "legal.terms_short")) {
                 AnalyticsService.logPaywallLinkTapped(context: .category, linkType: "terms")
                 if let url = CategoryPaywallLinks.termsURL {
                     openURL(url)
                 }
             }
-            Button("Privacy") {
+            Button(String(localized: "legal.privacy_short")) {
                 AnalyticsService.logPaywallLinkTapped(context: .category, linkType: "privacy")
                 if let url = CategoryPaywallLinks.privacyURL {
                     openURL(url)
                 }
             }
-            Button("Restore") {
+            Button(String(localized: "paywall.restore")) {
                 AnalyticsService.logPaywallRestoreTapped(context: .category)
                 subscriptionManager.restorePurchases(context: .category)
                 showRestoreMessage = true

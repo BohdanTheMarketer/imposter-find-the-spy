@@ -12,6 +12,7 @@ struct PlayerEntry: Identifiable {
 struct PlayerSetupView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var gameSession: GameSession
+    @EnvironmentObject var localization: LocalizationService
     @State private var players: [PlayerEntry] = []
     @State private var newPlayerName: String = ""
     @State private var showOptionsMenu = false
@@ -37,7 +38,14 @@ struct PlayerSetupView: View {
     }
 
     private var playerCountLabel: String {
-        "\(players.count) Player\(players.count == 1 ? "" : "s")"
+        let wordKey = players.count == 1
+            ? "player_setup.player_count_singular"
+            : "player_setup.player_count_plural"
+        return "\(players.count) \(localization.localized(wordKey))"
+    }
+
+    private var nameFieldPlaceholder: String {
+        localization.localized("player_setup.name_placeholder")
     }
 
     @ViewBuilder
@@ -46,7 +54,7 @@ struct PlayerSetupView: View {
             HStack(spacing: 12) {
                 PlayerNameEntryField(
                     text: $newPlayerName,
-                    placeholder: "Enter player name",
+                    placeholder: nameFieldPlaceholder,
                     onCommit: addPlayer,
                     focusToken: nameFieldFocusToken,
                     maxLength: maxNameLength
@@ -87,7 +95,7 @@ struct PlayerSetupView: View {
                     router.navigate(to: .categories)
                 }) {
                     HStack(spacing: 14) {
-                        Text("CONTINUE")
+                        Text("player_setup.continue")
                             .font(.evolventa(size: 20, weight: .bold))
                             .foregroundColor(.appTextOnAccent)
                         Rectangle()
@@ -104,7 +112,7 @@ struct PlayerSetupView: View {
                 }
                 .opacity(canContinue ? 1.0 : 0.85)
             } else {
-                Text("Minimum 3 players to start a game")
+                Text("player_setup.minimum_players_hint")
                     .font(.evolventa(size: 15, weight: .medium))
                     .foregroundColor(.white.opacity(0.75))
                     .multilineTextAlignment(.center)
@@ -116,6 +124,8 @@ struct PlayerSetupView: View {
     }
 
     var body: some View {
+        let _ = localization.currentLocaleCode
+
         GeometryReader { geometry in
             ZStack {
             LinearGradient.gameplayBackground
@@ -129,7 +139,7 @@ struct PlayerSetupView: View {
                 // Header
                 HStack {
                     Spacer()
-                    Text("Players")
+                    Text("player_setup.title")
                         .font(.evolventa(size: 28, weight: .bold))
                         .foregroundColor(.gameplayTitle)
                     Spacer()
@@ -401,6 +411,13 @@ private struct PlayerNameEntryField: UIViewRepresentable {
         if uiView.text != text {
             uiView.text = text
         }
+        if context.coordinator.lastPlaceholder != placeholder {
+            context.coordinator.lastPlaceholder = placeholder
+            uiView.attributedPlaceholder = NSAttributedString(
+                string: placeholder,
+                attributes: [.foregroundColor: UIColor.white.withAlphaComponent(0.45)]
+            )
+        }
         if context.coordinator.lastFocusToken != focusToken {
             context.coordinator.lastFocusToken = focusToken
             DispatchQueue.main.async {
@@ -413,6 +430,7 @@ private struct PlayerNameEntryField: UIViewRepresentable {
         var parent: PlayerNameEntryField!
         /// Starts aligned with `nameFieldFocusToken` so the initial `0` does not auto-focus.
         var lastFocusToken: Int = 0
+        var lastPlaceholder: String = ""
 
         @objc func editingChanged(_ sender: UITextField) {
             parent.text = sender.text ?? ""
@@ -452,6 +470,7 @@ struct PlayerOptionsSheet: View {
     @State private var didCopyUDID = false
     @State private var toastMessage = ""
     @State private var showToast = false
+    @State private var showLanguagePicker = false
 
     var body: some View {
         ZStack {
@@ -463,28 +482,27 @@ struct PlayerOptionsSheet: View {
                 )
 
             VStack(spacing: 0) {
-                Text("Options")
+                Text("player_setup.options_title")
                     .font(.evolventa(size: 22, weight: .bold))
                     .foregroundColor(.gameplayTitle)
                     .padding(.top, 28)
                     .padding(.bottom, 20)
 
                 VStack(spacing: 10) {
-                    optionRow(title: "Language", systemImage: "globe") {
-                        showToast(message: "Coming soon")
-                        HapticsManager.impact(.light)
+                    optionRow(titleKey: "player_setup.options_language", systemImage: "globe") {
+                        showLanguagePicker = true
                     }
-                    optionRow(title: "Contact Us", systemImage: "envelope") {
+                    optionRow(titleKey: "player_setup.options_contact", systemImage: "envelope") {
                         if let url = URL(string: "mailto:\(PlayerOptionsLinks.contactEmail)") {
                             UIApplication.shared.open(url)
                         }
                     }
-                    optionRow(title: "Privacy Policy", systemImage: "shield") {
+                    optionRow(titleKey: "legal.privacy_policy", systemImage: "shield") {
                         if let url = PlayerOptionsLinks.privacyURL {
                             UIApplication.shared.open(url)
                         }
                     }
-                    optionRow(title: "Terms & Conditions", systemImage: "doc.text") {
+                    optionRow(titleKey: "legal.terms", systemImage: "doc.text") {
                         if let url = PlayerOptionsLinks.termsURL {
                             UIApplication.shared.open(url)
                         }
@@ -500,7 +518,7 @@ struct PlayerOptionsSheet: View {
                     HapticsManager.impact(.light)
                     isPresented = false
                 }) {
-                    Text("Close")
+                    Text("common.close")
                         .font(.evolventa(size: 18, weight: .bold))
                         .foregroundColor(.appTextOnAccent)
                         .frame(maxWidth: .infinity)
@@ -515,9 +533,12 @@ struct PlayerOptionsSheet: View {
         .onAppear {
             loadFirebaseInstallationID()
         }
+        .sheet(isPresented: $showLanguagePicker) {
+            LanguagePickerSheet(isPresented: $showLanguagePicker)
+        }
         .overlay(alignment: .topLeading) {
             if showToast {
-                Text(toastMessage)
+                Text(verbatim: toastMessage)
                     .font(.evolventa(size: 13, weight: .semibold))
                     .foregroundColor(.white)
                     .padding(.horizontal, 14)
@@ -535,17 +556,17 @@ struct PlayerOptionsSheet: View {
 
     private var firebaseInstallationIdRow: some View {
         let valueText: String = {
-            if isLoadingFirebaseId { return "Loading…" }
-            if firebaseInstallationId.isEmpty { return "Unavailable" }
+            if isLoadingFirebaseId { return String(localized: "player_setup.udid_loading") }
+            if firebaseInstallationId.isEmpty { return String(localized: "player_setup.udid_unavailable") }
             return firebaseInstallationId
         }()
 
         return Button(action: copyFirebaseInstallationID) {
             HStack(alignment: .center, spacing: 12) {
-                Text("UDID:")
+                Text("player_setup.udid_label")
                     .font(.evolventa(size: 12, weight: .semibold))
                     .foregroundColor(.white.opacity(0.6))
-                Text(valueText)
+                Text(verbatim: valueText)
                     .font(.evolventa(size: 11, weight: .regular))
                     .foregroundColor(.white.opacity(0.55))
                     .lineLimit(1)
@@ -583,36 +604,36 @@ struct PlayerOptionsSheet: View {
 
     private func copyFirebaseInstallationID() {
         guard !isLoadingFirebaseId else {
-            showToast(message: "UDID is still loading. Try again in a moment.")
+            showToast(message: String(localized: "player_setup.udid_toast_loading"))
             HapticsManager.notification(.warning)
             return
         }
         guard !firebaseInstallationId.isEmpty else {
-            showToast(message: "UDID is unavailable right now.")
+            showToast(message: String(localized: "player_setup.udid_toast_unavailable"))
             HapticsManager.notification(.warning)
             return
         }
         UIPasteboard.general.string = firebaseInstallationId
         didCopyUDID = UIPasteboard.general.string == firebaseInstallationId
         if didCopyUDID {
-            showToast(message: "UDID copied")
+            showToast(message: String(localized: "player_setup.udid_toast_copied"))
             HapticsManager.impact(.light)
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
                 didCopyUDID = false
             }
         } else {
-            showToast(message: "Could not copy UDID")
+            showToast(message: String(localized: "player_setup.udid_toast_copy_failed"))
             HapticsManager.notification(.warning)
         }
     }
 
-    private func optionRow(title: String, systemImage: String, action: @escaping () -> Void) -> some View {
+    private func optionRow(titleKey: LocalizedStringKey, systemImage: String, action: @escaping () -> Void) -> some View {
         Button(action: {
             HapticsManager.impact(.light)
             action()
         }) {
             HStack {
-                Text(title)
+                Text(titleKey)
                     .font(.evolventa(size: 17, weight: .semibold))
                     .foregroundColor(.white)
                 Spacer()
@@ -670,7 +691,7 @@ struct PlayerRow: View {
         HStack(spacing: 14) {
             PlayerAvatarThumbnailView(avatarIndex: avatarIndex, size: 44, cornerRadius: 22)
 
-            Text(name)
+            Text(verbatim: name)
                 .font(.evolventa(size: 17, weight: .medium))
                 .foregroundColor(.white)
                 .lineLimit(1)

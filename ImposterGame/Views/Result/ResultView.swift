@@ -15,7 +15,12 @@ struct ResultView: View {
         case reveal
     }
 
-    private let intrigueTexts = ["THE", "MOMENT", "OF", "TRUTH"]
+    private let intrigueKeys: [LocalizedStringKey] = [
+        "result.intrigue_the",
+        "result.intrigue_moment",
+        "result.intrigue_of",
+        "result.intrigue_truth"
+    ]
     /// Keep the "Moment of Truth" sequence intentionally dramatic and slow.
     private let intrigueSpeedMultiplier: Double = 4.0
 
@@ -36,20 +41,28 @@ struct ResultView: View {
     }
 
     private var outcomeTitle: String {
-        didPlayersWin ? "Players Win!" : "Imposter Wins!"
+        didPlayersWin
+            ? String(localized: "result.title_players_win")
+            : String(localized: "result.title_imposter_wins")
     }
 
     private var outcomeSubtitle: String {
         if didPlayersWin {
-            if imposters.count <= 1 { return "The imposter was caught" }
-            if imposters.count == 2 { return "Both imposters caught" }
-            return "All \(imposters.count) imposters caught"
+            if imposters.count <= 1 {
+                return String(localized: "result.subtitle_single_caught")
+            }
+            if imposters.count == 2 {
+                return String(localized: "result.subtitle_two_caught")
+            }
+            return String(format: NSLocalizedString("result.all_caught_format", comment: ""), imposters.count)
         }
-        return "They got away undetected"
+        return String(localized: "result.subtitle_imposter_escaped")
     }
 
     private var resultBadgeText: String {
-        didPlayersWin ? "Players won" : "Imposter won"
+        didPlayersWin
+            ? String(localized: "result.badge_players_won")
+            : String(localized: "result.badge_imposter_won")
     }
 
     private var imposterGridColumns: [GridItem] {
@@ -100,9 +113,9 @@ struct ResultView: View {
             VStack {
                 Spacer(minLength: 0)
                 VStack(alignment: .leading, spacing: 6) {
-                    ForEach(0..<intrigueTexts.count, id: \.self) { index in
+                    ForEach(0..<intrigueKeys.count, id: \.self) { index in
                         if index <= intrigueTextIndex {
-                            Text(intrigueTexts[index])
+                            Text(intrigueKeys[index])
                                 .font(.evolventa(size: 48, weight: .bold))
                                 .foregroundStyle(
                                     LinearGradient(
@@ -147,19 +160,19 @@ struct ResultView: View {
     private var resultFullscreenLayout: some View {
         GeometryReader { geo in
             VStack(spacing: 10) {
-                Text("Results")
+                Text("result.screen_title")
                     .font(.evolventa(size: 30, weight: .bold))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity, alignment: .center)
 
                 VStack(spacing: 12) {
-                    Text(outcomeTitle)
+                    Text(verbatim: outcomeTitle)
                         .font(.evolventa(size: 50, weight: .bold))
                         .minimumScaleFactor(0.75)
                         .lineLimit(1)
                         .foregroundColor(.white)
 
-                    Text(outcomeSubtitle)
+                    Text(verbatim: outcomeSubtitle)
                         .font(.evolventa(size: 15, weight: .semibold))
                         .foregroundColor(.white.opacity(0.78))
                         .multilineTextAlignment(.center)
@@ -174,12 +187,12 @@ struct ResultView: View {
 
                 if !gameSession.secretWord.isEmpty {
                     VStack(spacing: 6) {
-                        Text("SECRET WORD")
+                        Text("result.secret_word_label")
                             .font(.evolventa(size: 12, weight: .bold))
                             .foregroundColor(.white.opacity(0.35))
                             .tracking(1.1)
 
-                        Text(gameSession.secretWord)
+                        Text(verbatim: gameSession.secretWord)
                             .font(.evolventa(size: 28, weight: .bold))
                             .foregroundColor(.white)
                             .lineLimit(1)
@@ -201,7 +214,7 @@ struct ResultView: View {
                             router.navigateToCategories()
                         }) {
                             HStack(spacing: 10) {
-                                Text("PLAY AGAIN")
+                                Text("result.play_again")
                                     .font(.evolventa(size: 18, weight: .bold))
                                     .foregroundColor(.white)
                                 Image(systemName: "arrow.counterclockwise")
@@ -230,7 +243,7 @@ struct ResultView: View {
     @ViewBuilder
     private var imposterGridSection: some View {
         if imposters.isEmpty {
-            Text("No imposter found")
+            Text("result.no_imposter")
                 .font(.evolventa(size: 16, weight: .medium))
                 .foregroundColor(.white.opacity(0.75))
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -280,7 +293,7 @@ struct ResultView: View {
             )
             .shadow(color: Color.black.opacity(0.28), radius: 8, x: 0, y: 4)
 
-            Text(imposter.name)
+            Text(verbatim: imposter.name)
                 .font(.evolventa(size: 15, weight: .semibold))
                 .foregroundColor(.white)
                 .lineLimit(1)
@@ -299,16 +312,16 @@ struct ResultView: View {
 
     private func startIntrigueSequence() {
         let wordStep = 0.26 * intrigueSpeedMultiplier
-        for i in 0..<intrigueTexts.count {
+        for i in 0..<intrigueKeys.count {
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * wordStep) {
                 withAnimation(.easeInOut(duration: 0.2 * intrigueSpeedMultiplier)) {
                     intrigueTextIndex = i
                 }
-                HapticsManager.impact(i == intrigueTexts.count - 1 ? .medium : .light)
+                HapticsManager.impact(i == intrigueKeys.count - 1 ? .medium : .light)
             }
         }
 
-        let lastWordDelay = Double(intrigueTexts.count - 1) * wordStep
+        let lastWordDelay = Double(intrigueKeys.count - 1) * wordStep
         let revealDelay = lastWordDelay + (0.28 * intrigueSpeedMultiplier)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + revealDelay) {

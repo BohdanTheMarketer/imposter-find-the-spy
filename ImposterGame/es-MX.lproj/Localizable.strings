@@ -1,0 +1,156 @@
+/* Common */
+"common.back"                         = "Atrás";
+"common.ok"                           = "OK";
+"common.close"                        = "Cerrar";
+"common.next"                         = "Siguiente";
+"common.continue"                     = "Continuar";
+"common.coming_soon"                  = "Próximamente";
+"common.got_it"                       = "¡Entendido!";
+"common.later"                        = "Después";
+"common.restart_now"                  = "Reiniciar ahora";
+
+/* Legal */
+"legal.privacy_policy"                = "Política de privacidad";
+"legal.terms"                         = "Términos y condiciones";
+"legal.terms_short"                   = "Términos";
+"legal.privacy_short"                 = "Privacidad";
+
+/* GameSettings */
+"game_settings.title"                         = "Ajustes";
+"game_settings.play"                          = "JUGAR";
+"game_settings.imposter_count_singular"       = "Impostor";
+"game_settings.imposter_count_plural"         = "Impostores";
+"game_settings.imposters_section_title"       = "Impostores";
+"game_settings.imposters_help"                = "¿Cuántos jugadores serán impostores secretos?";
+"game_settings.imposters_recommended_format"  = "Recomendado para %lld jugadores: %lld";
+"game_settings.round_duration_title"          = "Duración de ronda";
+"game_settings.round_duration_help"           = "¿Cuánto dura cada ronda de discusión?";
+"game_settings.hints_title"                   = "Pistas para impostores";
+"game_settings.hints_help"                    = "¿Los impostores reciben pista sobre la palabra secreta?";
+"game_settings.hints_disabled"                = "Desactivado";
+"game_settings.hints_enabled"                 = "Activado";
+"game_settings.word_load_error"               = "No se pudo cargar una palabra. Intenta de nuevo.";
+
+/* PlayerSetup */
+"player_setup.title"                          = "Jugadores";
+"player_setup.name_placeholder"               = "Escribe el nombre del jugador";
+"player_setup.continue"                       = "CONTINUAR";
+"player_setup.player_count_singular"          = "Jugador";
+"player_setup.player_count_plural"            = "Jugadores";
+"player_setup.minimum_players_hint"           = "Mínimo 3 jugadores para empezar";
+"player_setup.options_title"                  = "Opciones";
+"player_setup.options_language"               = "Idioma";
+"player_setup.options_contact"                = "Contáctanos";
+"player_setup.udid_loading"                   = "Cargando…";
+"player_setup.udid_unavailable"               = "No disponible";
+"player_setup.udid_label"                     = "UDID:";
+"player_setup.udid_toast_loading"             = "UDID aún cargando. Intenta en un momento.";
+"player_setup.udid_toast_unavailable"         = "UDID no disponible ahora.";
+"player_setup.udid_toast_copied"              = "UDID copiado";
+"player_setup.udid_toast_copy_failed"         = "No se pudo copiar el UDID";
+
+/* Language picker sheet */
+"language.sheet.title"                        = "Idioma";
+"language.sheet.subtitle"                     = "Elige el idioma de la app";
+"language.sheet.hint"                         = "Se aplica al instante";
+"language.current_label"                      = "Idioma actual";
+"language.row.current"                        = "Actual";
+"player_setup.language_change"                = "Cambiar";
+"language.restart_required_title"             = "Reinicio necesario";
+"language.restart_required_message"           = "El nuevo idioma aparecerá al reiniciar la app.";
+
+/* RoleReveal */
+"role_reveal.unknown_player"                  = "Desconocido";
+"role_reveal.imposter_lead_in"                = "Eres el";
+"role_reveal.imposter_label"                  = "IMPOSTOR";
+"role_reveal.hint_title"                      = "Pista del impostor";
+"role_reveal.crew_secret_prefix"              = "Tu palabra secreta es:";
+"role_reveal.all_done"                        = "Todos vieron la palabra";
+"role_reveal.pass_phone_format"               = "Pasa el teléfono a %@";
+"role_reveal.start_game"                      = "Empezar juego";
+"role_reveal.swipe_instruction"               = "Desliza hacia arriba para\nrevelar la palabra secreta";
+
+/* Voting */
+"voting.title"                                = "¿Quién es el impostor?";
+"voting.selected_count_format"                = "%lld/%lld seleccionados";
+"voting.reveal"                               = "Revelar";
+
+/* Result */
+"result.intrigue_the"                         = "EL";
+"result.intrigue_moment"                      = "MOMENTO";
+"result.intrigue_of"                          = "DE";
+"result.intrigue_truth"                       = "VERDAD";
+"result.title_players_win"                    = "¡Ganan los jugadores!";
+"result.title_imposter_wins"                  = "¡Gana el impostor!";
+"result.subtitle_single_caught"               = "Atraparon al impostor";
+"result.subtitle_two_caught"                  = "Atraparon a los dos impostores";
+"result.subtitle_imposter_escaped"            = "Se escapó sin ser detectado";
+"result.badge_players_won"                    = "Ganaron los jugadores";
+"result.badge_imposter_won"                   = "Ganó el impostor";
+"result.screen_title"                         = "Resultados";
+"result.secret_word_label"                    = "PALABRA SECRETA";
+"result.play_again"                           = "JUGAR OTRA VEZ";
+"result.no_imposter"                          = "No se encontró impostor";
+
+/* Onboarding */
+"onboarding.page2_title"                      = "¡Diversión al instante\ndonde sea!";
+"onboarding.page2_subtitle"                   = "Noche de juegos, viaje o\nprimera cita —\nrompe el hielo y\ndivértete";
+"onboarding.page2_cta"                        = "¡Vamos!";
+"onboarding.page3_title"                      = "¿Quién está fingiendo?";
+"onboarding.page3_subtitle"                   = "Alguien miente.\nLos demás conocen la palabra.\n¿Encuentras al impostor\nantes de que sea tarde?";
+"onboarding.page3_cta"                        = "Entendido";
+"onboarding.hero_talk_smarter"                = "Habla mejor";
+"onboarding.hero_guess_better"                = "Adivina mejor";
+"onboarding.hero_body"                        = "Describe la palabra secreta sin decirla.\nCuidado — el impostor escucha e intenta mezclarse";
+"onboarding.hero_cta"                         = "¡A jugar!";
+
+/* GameTimer */
+"game_timer.starts_asking"                    = "¡Empieza preguntando!";
+"game_timer.section_label"                    = "Temporizador";
+"game_timer.paused"                           = "Pausado";
+"game_timer.vote_now"                         = "Votar ahora";
+"game_timer.pause"                            = "Pausa";
+"game_timer.continue"                         = "Continuar";
+
+/* Paywall */
+"paywall.headline"                            = "Continúa para tener\nacceso completo";
+"paywall.plan_yearly"                         = "Anual";
+"paywall.plan_weekly"                         = "Semanal";
+"paywall.cancel_anytime"                      = "Cancela cuando quieras";
+"paywall.badge_best_value"                    = "Mejor valor";
+"paywall.badge_most_popular"                  = "Más popular";
+"paywall.trial_prompt_title"                  = "¿Aún no estás seguro?";
+"paywall.trial_prompt_subtitle"               = "Activa acceso gratis";
+"paywall.trial_legal_line"                    = "0 USD hoy • 3 días GRATIS";
+"paywall.continue"                            = "Continuar";
+"paywall.skip"                                = "Omitir";
+"paywall.restore"                             = "Restaurar";
+"paywall.restore_alert_title"                 = "Restaurar compras";
+"paywall.restore_alert_message"               = "Si tienes suscripción activa, se restaurará pronto.";
+"paywall.auto_renews_suffix"                  = "se renueva solo";
+"category_paywall.free_access_on"             = "Acceso gratis activado";
+"category_paywall.trial_on_subtitle"          = "Sin compromiso, cancela cuando quieras";
+"category_paywall.cta_trial"                  = "Pruébalo gratis";
+
+/* Categories */
+"categories.title"                            = "Categorías";
+"categories.play"                             = "Jugar";
+"categories.selection_count_singular"         = "Categoría";
+"categories.selection_count_plural"           = "Categorías";
+"categories.info.step1_title"                 = "Elige tus temas";
+"categories.info.step1_subtitle"              = "Elige uno o más temas para el ambiente de la fiesta.";
+"categories.info.step2_title"                 = "Da una pista";
+"categories.info.step2_subtitle"              = "Una pista inteligente. Clara para quien sabe — confusa para el impostor.";
+"categories.info.step3_title"                 = "Revisa tu rol";
+"categories.info.step3_subtitle"              = "Todos ven la palabra secreta... excepto el impostor. ¿Su meta? Mezclarse.";
+"categories.info.step4_title"                 = "Hora de votar";
+"categories.info.step4_subtitle"              = "Se acabó la charla. ¡Vota para exponer al impostor!";
+"categories.info.vote_win"                    = "✅  Aciertas — ganas";
+"categories.info.vote_lose"                   = "❌  Fallas — gana el impostor";
+"categories.info.instant_win_warning"         = "⚠️ Si el impostor adivina la palabra a tiempo, gana al instante";
+
+/* Loader */
+"loader.tagline"                              = "ENCUENTRA  •  ACUSA  •  SOBREVIVE";
+"loader.imposter_word"                        = "IMPOSTOR";
+"loader.lead_in_top"                          = "¿QUIÉN ES";
+"loader.lead_in_bottom"                       = "EL";

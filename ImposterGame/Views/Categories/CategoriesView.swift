@@ -32,6 +32,7 @@ struct CategoriesView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var gameSession: GameSession
     @EnvironmentObject var subscriptionManager: SubscriptionManager
+    @EnvironmentObject var localization: LocalizationService
     @State private var categories: [Category] = []
     @State private var selectedCategoryID: UUID?
     @State private var showInfoOverlay = false
@@ -74,7 +75,15 @@ struct CategoriesView: View {
         selectedCategoryID == nil ? 0 : 1
     }
 
+    private var selectionCountLabel: String {
+        let wordKey = selectedCategoryCount == 1
+            ? "categories.selection_count_singular"
+            : "categories.selection_count_plural"
+        return "\(selectedCategoryCount) \(localization.localized(wordKey))"
+    }
+
     var body: some View {
+        let _ = localization.currentLocaleCode
         ZStack {
             LinearGradient.gameplayBackground
                 .ignoresSafeArea()
@@ -94,7 +103,7 @@ struct CategoriesView: View {
 
                     Spacer()
 
-                    Text("Categories")
+                    Text("categories.title")
                         .font(.evolventa(size: 28, weight: .bold))
                         .foregroundColor(.gameplayTitle)
 
@@ -184,7 +193,7 @@ struct CategoriesView: View {
                         router.navigate(to: .gameSettings)
                     }) {
                         HStack(spacing: 14) {
-                            Text("Play")
+                            Text("categories.play")
                                 .font(.evolventa(size: 20, weight: .bold))
                                 .foregroundColor(.appTextOnAccent)
 
@@ -192,7 +201,7 @@ struct CategoriesView: View {
                                 .fill(Color.appTextOnAccent.opacity(0.25))
                                 .frame(width: 1, height: 26)
 
-                            Text("\(selectedCategoryCount) Category")
+                            Text(selectionCountLabel)
                                 .font(.evolventa(size: 20, weight: .semibold))
                                 .foregroundColor(.appTextOnAccent.opacity(0.85))
                         }
@@ -208,12 +217,19 @@ struct CategoriesView: View {
             .padding(.bottom, 10)
         }
         .onAppear {
-            categories = CategoryLoader.loadCategories()
-            restoreSelection()
+            reloadCategories()
+        }
+        .onChange(of: localization.currentLocaleCode) { _ in
+            reloadCategories()
         }
         .onChange(of: subscriptionManager.isPremium) { _ in
             restoreSelection()
         }
+    }
+
+    private func reloadCategories() {
+        categories = CategoryLoader.loadCategories()
+        restoreSelection()
     }
 
     private func restoreSelection() {
@@ -290,7 +306,7 @@ struct CategoryCard: View {
 
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(spacing: 8) {
-                        Text(category.name)
+                        Text(verbatim: category.name)
                             .font(.evolventa(size: 20, weight: .bold))
                             .foregroundColor(.white.opacity(0.95))
                             .lineLimit(1)
@@ -302,7 +318,7 @@ struct CategoryCard: View {
                         }
                     }
 
-                    Text(category.description)
+                    Text(verbatim: category.description)
                         .font(.evolventa(size: 13, weight: .medium))
                         .foregroundColor(.white.opacity(0.55))
                         .lineLimit(nil)
@@ -361,28 +377,28 @@ struct CategoryInfoOverlay: View {
 
     private let steps: [CategoryInfoStep] = [
         CategoryInfoStep(
-            title: "Choose Your Themes",
-            subtitle: "Pick one or more themes to set the mood and match your vibe and party.",
+            titleKey: "categories.info.step1_title",
+            subtitleKey: "categories.info.step1_subtitle",
             content: .emoji("🏟️ 🌶️ 🪩"),
-            buttonTitle: "Next"
+            buttonTitleKey: "common.next"
         ),
         CategoryInfoStep(
-            title: "Drop a Clue",
-            subtitle: "Give a clever hint or association. Clear for those in the know - confusing for the imposter.",
+            titleKey: "categories.info.step2_title",
+            subtitleKey: "categories.info.step2_subtitle",
             content: .chips(["Yellow", "Monkey Snack", "Curved"], "🍌"),
-            buttonTitle: "Next"
+            buttonTitleKey: "common.next"
         ),
         CategoryInfoStep(
-            title: "Check Your Role",
-            subtitle: "Everyone sees the secret word... except the imposter - they only see their role. Their goal? Blend in.",
+            titleKey: "categories.info.step3_title",
+            subtitleKey: "categories.info.step3_subtitle",
             content: .emoji("👤 👤 🕵️ 👤"),
-            buttonTitle: "Next"
+            buttonTitleKey: "common.next"
         ),
         CategoryInfoStep(
-            title: "Time to Vote",
-            subtitle: "Talk's over. Now vote to expose the imposter!",
+            titleKey: "categories.info.step4_title",
+            subtitleKey: "categories.info.step4_subtitle",
             content: .voteBox,
-            buttonTitle: "Got It!"
+            buttonTitleKey: "common.got_it"
         )
     ]
 
@@ -391,7 +407,7 @@ struct CategoryInfoOverlay: View {
             Spacer()
 
             VStack(spacing: 0) {
-                Text(steps[currentStep].title)
+                Text(steps[currentStep].titleKey)
                     .font(.evolventa(size: 44, weight: .bold))
                     .minimumScaleFactor(0.75)
                     .lineLimit(2)
@@ -400,7 +416,7 @@ struct CategoryInfoOverlay: View {
                     .padding(.horizontal, 22)
                     .padding(.top, 42)
 
-                Text(steps[currentStep].subtitle)
+                Text(steps[currentStep].subtitleKey)
                     .font(.evolventa(size: 17, weight: .semibold))
                     .foregroundColor(.white.opacity(0.9))
                     .multilineTextAlignment(.center)
@@ -420,7 +436,7 @@ struct CategoryInfoOverlay: View {
                 .padding(.top, 26)
 
                 Button(action: nextTapped) {
-                    Text(steps[currentStep].buttonTitle)
+                    Text(steps[currentStep].buttonTitleKey)
                         .font(.evolventa(size: 20, weight: .bold))
                         .foregroundColor(.appTextOnAccent)
                         .frame(maxWidth: .infinity)
@@ -447,7 +463,7 @@ struct CategoryInfoOverlay: View {
     private func contentView(for step: CategoryInfoStep) -> some View {
         switch step.content {
         case .emoji(let text):
-            Text(text)
+            Text(verbatim: text)
                 .font(.system(size: 60, weight: .heavy))
                 .padding(.horizontal, 20)
 
@@ -455,7 +471,7 @@ struct CategoryInfoOverlay: View {
             HStack(spacing: 24) {
                 VStack(alignment: .leading, spacing: 10) {
                     ForEach(chips, id: \.self) { chip in
-                        Text(chip)
+                        Text(verbatim: chip)
                             .font(.evolventa(size: 20, weight: .medium))
                             .foregroundColor(.white)
                             .padding(.horizontal, 24)
@@ -468,7 +484,7 @@ struct CategoryInfoOverlay: View {
                             )
                     }
                 }
-                Text(emoji)
+                Text(verbatim: emoji)
                     .font(.system(size: 76))
             }
             .padding(.horizontal, 20)
@@ -476,8 +492,8 @@ struct CategoryInfoOverlay: View {
         case .voteBox:
             VStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("✅  Guess right - you win")
-                    Text("❌  Miss - imposter wins")
+                    Text("categories.info.vote_win")
+                    Text("categories.info.vote_lose")
                 }
                 .font(.evolventa(size: 18, weight: .semibold))
                 .foregroundColor(.white)
@@ -491,7 +507,7 @@ struct CategoryInfoOverlay: View {
                         .stroke(Color.white.opacity(0.85), lineWidth: 2)
                 )
 
-                Text("⚠️ If the imposter guesses the word before time runs out, they win instantly")
+                Text("categories.info.instant_win_warning")
                     .font(.evolventa(size: 16, weight: .semibold))
                     .foregroundColor(.white.opacity(0.9))
                     .multilineTextAlignment(.center)
@@ -514,10 +530,10 @@ struct CategoryInfoOverlay: View {
 }
 
 struct CategoryInfoStep {
-    let title: String
-    let subtitle: String
+    let titleKey: LocalizedStringKey
+    let subtitleKey: LocalizedStringKey
     let content: CategoryInfoContent
-    let buttonTitle: String
+    let buttonTitleKey: LocalizedStringKey
 }
 
 enum CategoryInfoContent {

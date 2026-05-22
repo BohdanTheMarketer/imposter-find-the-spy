@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>voting.select_count</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@players@</string>
+        <key>players</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>lld</string>
+            <key>one</key>
+            <string>Sahte olduğunu düşündüğün %lld oyuncuyu seç</string>
+            <key>other</key>
+            <string>Sahte olduklarını düşündüğün %lld oyuncuyu seç</string>
+        </dict>
+    </dict>
+    <key>result.all_caught_format</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@imposters@</string>
+        <key>imposters</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>lld</string>
+            <key>one</key>
+            <string>Sahtekar yakalandı</string>
+            <key>other</key>
+            <string>Tüm %lld sahtekar yakalandı</string>
+        </dict>
+    </dict>
+</dict>
+</plist>

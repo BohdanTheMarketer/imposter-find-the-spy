@@ -9,6 +9,13 @@ options:
     iOS: "16.0"
   xcodeVersion: "15.0"
   generateEmptyDirectories: true
+  developmentLanguage: en
+fileGroups:
+  - ImposterGame/en.lproj
+  - ImposterGame/pt-BR.lproj
+  - ImposterGame/fr.lproj
+  - ImposterGame/es-MX.lproj
+  - ImposterGame/tr.lproj
 schemes:
   ImposterGame:
     build:
@@ -22,7 +29,7 @@ schemes:
 settings:
   base:
     SWIFT_VERSION: "5.9"
-    MARKETING_VERSION: "1.0.0"
+    MARKETING_VERSION: "1.1.0"
     CURRENT_PROJECT_VERSION: "3"
     GENERATE_INFOPLIST_FILE: YES
     INFOPLIST_KEY_UIAppFonts:
@@ -49,6 +56,10 @@ targets:
     platform: iOS
     sources:
       - path: ImposterGame
+        excludes:
+          - "Resources/WordPacks"
+          - "Resources/WordPacks/**"
+          - "Resources/WordPacks/**/*"
     dependencies:
       - package: Firebase
         product: FirebaseAnalytics
@@ -57,6 +68,14 @@ targets:
       - package: Firebase
         product: FirebaseInstallations
     postBuildScripts:
+      - name: Copy WordPacks (preserve directory structure)
+        basedOnDependencyAnalysis: false
+        script: |
+          set -e
+          SRC="${PROJECT_DIR}/ImposterGame/Resources/WordPacks"
+          DEST="${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/WordPacks"
+          mkdir -p "${DEST}"
+          rsync -a --delete "${SRC}/" "${DEST}/"
       - name: Firebase Crashlytics
         basedOnDependencyAnalysis: false
         script: |
@@ -66,8 +85,6 @@ targets:
           - $(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)
     resources:
       - path: ImposterGame/Assets.xcassets
-        buildPhase: resources
-      - path: ImposterGame/Resources/WordPacks
         buildPhase: resources
       - path: ImposterGame/Resources/Onboarding
         buildPhase: resources
@@ -104,6 +121,13 @@ targets:
         INFOPLIST_KEY_CFBundleDisplayName: "Imposter"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        LOCALIZATION_PREFERS_STRING_CATALOGS: NO
+        INFOPLIST_KEY_CFBundleLocalizations:
+          - en
+          - pt-BR
+          - fr
+          - es-MX
+          - tr
       configs:
         Release:
           DEBUG_INFORMATION_FORMAT: dwarf-with-dsym

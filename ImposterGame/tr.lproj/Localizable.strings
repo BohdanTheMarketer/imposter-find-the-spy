@@ -1,0 +1,156 @@
+/* Common */
+"common.back"                         = "Geri";
+"common.ok"                           = "Tamam";
+"common.close"                        = "Kapat";
+"common.next"                         = "İleri";
+"common.continue"                     = "Devam";
+"common.coming_soon"                  = "Yakında";
+"common.got_it"                       = "Anladım!";
+"common.later"                        = "Sonra";
+"common.restart_now"                  = "Şimdi yeniden başlat";
+
+/* Legal */
+"legal.privacy_policy"                = "Gizlilik Politikası";
+"legal.terms"                         = "Şartlar ve Koşullar";
+"legal.terms_short"                   = "Şartlar";
+"legal.privacy_short"                 = "Gizlilik";
+
+/* GameSettings */
+"game_settings.title"                         = "Oyun Ayarları";
+"game_settings.play"                          = "OYNA";
+"game_settings.imposter_count_singular"       = "Sahtekar";
+"game_settings.imposter_count_plural"         = "Sahtekarlar";
+"game_settings.imposters_section_title"       = "Sahtekarlar";
+"game_settings.imposters_help"                = "Kaç oyuncu gizli sahtekar olacak?";
+"game_settings.imposters_recommended_format"  = "%lld oyuncu için önerilen: %lld";
+"game_settings.round_duration_title"          = "Tur Süresi";
+"game_settings.round_duration_help"           = "Her tartışma turu ne kadar sürsün?";
+"game_settings.hints_title"                   = "Sahtekar ipuçları";
+"game_settings.hints_help"                    = "Sahtekarlar gizli kelime hakkında ipucu alsın mı?";
+"game_settings.hints_disabled"                = "Kapalı";
+"game_settings.hints_enabled"                 = "Açık";
+"game_settings.word_load_error"               = "Kelime yüklenemedi. Tekrar deneyin.";
+
+/* PlayerSetup */
+"player_setup.title"                          = "Oyuncular";
+"player_setup.name_placeholder"               = "Oyuncu adını girin";
+"player_setup.continue"                       = "DEVAM";
+"player_setup.player_count_singular"          = "Oyuncu";
+"player_setup.player_count_plural"            = "Oyuncu";
+"player_setup.minimum_players_hint"           = "Başlamak için en az 3 oyuncu";
+"player_setup.options_title"                  = "Seçenekler";
+"player_setup.options_language"               = "Dil";
+"player_setup.options_contact"                = "Bize ulaşın";
+"player_setup.udid_loading"                   = "Yükleniyor…";
+"player_setup.udid_unavailable"               = "Kullanılamıyor";
+"player_setup.udid_label"                     = "UDID:";
+"player_setup.udid_toast_loading"             = "UDID hâlâ yükleniyor. Biraz sonra deneyin.";
+"player_setup.udid_toast_unavailable"         = "UDID şu an kullanılamıyor.";
+"player_setup.udid_toast_copied"              = "UDID kopyalandı";
+"player_setup.udid_toast_copy_failed"         = "UDID kopyalanamadı";
+
+/* Language picker sheet */
+"language.sheet.title"                        = "Dil";
+"language.sheet.subtitle"                     = "Uygulama dilini seçin";
+"language.sheet.hint"                         = "Anında uygulanır";
+"language.current_label"                      = "Geçerli dil";
+"language.row.current"                        = "Geçerli";
+"player_setup.language_change"                = "Değiştir";
+"language.restart_required_title"             = "Yeniden başlatma gerekli";
+"language.restart_required_message"           = "Yeni dil, uygulama yeniden başladıktan sonra görünür.";
+
+/* RoleReveal */
+"role_reveal.unknown_player"                  = "Bilinmiyor";
+"role_reveal.imposter_lead_in"                = "Sen";
+"role_reveal.imposter_label"                  = "SAHTEKAR";
+"role_reveal.hint_title"                      = "Sahtekar ipucu";
+"role_reveal.crew_secret_prefix"              = "Gizli kelimen:";
+"role_reveal.all_done"                        = "Herkes kelimeyi gördü";
+"role_reveal.pass_phone_format"               = "Telefonu %@ kişisine ver";
+"role_reveal.start_game"                      = "Oyunu başlat";
+"role_reveal.swipe_instruction"               = "Gizli kelimeyi görmek için\nyukarı kaydır";
+
+/* Voting */
+"voting.title"                                = "Sahtekar kim?";
+"voting.selected_count_format"                = "%lld/%lld seçildi";
+"voting.reveal"                               = "Açıkla";
+
+/* Result */
+"result.intrigue_the"                         = "GERÇEĞİN";
+"result.intrigue_moment"                      = "AN";
+"result.intrigue_of"                          = "IN";
+"result.intrigue_truth"                       = "ZAMANI";
+"result.title_players_win"                    = "Oyuncular kazandı!";
+"result.title_imposter_wins"                  = "Sahtekar kazandı!";
+"result.subtitle_single_caught"               = "Sahtekar yakalandı";
+"result.subtitle_two_caught"                  = "İki sahtekar da yakalandı";
+"result.subtitle_imposter_escaped"            = "Fark edilmeden kaçtı";
+"result.badge_players_won"                    = "Oyuncular kazandı";
+"result.badge_imposter_won"                   = "Sahtekar kazandı";
+"result.screen_title"                         = "Sonuçlar";
+"result.secret_word_label"                    = "GİZLİ KELİME";
+"result.play_again"                           = "TEKRAR OYNA";
+"result.no_imposter"                          = "Sahtekar bulunamadı";
+
+/* Onboarding */
+"onboarding.page2_title"                      = "Anında eğlence\nher yerde!";
+"onboarding.page2_subtitle"                   = "Oyun gecesi, yolculuk veya\nilk buluşma —\nbuzu kır ve\neğlen";
+"onboarding.page2_cta"                        = "Hadi!";
+"onboarding.page3_title"                      = "Kim blöf yapıyor?";
+"onboarding.page3_subtitle"                   = "Biri yalan söylüyor.\nDiğerleri kelimeyi biliyor.\nSahtekarı\nvakit dolmadan bulabilir misin?";
+"onboarding.page3_cta"                        = "Anladım";
+"onboarding.hero_talk_smarter"                = "Daha akıllı konuş";
+"onboarding.hero_guess_better"                = "Daha iyi tahmin et";
+"onboarding.hero_body"                        = "Gizli kelimeyi söylemeden anlat.\nDikkat — sahtekar dinliyor ve uyum sağlamaya çalışıyor";
+"onboarding.hero_cta"                         = "Hadi oynayalım!";
+
+/* GameTimer */
+"game_timer.starts_asking"                    = "Soru sormaya başlıyor!";
+"game_timer.section_label"                    = "Süre";
+"game_timer.paused"                           = "Duraklatıldı";
+"game_timer.vote_now"                         = "Şimdi oyla";
+"game_timer.pause"                            = "Duraklat";
+"game_timer.continue"                         = "Devam";
+
+/* Paywall */
+"paywall.headline"                            = "Tam erişim için\ndevam et";
+"paywall.plan_yearly"                         = "Yıllık";
+"paywall.plan_weekly"                         = "Haftalık";
+"paywall.cancel_anytime"                      = "İstediğin zaman iptal";
+"paywall.badge_best_value"                    = "En iyi değer";
+"paywall.badge_most_popular"                  = "En popüler";
+"paywall.trial_prompt_title"                  = "Henüz emin değil misin?";
+"paywall.trial_prompt_subtitle"               = "Ücretsiz erişimi aç";
+"paywall.trial_legal_line"                    = "Bugün 0 USD • 3 gün ÜCRETSİZ";
+"paywall.continue"                            = "Devam";
+"paywall.skip"                                = "Atla";
+"paywall.restore"                             = "Geri yükle";
+"paywall.restore_alert_title"                 = "Satın alımları geri yükle";
+"paywall.restore_alert_message"               = "Aktif aboneliğin varsa kısa sürede geri yüklenir.";
+"paywall.auto_renews_suffix"                  = "otomatik yenilenir";
+"category_paywall.free_access_on"             = "Ücretsiz erişim açık";
+"category_paywall.trial_on_subtitle"          = "Taahhüt yok, istediğin zaman iptal";
+"category_paywall.cta_trial"                  = "Ücretsiz dene";
+
+/* Categories */
+"categories.title"                            = "Kategoriler";
+"categories.play"                             = "Oyna";
+"categories.selection_count_singular"         = "Kategori";
+"categories.selection_count_plural"           = "Kategori";
+"categories.info.step1_title"                 = "Temalarını seç";
+"categories.info.step1_subtitle"              = "Parti havasına uygun bir veya daha fazla tema seç.";
+"categories.info.step2_title"                 = "İpucu ver";
+"categories.info.step2_subtitle"              = "Akıllı bir ipucu. Bilenler için net — sahtekar için kafa karıştırıcı.";
+"categories.info.step3_title"                 = "Rolünü kontrol et";
+"categories.info.step3_subtitle"              = "Herkes gizli kelimeyi görür... sahtekar hariç. Onun hedefi? Uyum sağlamak.";
+"categories.info.step4_title"                 = "Oylama zamanı";
+"categories.info.step4_subtitle"              = "Konuşma bitti. Sahtekarı ifşa etmek için oy ver!";
+"categories.info.vote_win"                    = "✅  Doğru tahmin — kazandın";
+"categories.info.vote_lose"                   = "❌  Kaçırdın — sahtekar kazandı";
+"categories.info.instant_win_warning"         = "⚠️ Sahtekar süre dolmadan kelimeyi bilirse anında kazanır";
+
+/* Loader */
+"loader.tagline"                              = "BUL  •  SUÇLA  •  HAYATTA KAL";
+"loader.imposter_word"                        = "SAHTEKAR";
+"loader.lead_in_top"                          = "KİM";
+"loader.lead_in_bottom"                       = "SAHTEKAR";

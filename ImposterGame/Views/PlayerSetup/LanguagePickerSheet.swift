@@ -1,18 +1,35 @@
 import SwiftUI
+import UIKit
 
-/// Modal sheet that lets the user manually override the app's language.
-///
-/// iOS resolves the language at process launch from `AppleLanguages` in
-/// UserDefaults, so we apply the override and prompt the user to restart.
-/// The "Restart Now" button calls `LocalizationService.triggerRelaunch()`
-/// which exits the app cleanly. iOS will relaunch it from the home screen
-/// — at which point all `.lproj` resources resolve to the new locale.
+/// Renders flag emoji with a font that includes color emoji glyphs (custom app fonts break 🇺🇸).
+private struct FlagEmojiLabel: UIViewRepresentable {
+    let emoji: String
+    var size: CGFloat = 28
+
+    func makeUIView(context: Context) -> UILabel {
+        let label = UILabel()
+        label.textAlignment = .center
+        label.backgroundColor = .clear
+        label.setContentHuggingPriority(.required, for: .horizontal)
+        label.setContentHuggingPriority(.required, for: .vertical)
+        return label
+    }
+
+    func updateUIView(_ label: UILabel, context: Context) {
+        label.text = emoji
+        if let emojiFont = UIFont(name: "Apple Color Emoji", size: size) {
+            label.font = emojiFont
+        } else {
+            label.font = .systemFont(ofSize: size)
+        }
+    }
+}
+
+/// Modal sheet for choosing the app language. Changes apply immediately (no restart).
 struct LanguagePickerSheet: View {
     @Binding var isPresented: Bool
 
-    @StateObject private var localization = LocalizationService.shared
-    @State private var pendingLocaleCode: String?
-    @State private var showRestartPrompt = false
+    @ObservedObject private var localization = LocalizationService.shared
 
     var body: some View {
         ZStack {
@@ -24,7 +41,11 @@ struct LanguagePickerSheet: View {
                 )
 
             VStack(spacing: 0) {
-                header
+                Text("language.sheet.title")
+                    .font(.evolventa(size: 22, weight: .bold))
+                    .foregroundColor(.gameplayTitle)
+                    .padding(.top, 28)
+                    .padding(.bottom, 18)
 
                 ScrollView {
                     VStack(spacing: 8) {
@@ -33,45 +54,15 @@ struct LanguagePickerSheet: View {
                         }
                     }
                     .padding(.horizontal, 20)
-                    .padding(.bottom, 24)
+                    .padding(.bottom, 16)
                 }
 
-                closeButton
+                backButton
             }
         }
-        .presentationDetents([.large])
+        .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
-        .alert(
-            "Restart required",
-            isPresented: $showRestartPrompt,
-            actions: {
-                Button("Restart Now", role: .destructive) {
-                    if let code = pendingLocaleCode {
-                        localization.selectLocale(code: code)
-                    }
-                    localization.triggerRelaunch()
-                }
-                Button("Later", role: .cancel) {
-                    if let code = pendingLocaleCode {
-                        localization.selectLocale(code: code)
-                    }
-                    isPresented = false
-                }
-            },
-            message: {
-                Text("The new language will appear after the app restarts.")
-            }
-        )
-    }
-
-    private var header: some View {
-        VStack(spacing: 0) {
-            Text("Language Setting")
-                .font(.evolventa(size: 22, weight: .bold))
-                .foregroundColor(.gameplayTitle)
-        }
-        .padding(.top, 28)
-        .padding(.bottom, 18)
+        .environment(\.locale, localization.locale)
     }
 
     private func languageRow(locale: SupportedLocale) -> some View {
@@ -79,92 +70,44 @@ struct LanguagePickerSheet: View {
 
         return Button(action: {
             HapticsManager.impact(.light)
-            handleSelection(locale: locale)
+            localization.selectLocale(code: locale.code)
         }) {
             HStack(spacing: 14) {
-                Image(systemName: "globe.europe.africa.fill")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.92))
-                    .frame(width: 34, height: 34)
-                    .background(
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        Color.white.opacity(0.12),
-                                        Color.white.opacity(0.04)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.white.opacity(0.14), lineWidth: 1)
-                    )
+                FlagEmojiLabel(emoji: locale.flag, size: 30)
+                    .frame(width: 40, height: 40)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(locale.nativeName)
-                        .font(.evolventa(size: 15, weight: .semibold))
+                    Text(verbatim: locale.nativeName)
+                        .font(.evolventa(size: 16, weight: .semibold))
                         .foregroundColor(.white)
-                    Text(locale.englishName)
+                    Text(verbatim: locale.englishName)
                         .font(.evolventa(size: 11, weight: .regular))
                         .foregroundColor(.white.opacity(0.55))
                 }
 
-                Spacer(minLength: 12)
+                Spacer(minLength: 8)
 
                 if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 22, weight: .semibold))
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 18, weight: .bold))
                         .foregroundColor(.gameplayButtonPrimary)
-                        .shadow(color: Color.gameplayButtonPrimary.opacity(0.45), radius: 8, x: 0, y: 3)
                 }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white.opacity(isSelected ? 0.12 : 0.04))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        Color.white.opacity(isSelected ? 0.06 : 0.02),
-                                        Color.clear
-                                    ],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                            )
-                    )
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(
-                        isSelected ? Color.gameplayButtonPrimary.opacity(0.65) : Color.white.opacity(0.10),
-                        lineWidth: isSelected ? 1.5 : 1
-                    )
-            )
-            .shadow(
-                color: isSelected ? Color.gameplayButtonPrimary.opacity(0.22) : Color.clear,
-                radius: 10,
-                x: 0,
-                y: 4
-            )
+            .background(Color.white.opacity(0.06))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
         .buttonStyle(.plain)
-        .disabled(isSelected)
+        .animation(.easeInOut(duration: 0.15), value: isSelected)
     }
 
-    private var closeButton: some View {
+    private var backButton: some View {
         Button(action: {
             HapticsManager.impact(.light)
             isPresented = false
         }) {
-            Text(LocalizedStringKey("common.close"))
+            Text("common.back")
                 .font(.evolventa(size: 18, weight: .bold))
                 .foregroundColor(.appTextOnAccent)
                 .frame(maxWidth: .infinity)
@@ -174,11 +117,5 @@ struct LanguagePickerSheet: View {
         }
         .padding(.horizontal, 20)
         .padding(.bottom, 24)
-    }
-
-    private func handleSelection(locale: SupportedLocale) {
-        guard locale.code != localization.currentLocaleCode else { return }
-        pendingLocaleCode = locale.code
-        showRestartPrompt = true
     }
 }

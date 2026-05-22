@@ -29,24 +29,37 @@ private let qmarks: [QMark] = [
     QMark(xFrac: 0.50, yFrac: 0.92, size: 26, color: .white,         rotation:  14, delay: 2.10),
 ]
 
-// MARK: - Letter descriptors  "I M P O S T E R ?"
+// MARK: - Letter descriptors built from the localized "loader.imposter_word"
 private struct SlamLetter {
     let char: String
     let delay: Double   // seconds from start
     let isQ: Bool
 }
 
-private let imposterLetters: [SlamLetter] = [
-    SlamLetter(char: "I", delay: 1.800, isQ: false),
-    SlamLetter(char: "M", delay: 1.840, isQ: false),
-    SlamLetter(char: "P", delay: 1.880, isQ: false),
-    SlamLetter(char: "O", delay: 1.920, isQ: false),
-    SlamLetter(char: "S", delay: 1.960, isQ: false),
-    SlamLetter(char: "T", delay: 2.000, isQ: false),
-    SlamLetter(char: "E", delay: 2.040, isQ: false),
-    SlamLetter(char: "R", delay: 2.080, isQ: false),
-    SlamLetter(char: "?", delay: 2.160, isQ: true),
-]
+/// Builds the slam-in letters from the current locale's `loader.imposter_word` value,
+/// appending a final `?` for the visual punchline. Per-letter delays stay staggered.
+private func makeImposterLetters() -> [SlamLetter] {
+    let baseWord = String(localized: "loader.imposter_word")
+    let chars = Array(baseWord)
+    var letters: [SlamLetter] = []
+    for (i, c) in chars.enumerated() {
+        letters.append(
+            SlamLetter(
+                char: String(c),
+                delay: 1.800 + 0.040 * Double(i),
+                isQ: false
+            )
+        )
+    }
+    letters.append(
+        SlamLetter(
+            char: "?",
+            delay: 1.800 + 0.040 * Double(chars.count) + 0.040,
+            isQ: true
+        )
+    )
+    return letters
+}
 
 // MARK: - LoaderView
 
@@ -56,6 +69,9 @@ struct LoaderView: View {
 
     /// Prevents re-running navigation when NavigationPath briefly resets.
     private static var didScheduleInitialNavigation = false
+
+    /// Per-locale letter set rebuilt once when the view is created.
+    private let imposterLetters: [SlamLetter] = makeImposterLetters()
 
     // Background
     @State private var bgScale: CGFloat = 1.15
@@ -100,10 +116,10 @@ struct LoaderView: View {
     @State private var qmarkOpacities: [Double] = Array(repeating: 0, count: qmarks.count)
     @State private var qmarkOffsets: [CGFloat] = Array(repeating: 30, count: qmarks.count)
 
-    // "IMPOSTER?" letter slam
-    @State private var letterOpacities: [Double] = Array(repeating: 0, count: imposterLetters.count)
-    @State private var letterOffsets: [CGFloat] = Array(repeating: -40, count: imposterLetters.count)
-    @State private var letterScales: [CGFloat] = Array(repeating: 0.3, count: imposterLetters.count)
+    // "IMPOSTER?" letter slam — sized generously to cover the longest localized word.
+    @State private var letterOpacities: [Double] = Array(repeating: 0, count: 32)
+    @State private var letterOffsets: [CGFloat] = Array(repeating: -40, count: 32)
+    @State private var letterScales: [CGFloat] = Array(repeating: 0.3, count: 32)
 
     // Yellow slash
     @State private var slashWidth: CGFloat = 0
@@ -208,7 +224,7 @@ struct LoaderView: View {
         ZStack {
             ForEach(qmarks.indices, id: \.self) { i in
                 let q = qmarks[i]
-                Text("?")
+                Text(verbatim: "?")
                     .font(.system(size: q.size, weight: .heavy, design: .rounded))
                     .foregroundColor(q.color)
                     .rotationEffect(.degrees(q.rotation))
@@ -225,14 +241,14 @@ struct LoaderView: View {
 
     private func whoSTheLabel(geo: GeometryProxy) -> some View {
         VStack(spacing: 2) {
-            Text("WHO'S")
+            Text("loader.lead_in_top")
                 .font(.system(size: 30, weight: .heavy, design: .rounded))
                 .foregroundColor(.white)
                 .shadow(color: .black.opacity(0.35), radius: 0, x: 0, y: 3)
                 .offset(y: whosOffset)
                 .opacity(whosOpacity)
 
-            Text("THE")
+            Text("loader.lead_in_bottom")
                 .font(.system(size: 22, weight: .heavy, design: .rounded))
                 .foregroundColor(.splashYellow)
                 .shadow(color: .black.opacity(0.35), radius: 0, x: 0, y: 3)
@@ -312,11 +328,11 @@ struct LoaderView: View {
     private func headlineBlock(geo: GeometryProxy) -> some View {
         let headlineY = geo.size.height * 0.76
         return VStack(spacing: 0) {
-            // "IMPOSTER?" letters
+            // Localized "IMPOSTER?" letters
             HStack(spacing: 0) {
                 ForEach(imposterLetters.indices, id: \.self) { i in
                     let letter = imposterLetters[i]
-                    Text(letter.char)
+                    Text(verbatim: letter.char)
                         .font(.system(
                             size: letter.isQ ? 68 : 54,
                             weight: .heavy,
@@ -349,7 +365,7 @@ struct LoaderView: View {
     }
 
     private func bottomTagline(geo: GeometryProxy) -> some View {
-        Text("FIND  •  ACCUSE  •  SURVIVE")
+        Text("loader.tagline")
             .font(.system(size: 11, weight: .semibold, design: .rounded))
             .foregroundColor(.white.opacity(0.85))
             .tracking(3.5)

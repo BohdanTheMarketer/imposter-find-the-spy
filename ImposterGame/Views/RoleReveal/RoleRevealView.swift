@@ -10,7 +10,7 @@ struct RoleRevealView: View {
 
     private var currentPlayer: Player {
         guard currentIndex < gameSession.players.count else {
-            return Player(name: "Unknown")
+            return Player(name: String(localized: "role_reveal.unknown_player"))
         }
         return gameSession.players[currentIndex]
     }
@@ -70,11 +70,11 @@ struct RoleRevealView: View {
                                 ImposterRevealBrandMark()
 
                                 VStack(spacing: 6) {
-                                    Text("You are the")
+                                    Text("role_reveal.imposter_lead_in")
                                         .font(.evolventa(size: 20, weight: .semibold))
                                         .foregroundColor(.white.opacity(0.88))
 
-                                    Text("IMPOSTER")
+                                    Text("role_reveal.imposter_label")
                                         .font(.evolventa(size: 34, weight: .bold))
                                         .foregroundStyle(
                                             LinearGradient(
@@ -94,10 +94,10 @@ struct RoleRevealView: View {
                                 // Show the imposter hint only after the swipe-up reveal interaction.
                                 if hasSeenCurrentWord, let hint = currentImposterHint {
                                     VStack(spacing: 8) {
-                                        Text("Imposter hint")
+                                        Text("role_reveal.hint_title")
                                             .font(.evolventa(size: 16, weight: .bold))
                                             .foregroundColor(Color(red: 0.98, green: 0.45, blue: 0.48))
-                                        Text(hint)
+                                        Text(verbatim: hint)
                                             .font(.evolventa(size: 18, weight: .semibold))
                                             .foregroundColor(.white.opacity(0.95))
                                             .multilineTextAlignment(.center)
@@ -106,11 +106,11 @@ struct RoleRevealView: View {
                                     .padding(.top, 8)
                                 }
                             } else {
-                                Text("Your secret word is:")
+                                Text("role_reveal.crew_secret_prefix")
                                     .font(.evolventa(size: 18, weight: .semibold))
                                     .foregroundColor(.black.opacity(0.8))
 
-                                Text(currentPlayer.secretWord)
+                                Text(verbatim: currentPlayer.secretWord)
                                     .font(.evolventa(size: 42, weight: .bold))
                                     .foregroundColor(.black)
                                     .multilineTextAlignment(.center)
@@ -162,7 +162,7 @@ struct RoleRevealView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 52)
 
-                    Text("\(currentIndex + 1)")
+                    Text(verbatim: "\(currentIndex + 1)")
                         .font(.evolventa(size: 40, weight: .black))
                         .foregroundColor(.white)
                         .padding(.top, 14)
@@ -171,12 +171,12 @@ struct RoleRevealView: View {
                     VStack(spacing: 10) {
                         if hasSeenCurrentWord {
                             if isLastPlayer {
-                                Text("Everyone has seen the word")
+                                Text("role_reveal.all_done")
                                     .font(.evolventa(size: 18, weight: .bold))
                                     .foregroundColor(.black)
                                     .multilineTextAlignment(.center)
                             } else if let next = nextPlayer {
-                                Text("Pass the phone to \(next.name)")
+                                Text(String(format: String(localized: "role_reveal.pass_phone_format"), next.name))
                                     .font(.evolventa(size: 18, weight: .bold))
                                     .foregroundColor(.black)
                                     .multilineTextAlignment(.center)
@@ -185,7 +185,9 @@ struct RoleRevealView: View {
                             Button(action: {
                                 continueTapped()
                             }) {
-                                Text(isLastPlayer ? "Start Game" : "Continue")
+                                Text(isLastPlayer
+                                     ? LocalizedStringKey("role_reveal.start_game")
+                                     : LocalizedStringKey("common.continue"))
                                     .font(.evolventa(size: 20, weight: .black))
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity)
@@ -195,7 +197,7 @@ struct RoleRevealView: View {
                             }
                             .padding(.horizontal, 40)
                         } else {
-                            Text("Swipe up to reveal\nthe secret word")
+                            Text("role_reveal.swipe_instruction")
                                 .font(.evolventa(size: 20, weight: .bold))
                                 .foregroundColor(.white)
                                 .multilineTextAlignment(.center)
@@ -295,7 +297,7 @@ private struct ImposterRevealBrandMark: View {
             ImposterMarkGlyph()
                 .frame(width: 72, height: 72)
         }
-        .accessibilityLabel("Imposter")
+        .accessibilityLabel(Text("role_reveal.imposter_label"))
     }
 }
 

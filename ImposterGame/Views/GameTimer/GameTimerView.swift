@@ -64,11 +64,11 @@ struct GameTimerView: View {
                 Spacer()
 
                 VStack(spacing: 4) {
-                    Text("\(gameSession.startingPlayerIndex + 1)")
+                    Text(verbatim: "\(gameSession.startingPlayerIndex + 1)")
                         .font(.evolventa(size: 56, weight: .bold))
                         .foregroundColor(.white)
 
-                    Text("Starts Asking!")
+                    Text("game_timer.starts_asking")
                         .font(.evolventa(size: 16, weight: .medium))
                         .foregroundColor(.white.opacity(0.72))
                 }
@@ -76,7 +76,7 @@ struct GameTimerView: View {
                 Spacer()
 
                 VStack(spacing: 14) {
-                    Text("Timer")
+                    Text("game_timer.section_label")
                         .font(.evolventa(size: 12, weight: .bold))
                         .foregroundColor(.appAccent)
                         .tracking(1.3)
@@ -94,7 +94,7 @@ struct GameTimerView: View {
                             .rotationEffect(.degrees(-90))
                             .animation(.linear(duration: 0.8), value: progress)
 
-                        Text(formattedTime)
+                        Text(verbatim: formattedTime)
                             .font(.evolventa(size: 58, weight: .bold))
                             .foregroundColor(.white)
                             .monospacedDigit()
@@ -127,7 +127,7 @@ struct GameTimerView: View {
 
                 VStack(spacing: 10) {
                     if showPauseMenu {
-                        Text("Paused")
+                        Text("game_timer.paused")
                             .font(.evolventa(size: 13, weight: .semibold))
                             .foregroundColor(.white.opacity(0.55))
                             .transition(.opacity.combined(with: .move(edge: .top)))
@@ -142,7 +142,7 @@ struct GameTimerView: View {
                                 }
                                 resumeTimer()
                             }) {
-                                Text("Continue")
+                                Text("game_timer.continue")
                                     .font(.evolventa(size: 17, weight: .bold))
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity)
@@ -165,7 +165,7 @@ struct GameTimerView: View {
                                 gameSession.gamePhase = .voting
                                 router.navigate(to: .voting)
                             }) {
-                                Text("Vote Now")
+                                Text("game_timer.vote_now")
                                     .font(.evolventa(size: 17, weight: .bold))
                                     .foregroundColor(.appTextOnAccent)
                                     .frame(maxWidth: .infinity)
@@ -186,7 +186,7 @@ struct GameTimerView: View {
                                 }
                                 pauseTimer()
                             }) {
-                                Text("Pause")
+                                Text("game_timer.pause")
                                     .font(.evolventa(size: 18, weight: .bold))
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity)

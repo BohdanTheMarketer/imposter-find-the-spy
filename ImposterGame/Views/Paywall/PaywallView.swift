@@ -41,7 +41,7 @@ struct OnboardingPaywallView: View {
                         .padding(.top, isCompactHeight ? -6 : 6)
                         .padding(.bottom, isCompactHeight ? 2 : 8)
 
-                    Text("Continue to get\nfull access")
+                    Text("paywall.headline")
                         .font(.antropicSans(size: isCompactHeight ? 38 : 42, weight: .heavy))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
@@ -54,30 +54,30 @@ struct OnboardingPaywallView: View {
 
                     pricingCard(
                         plan: .weekly,
-                        title: "Weekly",
-                        subtitle: "\(subscriptionManager.weeklyPlanWeeklyPriceText), auto-renews",
+                        title: String(localized: "paywall.plan_weekly"),
+                        subtitle: "\(subscriptionManager.weeklyPlanWeeklyPriceText), \(String(localized: "paywall.auto_renews_suffix"))",
                         primaryPrice: subscriptionManager.weeklyPlanWeeklyPriceText,
-                        secondaryPrice: "Billed weekly",
+                        secondaryPrice: String(localized: "paywall.cancel_anytime"),
                         selected: selectedPlan == .weekly,
-                        badgeText: selectedPlan == .weekly ? "Most popular" : nil
+                        badgeText: selectedPlan == .weekly ? String(localized: "paywall.badge_most_popular") : nil
                     )
                     .padding(.bottom, 10)
 
                     pricingCard(
                         plan: .yearly,
-                        title: "Yearly",
-                        subtitle: "\(subscriptionManager.yearlyPlanSubtitleText), auto-renews",
+                        title: String(localized: "paywall.plan_yearly"),
+                        subtitle: "\(subscriptionManager.yearlyPlanSubtitleText), \(String(localized: "paywall.auto_renews_suffix"))",
                         primaryPrice: subscriptionManager.yearlyPlanBilledPriceText,
                         secondaryPrice: subscriptionManager.yearlyPlanWeeklyEquivalentText,
                         selected: selectedPlan == .yearly,
-                        badgeText: selectedPlan == .yearly ? "Best value" : nil
+                        badgeText: selectedPlan == .yearly ? String(localized: "paywall.badge_best_value") : nil
                     )
                     .padding(.bottom, 16)
 
                     continueButton
                         .padding(.bottom, 6)
 
-                    Text(selectedPlanTerms)
+                    Text(verbatim: selectedPlanTerms)
                         .font(.antropicSerif(size: 11.5, weight: .medium))
                         .foregroundColor(.white.opacity(0.78))
                         .multilineTextAlignment(.center)
@@ -94,10 +94,13 @@ struct OnboardingPaywallView: View {
         }
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
-        .alert("Restore Purchases", isPresented: $showRestoreMessage) {
-            Button("OK", role: .cancel) {}
+        .alert(
+            String(localized: "paywall.restore_alert_title"),
+            isPresented: $showRestoreMessage
+        ) {
+            Button(String(localized: "common.ok"), role: .cancel) {}
         } message: {
-            Text("If you have an active subscription, it will be restored shortly.")
+            Text("paywall.restore_alert_message")
         }
         .onAppear {
             AnalyticsService.logEvent("paywall_show", parameters: ["context": "onboarding"])
@@ -181,19 +184,19 @@ struct OnboardingPaywallView: View {
         }) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(title)
+                    Text(verbatim: title)
                         .font(.antropicSerif(size: 16, weight: .bold))
                         .foregroundColor(.white)
-                    Text(subtitle)
+                    Text(verbatim: subtitle)
                         .font(.antropicSerif(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.85))
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 2) {
-                    Text(primaryPrice)
+                    Text(verbatim: primaryPrice)
                         .font(.antropicSerif(size: 16.5, weight: .bold))
                         .foregroundColor(.white)
-                    Text(secondaryPrice)
+                    Text(verbatim: secondaryPrice)
                         .font(.antropicSerif(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.72))
                 }
@@ -210,7 +213,7 @@ struct OnboardingPaywallView: View {
             )
             .overlay(alignment: .topTrailing) {
                 if let badgeText {
-                    Text(badgeText)
+                    Text(verbatim: badgeText)
                         .font(.antropicSerif(size: 11, weight: .bold))
                         .foregroundColor(.white)
                         .padding(.horizontal, 10)
@@ -244,7 +247,7 @@ struct OnboardingPaywallView: View {
             }
         }) {
             HStack {
-                Text("Continue")
+                Text("paywall.continue")
                     .font(.antropicSerif(size: 21, weight: .heavy))
                     .foregroundColor(.appTextOnAccent)
                 Spacer()
@@ -262,22 +265,22 @@ struct OnboardingPaywallView: View {
 
     private var footerLinks: some View {
         HStack(spacing: 30) {
-            Button("Terms") {
+            Button(String(localized: "legal.terms_short")) {
                 AnalyticsService.logPaywallLinkTapped(context: .onboarding, linkType: "terms")
                 if let url = OnboardingPaywallLinks.termsURL {
                     openURL(url)
                 }
             }
-            Button("Privacy") {
+            Button(String(localized: "legal.privacy_short")) {
                 AnalyticsService.logPaywallLinkTapped(context: .onboarding, linkType: "privacy")
                 if let url = OnboardingPaywallLinks.privacyURL {
                     openURL(url)
                 }
             }
-            Button("Skip") {
+            Button(String(localized: "paywall.skip")) {
                 closePaywall(reason: .skip)
             }
-            Button("Restore") {
+            Button(String(localized: "paywall.restore")) {
                 AnalyticsService.logPaywallRestoreTapped(context: .onboarding)
                 subscriptionManager.restorePurchases(context: .onboarding)
                 showRestoreMessage = true

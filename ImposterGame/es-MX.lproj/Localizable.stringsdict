@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>voting.select_count</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@players@</string>
+        <key>players</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>lld</string>
+            <key>one</key>
+            <string>Selecciona %lld jugador que crees que está fingiendo</string>
+            <key>other</key>
+            <string>Selecciona %lld jugadores que crees que están fingiendo</string>
+        </dict>
+    </dict>
+    <key>result.all_caught_format</key>
+    <dict>
+        <key>NSStringLocalizedFormatKey</key>
+        <string>%#@imposters@</string>
+        <key>imposters</key>
+        <dict>
+            <key>NSStringFormatSpecTypeKey</key>
+            <string>NSStringPluralRuleType</string>
+            <key>NSStringFormatValueTypeKey</key>
+            <string>lld</string>
+            <key>one</key>
+            <string>El impostor fue atrapado</string>
+            <key>other</key>
+            <string>Los %lld impostores fueron atrapados</string>
+        </dict>
+    </dict>
+</dict>
+</plist>

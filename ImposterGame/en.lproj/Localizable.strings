@@ -1,0 +1,156 @@
+/* Common */
+"common.back"                         = "Back";
+"common.ok"                           = "OK";
+"common.close"                        = "Close";
+"common.next"                         = "Next";
+"common.continue"                     = "Continue";
+"common.coming_soon"                  = "Coming soon";
+"common.got_it"                       = "Got It!";
+"common.later"                        = "Later";
+"common.restart_now"                  = "Restart Now";
+
+/* Legal */
+"legal.privacy_policy"                = "Privacy Policy";
+"legal.terms"                         = "Terms & Conditions";
+"legal.terms_short"                   = "Terms";
+"legal.privacy_short"                 = "Privacy";
+
+/* GameSettings */
+"game_settings.title"                         = "Game Settings";
+"game_settings.play"                          = "PLAY";
+"game_settings.imposter_count_singular"       = "Imposter";
+"game_settings.imposter_count_plural"         = "Imposters";
+"game_settings.imposters_section_title"       = "Imposters";
+"game_settings.imposters_help"                = "How many players should be secret imposters?";
+"game_settings.imposters_recommended_format"  = "Recommended for %lld players: %lld";
+"game_settings.round_duration_title"          = "Round Duration";
+"game_settings.round_duration_help"           = "How long should each discussion round last?";
+"game_settings.hints_title"                   = "Hints for Imposters";
+"game_settings.hints_help"                    = "Should imposters get a hint about the secret word?";
+"game_settings.hints_disabled"                = "Disabled";
+"game_settings.hints_enabled"                 = "Enabled";
+"game_settings.word_load_error"               = "Couldn’t load a word for this category. Please try again.";
+
+/* PlayerSetup */
+"player_setup.title"                          = "Players";
+"player_setup.name_placeholder"               = "Enter player name";
+"player_setup.continue"                       = "CONTINUE";
+"player_setup.player_count_singular"          = "Player";
+"player_setup.player_count_plural"            = "Players";
+"player_setup.minimum_players_hint"           = "Minimum 3 players to start a game";
+"player_setup.options_title"                  = "Options";
+"player_setup.options_language"               = "Language";
+"player_setup.options_contact"                = "Contact Us";
+"player_setup.udid_loading"                   = "Loading…";
+"player_setup.udid_unavailable"               = "Unavailable";
+"player_setup.udid_label"                     = "UDID:";
+"player_setup.udid_toast_loading"             = "UDID is still loading. Try again in a moment.";
+"player_setup.udid_toast_unavailable"         = "UDID is unavailable right now.";
+"player_setup.udid_toast_copied"              = "UDID copied";
+"player_setup.udid_toast_copy_failed"         = "Could not copy UDID";
+
+/* Language picker sheet */
+"language.sheet.title"                        = "Language";
+"language.sheet.subtitle"                     = "Choose app language";
+"language.sheet.hint"                         = "Changes apply instantly";
+"language.current_label"                      = "Current language";
+"language.row.current"                        = "Current";
+"player_setup.language_change"                = "Change";
+"language.restart_required_title"             = "Restart required";
+"language.restart_required_message"           = "The new language will appear after the app restarts.";
+
+/* RoleReveal */
+"role_reveal.unknown_player"                  = "Unknown";
+"role_reveal.imposter_lead_in"                = "You are the";
+"role_reveal.imposter_label"                  = "IMPOSTER";
+"role_reveal.hint_title"                      = "Imposter hint";
+"role_reveal.crew_secret_prefix"              = "Your secret word is:";
+"role_reveal.all_done"                        = "Everyone has seen the word";
+"role_reveal.pass_phone_format"               = "Pass the phone to %@";
+"role_reveal.start_game"                      = "Start Game";
+"role_reveal.swipe_instruction"               = "Swipe up to reveal\nthe secret word";
+
+/* Voting */
+"voting.title"                                = "Who’s the Imposter?";
+"voting.selected_count_format"                = "%lld/%lld selected";
+"voting.reveal"                               = "Reveal";
+
+/* Result */
+"result.intrigue_the"                         = "THE";
+"result.intrigue_moment"                      = "MOMENT";
+"result.intrigue_of"                          = "OF";
+"result.intrigue_truth"                       = "TRUTH";
+"result.title_players_win"                    = "Players Win!";
+"result.title_imposter_wins"                  = "Imposter Wins!";
+"result.subtitle_single_caught"               = "The imposter was caught";
+"result.subtitle_two_caught"                  = "Both imposters caught";
+"result.subtitle_imposter_escaped"            = "They got away undetected";
+"result.badge_players_won"                    = "Players won";
+"result.badge_imposter_won"                   = "Imposter won";
+"result.screen_title"                         = "Results";
+"result.secret_word_label"                    = "SECRET WORD";
+"result.play_again"                           = "PLAY AGAIN";
+"result.no_imposter"                          = "No imposter found";
+
+/* Onboarding */
+"onboarding.page2_title"                      = "Instant Fun\nAnywhere!";
+"onboarding.page2_subtitle"                   = "Game night, road trip, or\neven an awkward first meeting —\nFakeit breaks the ice and\nbrings the fun";
+"onboarding.page2_cta"                        = "I’m In!";
+"onboarding.page3_title"                      = "Who’s Faking It?";
+"onboarding.page3_subtitle"                   = "One of you is lying.\nThe rest know the word.\nCan you spot the imposter\nbefore it’s too late?";
+"onboarding.page3_cta"                        = "Got It";
+"onboarding.hero_talk_smarter"                = "Talk Smarter";
+"onboarding.hero_guess_better"                = "Guess Better";
+"onboarding.hero_body"                        = "Describe the secret word without saying it.\nBut beware — the imposter is listening and trying to blend in";
+"onboarding.hero_cta"                         = "Let’s Play!";
+
+/* GameTimer */
+"game_timer.starts_asking"                    = "Starts Asking!";
+"game_timer.section_label"                    = "Timer";
+"game_timer.paused"                           = "Paused";
+"game_timer.vote_now"                         = "Vote Now";
+"game_timer.pause"                            = "Pause";
+"game_timer.continue"                         = "Continue";
+
+/* Paywall */
+"paywall.headline"                            = "Continue to get\nfull access";
+"paywall.plan_yearly"                         = "Yearly";
+"paywall.plan_weekly"                         = "Weekly";
+"paywall.cancel_anytime"                      = "Cancel anytime";
+"paywall.badge_best_value"                    = "Best value";
+"paywall.badge_most_popular"                  = "Most popular";
+"paywall.trial_prompt_title"                  = "Not sure yet?";
+"paywall.trial_prompt_subtitle"               = "Enable free access";
+"paywall.trial_legal_line"                    = "0 USD due today • 3 days FREE";
+"paywall.continue"                            = "Continue";
+"paywall.skip"                                = "Skip";
+"paywall.restore"                             = "Restore";
+"paywall.restore_alert_title"                 = "Restore Purchases";
+"paywall.restore_alert_message"               = "If you have an active subscription, it will be restored shortly.";
+"paywall.auto_renews_suffix"                  = "auto-renews";
+"category_paywall.free_access_on"             = "Free access enabled";
+"category_paywall.trial_on_subtitle"          = "No commitment, cancel anytime";
+"category_paywall.cta_trial"                  = "Try it for Free";
+
+/* Categories */
+"categories.title"                            = "Categories";
+"categories.play"                             = "Play";
+"categories.selection_count_singular"         = "Category";
+"categories.selection_count_plural"           = "Categories";
+"categories.info.step1_title"                 = "Choose Your Themes";
+"categories.info.step1_subtitle"              = "Pick one or more themes to set the mood and match your vibe and party.";
+"categories.info.step2_title"                 = "Drop a Clue";
+"categories.info.step2_subtitle"              = "Give a clever hint or association. Clear for those in the know - confusing for the imposter.";
+"categories.info.step3_title"                 = "Check Your Role";
+"categories.info.step3_subtitle"              = "Everyone sees the secret word... except the imposter - they only see their role. Their goal? Blend in.";
+"categories.info.step4_title"                 = "Time to Vote";
+"categories.info.step4_subtitle"              = "Talk’s over. Now vote to expose the imposter!";
+"categories.info.vote_win"                    = "✅  Guess right - you win";
+"categories.info.vote_lose"                   = "❌  Miss - imposter wins";
+"categories.info.instant_win_warning"         = "⚠️ If the imposter guesses the word before time runs out, they win instantly";
+
+/* Loader */
+"loader.tagline"                              = "FIND  •  ACCUSE  •  SURVIVE";
+"loader.imposter_word"                        = "IMPOSTER";
+"loader.lead_in_top"                          = "WHO'S";
+"loader.lead_in_bottom"                       = "THE";

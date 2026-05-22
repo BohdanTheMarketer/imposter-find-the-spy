@@ -13,7 +13,9 @@ struct GameSettingsView: View {
     }
 
     private var imposterCountLabel: String {
-        let word = imposterCount == 1 ? "Imposter" : "Imposters"
+        let word = imposterCount == 1
+            ? String(localized: "game_settings.imposter_count_singular")
+            : String(localized: "game_settings.imposter_count_plural")
         return "\(imposterCount) \(word)"
     }
 
@@ -48,10 +50,10 @@ struct GameSettingsView: View {
                 startGame()
             }) {
                 HStack(spacing: 10) {
-                    Text("PLAY")
+                    Text("game_settings.play")
                         .font(.evolventa(size: 18, weight: .bold))
                         .foregroundColor(.appTextOnAccent)
-                    Text("|")
+                    Text(verbatim: "|")
                         .font(.evolventa(size: 14, weight: .bold))
                         .foregroundColor(.appTextOnAccent.opacity(0.65))
                     Text(imposterCountLabel)
@@ -69,8 +71,11 @@ struct GameSettingsView: View {
         }
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
-        .alert("Couldn't load a word for this category. Please try again.", isPresented: $showWordError) {
-            Button("OK", role: .cancel) {}
+        .alert(
+            String(localized: "game_settings.word_load_error"),
+            isPresented: $showWordError
+        ) {
+            Button(String(localized: "common.ok"), role: .cancel) {}
         }
         .onAppear {
             imposterCount = maxImposters
@@ -98,11 +103,11 @@ struct GameSettingsView: View {
                     .foregroundColor(.white)
                     .frame(width: 44, height: 44)
             }
-            .accessibilityLabel("Back")
+            .accessibilityLabel(Text("common.back"))
 
             Spacer()
 
-            Text("Game Settings")
+            Text("game_settings.title")
                 .font(.evolventa(size: 30, weight: .bold))
                 .foregroundColor(.gameplayTitle)
                 .lineLimit(1)
@@ -119,16 +124,16 @@ struct GameSettingsView: View {
 
     private var impostersCard: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Imposters")
+            Text("game_settings.imposters_section_title")
                 .font(.evolventa(size: 26, weight: .bold))
                 .foregroundColor(.white)
 
-            Text("How many players should be secret imposters?")
+            Text("game_settings.imposters_help")
                 .font(.evolventa(size: 13, weight: .medium))
                 .foregroundColor(.white.opacity(0.78))
                 .lineLimit(2)
 
-            Text("Recommended for \(gameSession.players.count) players: \(maxImposters)")
+            Text(String(format: String(localized: "game_settings.imposters_recommended_format"), gameSession.players.count, maxImposters))
                 .font(.evolventa(size: 12, weight: .semibold))
                 .foregroundColor(.white.opacity(0.55))
 
@@ -145,7 +150,7 @@ struct GameSettingsView: View {
 
                 Spacer()
 
-                Text("\(imposterCount)")
+                Text(verbatim: "\(imposterCount)")
                     .font(.evolventa(size: 46, weight: .bold))
                     .foregroundColor(.white)
                     .frame(width: 70)
@@ -170,11 +175,11 @@ struct GameSettingsView: View {
 
     private var roundDurationCard: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Round Duration")
+            Text("game_settings.round_duration_title")
                 .font(.evolventa(size: 26, weight: .bold))
                 .foregroundColor(.white)
 
-            Text("How long should each discussion round last?")
+            Text("game_settings.round_duration_help")
                 .font(.evolventa(size: 13, weight: .medium))
                 .foregroundColor(.white.opacity(0.78))
                 .lineLimit(2)
@@ -194,7 +199,7 @@ struct GameSettingsView: View {
 
                 Spacer()
 
-                Text(GameSettings.durationLabel(roundDuration))
+                Text(verbatim: GameSettings.durationLabel(roundDuration))
                     .font(.evolventa(size: 46, weight: .bold))
                     .foregroundColor(.white)
                     .frame(width: 120)
@@ -219,11 +224,11 @@ struct GameSettingsView: View {
 
     private var hintsCard: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Hints for Imposters")
+            Text("game_settings.hints_title")
                 .font(.evolventa(size: 26, weight: .bold))
                 .foregroundColor(.white)
 
-            Text("Should imposters get a hint about the secret word?")
+            Text("game_settings.hints_help")
                 .font(.evolventa(size: 13, weight: .medium))
                 .foregroundColor(.white.opacity(0.78))
                 .lineLimit(3)
@@ -243,7 +248,7 @@ struct GameSettingsView: View {
                 hintsEnabled = false
                 HapticsManager.selection()
             } label: {
-                Text("Disabled")
+                Text("game_settings.hints_disabled")
                     .font(.evolventa(size: 12, weight: .bold))
                     .foregroundColor(hintsEnabled ? .white.opacity(0.55) : .black)
                     .frame(maxWidth: .infinity)
@@ -257,7 +262,7 @@ struct GameSettingsView: View {
                 hintsEnabled = true
                 HapticsManager.selection()
             } label: {
-                Text("Enabled")
+                Text("game_settings.hints_enabled")
                     .font(.evolventa(size: 12, weight: .bold))
                     .foregroundColor(hintsEnabled ? .black : .white.opacity(0.55))
                     .frame(maxWidth: .infinity)

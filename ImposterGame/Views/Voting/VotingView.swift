@@ -3,6 +3,7 @@ import SwiftUI
 struct VotingView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var gameSession: GameSession
+    @EnvironmentObject var localization: LocalizationService
     @State private var selectedPlayerIDs: Set<UUID> = []
 
     private let columns = [
@@ -22,7 +23,21 @@ struct VotingView: View {
         selectedPlayerIDs.count == maxSelections
     }
 
+    private var selectCountInstruction: String {
+        localization.localizedPluralFormat("voting.select_count", maxSelections)
+    }
+
+    private var selectedCountLabel: String {
+        localization.localizedFormat(
+            "voting.selected_count_format",
+            selectedIndices.count,
+            maxSelections
+        )
+    }
+
     var body: some View {
+        let _ = localization.currentLocaleCode
+
         ZStack {
             LinearGradient.gameplayBackground
                 .ignoresSafeArea()
@@ -34,15 +49,15 @@ struct VotingView: View {
             VStack(spacing: 0) {
                 // Header
                 VStack(spacing: 8) {
-                    Text("Who's the Imposter?")
+                    Text("voting.title")
                         .font(.evolventa(size: 28, weight: .bold))
                         .foregroundColor(.gameplayTitle)
 
-                    Text("Select \(maxSelections) player\(maxSelections == 1 ? "" : "s") you think are faking it")
+                    Text(selectCountInstruction)
                         .font(.evolventa(size: 15))
                         .foregroundColor(.white.opacity(0.6))
 
-                    Text("\(selectedIndices.count)/\(maxSelections) selected")
+                    Text(selectedCountLabel)
                         .font(.evolventa(size: 14, weight: .regular))
                         .foregroundColor(.white.opacity(0.6))
                 }
@@ -92,7 +107,7 @@ struct VotingView: View {
                         )
                         router.navigate(to: .result)
                     }) {
-                        Text("Reveal")
+                        Text("voting.reveal")
                             .font(.evolventa(size: 20, weight: .bold))
                             .foregroundColor(.appTextOnAccent)
                             .frame(maxWidth: .infinity)
@@ -126,7 +141,7 @@ struct VotingCard: View {
                 PlayerAvatarSquareTileView(avatarIndex: player.avatarIndex)
                     .aspectRatio(1.0, contentMode: .fit)
 
-                Text(player.name)
+                Text(verbatim: player.name)
                     .font(.evolventa(size: 15, weight: .semibold))
                     .foregroundColor(.white)
                     .lineLimit(1)
