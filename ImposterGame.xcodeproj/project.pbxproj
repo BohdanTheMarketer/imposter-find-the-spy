@@ -91,6 +91,7 @@
 		CE5A07D3A2B72274EAB8A922 /* category_sportscourt_fill.png in Resources */ = {isa = PBXBuildFile; fileRef = F1CBC0EF96B0B7AECBE21200 /* category_sportscourt_fill.png */; };
 		CF9E7A8BDF5FE91D7734042C /* ResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A85D01792F87215E545F74 /* ResultView.swift */; };
 		D30C38FA2FA41820DC03CF34 /* LocalizationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C61F1BBC6120C344AE0D25 /* LocalizationService.swift */; };
+		D411B5229D8588E498B21961 /* RateUsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6734472499752AFA4872AA9D /* RateUsService.swift */; };
 		E073E44FA49C705E2CF762C5 /* Evolventa-BoldOblique.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2430B72FB2A58CD075E91F4D /* Evolventa-BoldOblique.ttf */; };
 		E537C6A60D252CB2788F2691 /* Evolventa-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 84537E46AE774DD1DAEED1EC /* Evolventa-Bold.ttf */; };
 		E78372EEC1931B91E618EDC7 /* GameSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED521C6104609D6FD37E3EC4 /* GameSession.swift */; };
@@ -151,6 +152,7 @@
 		5D3215E5DDAD80503605AE3D /* es-MX */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "es-MX"; path = "es-MX.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
 		644E5C57C317FC091BAE626B /* Evolventa-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Evolventa-Regular.ttf"; sourceTree = "<group>"; };
 		6559DC18C856317EFFAD2A1E /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		6734472499752AFA4872AA9D /* RateUsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateUsService.swift; sourceTree = "<group>"; };
 		6FA8E1A829A6103A65B14DC5 /* player_11.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = player_11.png; sourceTree = "<group>"; };
 		7024D9671D1CF3A8C2BB08B9 /* CategoriesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoriesView.swift; sourceTree = "<group>"; };
 		718D7CB6EB155A3952AF7FF2 /* UIImage+PortraitBackdrop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+PortraitBackdrop.swift"; sourceTree = "<group>"; };
@@ -267,6 +269,7 @@
 				1FD3B1E2BC3F96DBDE54AA2D /* HapticsManager.swift */,
 				57C61F1BBC6120C344AE0D25 /* LocalizationService.swift */,
 				B58272799A36548E83628AFE /* LocalizedBundle.swift */,
+				6734472499752AFA4872AA9D /* RateUsService.swift */,
 				57B1A59DC496A37029B24E08 /* SubscriptionManager.swift */,
 			);
 			path = Services;
@@ -719,6 +722,7 @@
 				9E6C49E880BEF67AEF6D2A06 /* PaywallView.swift in Sources */,
 				55BE5F5AC83E295982878890 /* Player.swift in Sources */,
 				24AB6D1CF11A6B2DA84440AB /* PlayerSetupView.swift in Sources */,
+				D411B5229D8588E498B21961 /* RateUsService.swift in Sources */,
 				CF9E7A8BDF5FE91D7734042C /* ResultView.swift in Sources */,
 				5BF897FD703C7DDC14F783D2 /* RoleRevealView.swift in Sources */,
 				F6C9306608A448B5BF1E69C8 /* SubscriptionManager.swift in Sources */,

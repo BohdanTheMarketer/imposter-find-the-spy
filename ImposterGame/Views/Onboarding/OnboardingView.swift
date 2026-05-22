@@ -48,6 +48,11 @@ struct OnboardingView: View {
             .transition(.opacity)
         }
         .animation(.easeInOut(duration: 0.35), value: currentPage)
+        .onChange(of: currentPage) { page in
+            if page == totalPages - 1 {
+                RateUsService.requestOnboardingReviewIfNeeded()
+            }
+        }
         .ignoresSafeArea()
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
