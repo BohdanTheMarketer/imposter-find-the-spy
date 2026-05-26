@@ -74,6 +74,10 @@ struct CategoryPaywallView: View {
             Text("paywall.restore_alert_message")
         }
         .onAppear {
+            if subscriptionManager.isPremium {
+                closePaywall(reason: .purchaseSuccess)
+                return
+            }
             AnalyticsService.logEvent("paywall_show", parameters: ["context": "category"])
             AnalyticsService.logPaywallViewed(context: .category)
             Task {
@@ -205,9 +209,10 @@ struct CategoryPaywallView: View {
                 Text("paywall.plan_weekly")
                     .font(.antropicSerif(size: 16, weight: .bold))
                     .foregroundColor(.white)
-                Text(verbatim: "\(subscriptionManager.weeklyPlanWeeklyPriceText), \(String(localized: "paywall.auto_renews_suffix"))")
+                Text(verbatim: weeklyTrialSubtitle)
                     .font(.antropicSerif(size: 12, weight: .medium))
                     .foregroundColor(.white.opacity(0.85))
+                    .lineLimit(2)
             }
             Spacer()
             VStack(alignment: .trailing, spacing: 2) {
@@ -250,6 +255,10 @@ struct CategoryPaywallView: View {
 
     private var ctaButton: some View {
         Button(action: {
+            if subscriptionManager.isPremium {
+                closePaywall(reason: .purchaseSuccess)
+                return
+            }
             HapticsManager.impact(.medium)
             let plan: SubscriptionManager.SubscriptionPlan = selectedPlan == .weekly ? .weekly : .yearly
             AnalyticsService.logPaywallContinueTapped(
@@ -265,9 +274,10 @@ struct CategoryPaywallView: View {
             }
         }) {
             HStack {
-                Text("paywall.continue")
-                    .font(.antropicSerif(size: 19.5, weight: .bold))
+                Text(selectedPlanHasTrial ? "paywall.cta.start_trial" : "paywall.continue")
+                    .font(.antropicSerif(size: 17.5, weight: .bold))
                     .foregroundColor(.appTextOnAccent)
+                    .lineLimit(1)
                 Spacer()
                 Image(systemName: "arrow.right")
                     .font(.antropicSerif(size: 18, weight: .bold))
@@ -305,12 +315,22 @@ struct CategoryPaywallView: View {
         .padding(.bottom, 6)
     }
 
+    private var weeklyTrialSubtitle: String {
+        if selectedPlanHasTrial {
+            return String(
+                format: String(localized: "paywall.weekly_trial_subtitle"),
+                subscriptionManager.weeklyPlanWeeklyPriceText
+            )
+        }
+        return "\(subscriptionManager.weeklyPlanWeeklyPriceText), \(String(localized: "paywall.auto_renews_suffix"))"
+    }
+
     private var selectedSubscriptionPlan: SubscriptionManager.SubscriptionPlan {
         selectedPlan == .weekly ? .weekly : .yearly
     }
 
     private var selectedPlanHasTrial: Bool {
-        subscriptionManager.hasIntroOffer(for: selectedSubscriptionPlan)
+        selectedPlan == .weekly && subscriptionManager.isEligibleForTrial
     }
 
     private var selectedPlanTerms: String {

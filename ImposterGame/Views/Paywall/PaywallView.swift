@@ -55,11 +55,12 @@ struct OnboardingPaywallView: View {
                     pricingCard(
                         plan: .weekly,
                         title: String(localized: "paywall.plan_weekly"),
-                        subtitle: "\(subscriptionManager.weeklyPlanWeeklyPriceText), \(String(localized: "paywall.auto_renews_suffix"))",
+                        subtitle: weeklyTrialSubtitle,
                         primaryPrice: subscriptionManager.weeklyPlanWeeklyPriceText,
                         secondaryPrice: String(localized: "paywall.cancel_anytime"),
                         selected: selectedPlan == .weekly,
-                        badgeText: selectedPlan == .weekly ? String(localized: "paywall.badge_most_popular") : nil
+                        badgeText: selectedPlan == .weekly ? String(localized: "paywall.badge_most_popular") : nil,
+                        subtitleLineLimit: 2
                     )
                     .padding(.bottom, 10)
 
@@ -103,6 +104,10 @@ struct OnboardingPaywallView: View {
             Text("paywall.restore_alert_message")
         }
         .onAppear {
+            if subscriptionManager.isPremium {
+                closePaywall(reason: .purchaseSuccess)
+                return
+            }
             AnalyticsService.logEvent("paywall_show", parameters: ["context": "onboarding"])
             AnalyticsService.logPaywallViewed(context: .onboarding)
             Task {
@@ -162,6 +167,16 @@ struct OnboardingPaywallView: View {
         .padding(.horizontal, 2)
     }
 
+    private var weeklyTrialSubtitle: String {
+        if selectedPlanHasTrial {
+            return String(
+                format: String(localized: "paywall.weekly_trial_subtitle"),
+                subscriptionManager.weeklyPlanWeeklyPriceText
+            )
+        }
+        return "\(subscriptionManager.weeklyPlanWeeklyPriceText), \(String(localized: "paywall.auto_renews_suffix"))"
+    }
+
     private func pricingCard(
         plan: Plan,
         title: String,
@@ -169,7 +184,8 @@ struct OnboardingPaywallView: View {
         primaryPrice: String,
         secondaryPrice: String,
         selected: Bool,
-        badgeText: String? = nil
+        badgeText: String? = nil,
+        subtitleLineLimit: Int? = nil
     ) -> some View {
         Button(action: {
             HapticsManager.selection()
@@ -190,6 +206,7 @@ struct OnboardingPaywallView: View {
                     Text(verbatim: subtitle)
                         .font(.antropicSerif(size: 12, weight: .medium))
                         .foregroundColor(.white.opacity(0.85))
+                        .lineLimit(subtitleLineLimit)
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 2) {
@@ -232,6 +249,10 @@ struct OnboardingPaywallView: View {
 
     private var continueButton: some View {
         Button(action: {
+            if subscriptionManager.isPremium {
+                closePaywall(reason: .purchaseSuccess)
+                return
+            }
             HapticsManager.impact(.medium)
             let plan: SubscriptionManager.SubscriptionPlan = selectedPlan == .weekly ? .weekly : .yearly
             AnalyticsService.logPaywallContinueTapped(
@@ -247,9 +268,10 @@ struct OnboardingPaywallView: View {
             }
         }) {
             HStack {
-                Text("paywall.continue")
-                    .font(.antropicSerif(size: 21, weight: .heavy))
+                Text(selectedPlanHasTrial ? "paywall.cta.start_trial" : "paywall.continue")
+                    .font(.antropicSerif(size: 19, weight: .bold))
                     .foregroundColor(.appTextOnAccent)
+                    .lineLimit(1)
                 Spacer()
                 Image(systemName: "arrow.right")
                     .font(.antropicSerif(size: 19, weight: .bold))
@@ -295,7 +317,7 @@ struct OnboardingPaywallView: View {
     }
 
     private var selectedPlanHasTrial: Bool {
-        subscriptionManager.hasIntroOffer(for: selectedSubscriptionPlan)
+        selectedPlan == .weekly && subscriptionManager.isEligibleForTrial
     }
 
     private var selectedPlanTerms: String {

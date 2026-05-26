@@ -123,6 +123,8 @@
 "paywall.trial_prompt_subtitle"               = "Ücretsiz erişimi aç";
 "paywall.trial_legal_line"                    = "Bugün 0 USD • 3 gün ÜCRETSİZ";
 "paywall.continue"                            = "Devam";
+"paywall.cta.start_trial"                     = "Start 3-Day Free Trial";
+"paywall.weekly_trial_subtitle"               = "3-day free trial, then %@";
 "paywall.skip"                                = "Atla";
 "paywall.restore"                             = "Geri yükle";
 "paywall.restore_alert_title"                 = "Satın alımları geri yükle";

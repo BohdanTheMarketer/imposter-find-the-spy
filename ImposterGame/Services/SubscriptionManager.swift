@@ -5,6 +5,13 @@ import SwiftUI
 
 @MainActor
 class SubscriptionManager: ObservableObject {
+    enum TrialEligibilityState {
+        case unknown
+        case new
+        case trialUsedOrExpired
+        case activeSubscriber
+    }
+
     enum SubscriptionPlan {
         case weekly
         case yearly
@@ -44,6 +51,7 @@ class SubscriptionManager: ObservableObject {
     }
     @Published var productsByID: [String: Product] = [:]
     @Published var isStoreLoading = false
+    @Published var trialEligibilityState: TrialEligibilityState = .unknown
 
     @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding: Bool = false
     @AppStorage("hasSeenPaywall") var hasSeenPaywall: Bool = false
@@ -156,6 +164,10 @@ class SubscriptionManager: ObservableObject {
         return product.subscription?.introductoryOffer != nil
     }
 
+    var isEligibleForTrial: Bool {
+        trialEligibilityState == .new
+    }
+
     func displayTerms(for plan: SubscriptionPlan) -> String {
         guard let product = productsByID[plan.productID] else {
             return "Auto-renews until canceled."
@@ -207,8 +219,12 @@ class SubscriptionManager: ObservableObject {
             let products = try await Product.products(for: premiumProductIDs)
             productsByID = Dictionary(uniqueKeysWithValues: products.map { ($0.id, $0) })
             logLoadedProductPricing(trigger: trigger, products: products)
+            await refreshTrialEligibilityState(trigger: "products_\(trigger)")
         } catch {
             print("SubscriptionManager: failed loading products - \(error)")
+            if !isPremium {
+                trialEligibilityState = .trialUsedOrExpired
+            }
         }
     }
 
@@ -370,6 +386,29 @@ class SubscriptionManager: ObservableObject {
 
         isPremium = hasActiveSubscription
         syncSubscriptionUserProperties(plan: activePlan)
+        await refreshTrialEligibilityState(trigger: "entitlements_\(trigger)")
+    }
+
+    private func refreshTrialEligibilityState(trigger: String) async {
+        if isPremium {
+            trialEligibilityState = .activeSubscriber
+            return
+        }
+
+        guard let weeklyProduct = productsByID[SubscriptionPlan.weekly.productID],
+              let subscription = weeklyProduct.subscription,
+              subscription.introductoryOffer != nil else {
+            trialEligibilityState = .trialUsedOrExpired
+            return
+        }
+
+        do {
+            let eligible = try await Product.SubscriptionInfo.isEligibleForIntroOffer(for: subscription.subscriptionGroupID)
+            trialEligibilityState = eligible ? .new : .trialUsedOrExpired
+        } catch {
+            print("SubscriptionManager: trial eligibility check failed [\(trigger)] - \(error)")
+            trialEligibilityState = .trialUsedOrExpired
+        }
     }
 
     private func observeTransactionUpdates() -> Task<Void, Never> {

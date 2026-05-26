@@ -123,6 +123,8 @@
 "paywall.trial_prompt_subtitle"               = "Activez l'accès gratuit";
 "paywall.trial_legal_line"                    = "0 USD aujourd'hui • 3 jours GRATUITS";
 "paywall.continue"                            = "Continuer";
+"paywall.cta.start_trial"                     = "Start 3-Day Free Trial";
+"paywall.weekly_trial_subtitle"               = "3-day free trial, then %@";
 "paywall.skip"                                = "Passer";
 "paywall.restore"                             = "Restaurer";
 "paywall.restore_alert_title"                 = "Restaurer les achats";
