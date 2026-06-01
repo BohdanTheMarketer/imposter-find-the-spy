@@ -3,11 +3,11 @@ import SwiftUI
 struct CategoryPaywallView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var subscriptionManager: SubscriptionManager
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
 
     @State private var selectedPlan: Plan = .weekly
     @State private var showRestoreMessage = false
+    @State private var didClosePaywall = false
 
     private enum Plan {
         case yearly
@@ -75,7 +75,7 @@ struct CategoryPaywallView: View {
         }
         .onAppear {
             if subscriptionManager.isPremium {
-                closePaywall(reason: .purchaseSuccess)
+                scheduleClosePaywall(reason: .purchaseSuccess)
                 return
             }
             AnalyticsService.logEvent("paywall_show", parameters: ["context": "category"])
@@ -86,7 +86,7 @@ struct CategoryPaywallView: View {
         }
         .onChange(of: subscriptionManager.isPremium) { isPremium in
             guard isPremium else { return }
-            closePaywall(reason: .purchaseSuccess)
+            scheduleClosePaywall(reason: .purchaseSuccess)
         }
     }
 
@@ -316,13 +316,14 @@ struct CategoryPaywallView: View {
     }
 
     private var weeklyTrialSubtitle: String {
+        let price = subscriptionManager.weeklyPlanWeeklyPriceText
         if selectedPlanHasTrial {
-            return String(
-                format: String(localized: "paywall.weekly_trial_subtitle"),
-                subscriptionManager.weeklyPlanWeeklyPriceText
+            return LocalizationService.shared.localizedFormat(
+                "paywall.weekly_trial_subtitle",
+                price
             )
         }
-        return "\(subscriptionManager.weeklyPlanWeeklyPriceText), \(String(localized: "paywall.auto_renews_suffix"))"
+        return "\(price), \(LocalizationService.shared.localized("paywall.auto_renews_suffix"))"
     }
 
     private var selectedSubscriptionPlan: SubscriptionManager.SubscriptionPlan {
@@ -337,15 +338,21 @@ struct CategoryPaywallView: View {
         subscriptionManager.displayTerms(for: selectedSubscriptionPlan)
     }
 
+    private func scheduleClosePaywall(reason: AnalyticsService.PaywallCloseReason) {
+        Task { @MainActor in
+            closePaywall(reason: reason)
+        }
+    }
+
     private func closePaywall(reason: AnalyticsService.PaywallCloseReason) {
+        guard !didClosePaywall else { return }
+        didClosePaywall = true
+
         AnalyticsService.logPaywallClosed(context: .category, reason: reason)
-        if router.path.count <= 1 {
-            router.navigate(to: .playerSetup)
+        if router.path.isEmpty {
+            router.navigateToPlayerSetup()
             return
         }
-        dismiss()
-        if !router.path.isEmpty {
-            router.pop()
-        }
+        router.pop()
     }
 }

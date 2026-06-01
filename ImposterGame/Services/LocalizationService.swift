@@ -32,12 +32,14 @@ final class LocalizationService: ObservableObject {
     }
 
     private init() {
+        let storedCode: String
         if let override = UserDefaults.standard.array(forKey: "AppleLanguages") as? [String],
            let first = override.first {
-            currentLocaleCode = first
+            storedCode = first
         } else {
-            currentLocaleCode = Bundle.main.preferredLocalizations.first ?? "en"
+            storedCode = Bundle.main.preferredLocalizations.first ?? "en"
         }
+        currentLocaleCode = Self.resolvedLocaleCode(for: storedCode)
         applyLanguage(currentLocaleCode, notify: false)
     }
 
@@ -72,13 +74,34 @@ final class LocalizationService: ObservableObject {
     }
 
     private func applyLanguage(_ code: String, notify: Bool) {
-        currentLocaleCode = code
-        UserDefaults.standard.set([code], forKey: "AppleLanguages")
-        Bundle.setAppLanguage(code)
+        let resolvedCode = Self.resolvedLocaleCode(for: code)
+        currentLocaleCode = resolvedCode
+        UserDefaults.standard.set([resolvedCode], forKey: "AppleLanguages")
+        Bundle.setAppLanguage(resolvedCode)
 
         if notify {
             NotificationCenter.default.post(name: .appLanguageDidChange, object: nil)
             objectWillChange.send()
         }
+    }
+
+    /// Picks the closest bundled locale folder for a device / user language code.
+    private static func resolvedLocaleCode(for code: String) -> String {
+        let supported = Set(supportedLocales.map(\.code))
+        if supported.contains(code) {
+            return code
+        }
+        switch code {
+        case "es", "es-419", "es-US":
+            return "es-MX"
+        case "pt", "pt-PT":
+            return "pt-BR"
+        default:
+            break
+        }
+        if let base = code.split(separator: "-").first.map(String.init), supported.contains(base) {
+            return base
+        }
+        return supported.contains("en") ? "en" : (supported.first ?? "en")
     }
 }

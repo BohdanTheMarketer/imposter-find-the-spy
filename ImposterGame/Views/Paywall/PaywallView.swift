@@ -9,6 +9,7 @@ struct OnboardingPaywallView: View {
     @State private var showRestoreMessage = false
     @State private var isCloseButtonVisible = false
     @State private var closeButtonRevealTask: Task<Void, Never>?
+    @State private var didClosePaywall = false
 
     private enum Plan {
         case yearly
@@ -105,7 +106,7 @@ struct OnboardingPaywallView: View {
         }
         .onAppear {
             if subscriptionManager.isPremium {
-                closePaywall(reason: .purchaseSuccess)
+                scheduleClosePaywall(reason: .purchaseSuccess)
                 return
             }
             AnalyticsService.logEvent("paywall_show", parameters: ["context": "onboarding"])
@@ -124,7 +125,7 @@ struct OnboardingPaywallView: View {
         }
         .onChange(of: subscriptionManager.isPremium) { isPremium in
             guard isPremium else { return }
-            closePaywall(reason: .purchaseSuccess)
+            scheduleClosePaywall(reason: .purchaseSuccess)
         }
     }
 
@@ -168,13 +169,14 @@ struct OnboardingPaywallView: View {
     }
 
     private var weeklyTrialSubtitle: String {
+        let price = subscriptionManager.weeklyPlanWeeklyPriceText
         if selectedPlanHasTrial {
-            return String(
-                format: String(localized: "paywall.weekly_trial_subtitle"),
-                subscriptionManager.weeklyPlanWeeklyPriceText
+            return LocalizationService.shared.localizedFormat(
+                "paywall.weekly_trial_subtitle",
+                price
             )
         }
-        return "\(subscriptionManager.weeklyPlanWeeklyPriceText), \(String(localized: "paywall.auto_renews_suffix"))"
+        return "\(price), \(LocalizationService.shared.localized("paywall.auto_renews_suffix"))"
     }
 
     private func pricingCard(
@@ -263,7 +265,7 @@ struct OnboardingPaywallView: View {
             Task {
                 let didPurchase = await subscriptionManager.purchaseSubscription(plan: plan, context: .onboarding)
                 if didPurchase {
-                    router.navigate(to: .playerSetup)
+                    scheduleClosePaywall(reason: .purchaseSuccess)
                 }
             }
         }) {
@@ -324,7 +326,16 @@ struct OnboardingPaywallView: View {
         subscriptionManager.displayTerms(for: selectedSubscriptionPlan)
     }
 
+    private func scheduleClosePaywall(reason: AnalyticsService.PaywallCloseReason) {
+        Task { @MainActor in
+            closePaywall(reason: reason)
+        }
+    }
+
     private func closePaywall(reason: AnalyticsService.PaywallCloseReason) {
+        guard !didClosePaywall else { return }
+        didClosePaywall = true
+
         AnalyticsService.logPaywallClosed(context: .onboarding, reason: reason)
         router.navigateToPlayerSetup()
     }
