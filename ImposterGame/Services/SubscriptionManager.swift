@@ -168,25 +168,37 @@ class SubscriptionManager: ObservableObject {
         trialEligibilityState == .new
     }
 
-    func displayTerms(for plan: SubscriptionPlan) -> String {
-        guard let product = productsByID[plan.productID] else {
-            return "Auto-renews until canceled."
+    /// Billed recurring price for legal copy and CTA — always `/week` or `/year`, never intro-offer period units.
+    func billedPriceText(for plan: SubscriptionPlan) -> String {
+        switch plan {
+        case .weekly:
+            return weeklyPlanWeeklyPriceText
+        case .yearly:
+            return yearlyPlanBilledPriceText
         }
-
-        let recurringPrice = recurringPriceText(for: product)
-        if let introOffer = product.subscription?.introductoryOffer {
-            let introDuration = subscriptionPeriodText(for: introOffer.period)
-            return "Free for \(introDuration), then \(recurringPrice). Auto-renews until canceled."
-        }
-
-        return "\(recurringPrice). Auto-renews until canceled."
     }
 
-    private func recurringPriceText(for product: Product) -> String {
-        guard let subscriptionPeriod = product.subscription?.subscriptionPeriod else {
-            return product.displayPrice
+    func displayTerms(for plan: SubscriptionPlan) -> String {
+        guard let product = productsByID[plan.productID] else {
+            return LocalizationService.shared.localized("paywall.terms.fallback")
         }
-        return "\(product.displayPrice)/\(subscriptionUnitText(for: subscriptionPeriod.unit))"
+
+        let billedPrice = billedPriceText(for: plan)
+        if plan == .weekly,
+           isEligibleForTrial,
+           let introOffer = product.subscription?.introductoryOffer {
+            let introDuration = subscriptionPeriodText(for: introOffer.period)
+            return LocalizationService.shared.localizedFormat(
+                "paywall.terms.trial_format",
+                introDuration,
+                billedPrice
+            )
+        }
+
+        return LocalizationService.shared.localizedFormat(
+            "paywall.terms.standard_format",
+            billedPrice
+        )
     }
 
     private func subscriptionPeriodText(for period: Product.SubscriptionPeriod) -> String {

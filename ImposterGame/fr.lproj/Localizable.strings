@@ -124,7 +124,17 @@
 "paywall.trial_legal_line"                    = "0 USD aujourd'hui • 3 jours GRATUITS";
 "paywall.continue"                            = "Continuer";
 "paywall.cta.start_trial"                     = "Start 3-Day Free Trial";
+"paywall.cta.then_price_cancel"               = "Then %@ · Cancel anytime";
 "paywall.weekly_trial_subtitle"               = "3-day free trial, then %@";
+"paywall.terms.trial_format"                  = "Free for %@, then %@. Auto-renews until canceled.";
+"paywall.terms.standard_format"               = "%@. Auto-renews until canceled.";
+"paywall.terms.fallback"                      = "Auto-renews until canceled.";
+"paywall.timeline.today.title"                = "Today";
+"paywall.timeline.today.subtitle"             = "Full access, no charge";
+"paywall.timeline.day2.title"                 = "Day 2";
+"paywall.timeline.day2.subtitle"              = "Reminder before trial ends";
+"paywall.timeline.day3.title"                 = "Day 3";
+"paywall.timeline.day3.subtitle"              = "%@, cancel anytime";
 "paywall.skip"                                = "Passer";
 "paywall.restore"                             = "Restaurer";
 "paywall.restore_alert_title"                 = "Restaurer les achats";

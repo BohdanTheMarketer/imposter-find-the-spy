@@ -74,7 +74,7 @@ struct OnboardingPaywallView: View {
                         selected: selectedPlan == .yearly,
                         badgeText: selectedPlan == .yearly ? String(localized: "paywall.badge_best_value") : nil
                     )
-                    .padding(.bottom, 16)
+                    .padding(.bottom, 12)
 
                     continueButton
                         .padding(.bottom, 6)
@@ -200,26 +200,13 @@ struct OnboardingPaywallView: View {
                 trialEnabled: selectedPlanHasTrial
             )
         }) {
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(verbatim: title)
-                        .font(.antropicSerif(size: 16, weight: .bold))
-                        .foregroundColor(.white)
-                    Text(verbatim: subtitle)
-                        .font(.antropicSerif(size: 12, weight: .medium))
-                        .foregroundColor(.white.opacity(0.85))
-                        .lineLimit(subtitleLineLimit)
-                }
-                Spacer()
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text(verbatim: primaryPrice)
-                        .font(.antropicSerif(size: 16.5, weight: .bold))
-                        .foregroundColor(.white)
-                    Text(verbatim: secondaryPrice)
-                        .font(.antropicSerif(size: 12, weight: .medium))
-                        .foregroundColor(.white.opacity(0.72))
-                }
-            }
+            PaywallPlanCardBody(
+                title: title,
+                subtitle: subtitle,
+                billedPrice: primaryPrice,
+                trailingNote: secondaryPrice,
+                subtitleLineLimit: subtitleLineLimit
+            )
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
             .background(
@@ -250,41 +237,43 @@ struct OnboardingPaywallView: View {
     }
 
     private var continueButton: some View {
-        Button(action: {
-            if subscriptionManager.isPremium {
-                closePaywall(reason: .purchaseSuccess)
-                return
+        Group {
+            if PaywallCopy.usesDualLineCTA(selectedPlanIsWeekly: selectedPlan == .weekly) {
+                PaywallDualLineCTAButton(
+                    billedLine: PaywallCopy.ctaBilledLine(
+                        subscriptionManager: subscriptionManager,
+                        plan: .weekly
+                    ),
+                    subordinateLineKey: PaywallCopy.ctaSubordinateLineKey(showsTrialPitch: selectedPlanHasTrial),
+                    action: handleContinueTapped
+                )
+            } else {
+                PaywallSingleLineCTAButton(
+                    titleKey: "paywall.continue",
+                    action: handleContinueTapped
+                )
             }
-            HapticsManager.impact(.medium)
-            let plan: SubscriptionManager.SubscriptionPlan = selectedPlan == .weekly ? .weekly : .yearly
-            AnalyticsService.logPaywallContinueTapped(
-                context: .onboarding,
-                plan: selectedPlan == .weekly ? "weekly" : "yearly",
-                trialEnabled: selectedPlanHasTrial
-            )
-            Task {
-                let didPurchase = await subscriptionManager.purchaseSubscription(plan: plan, context: .onboarding)
-                if didPurchase {
-                    scheduleClosePaywall(reason: .purchaseSuccess)
-                }
-            }
-        }) {
-            HStack {
-                Text(selectedPlanHasTrial ? "paywall.cta.start_trial" : "paywall.continue")
-                    .font(.antropicSerif(size: 19, weight: .bold))
-                    .foregroundColor(.appTextOnAccent)
-                    .lineLimit(1)
-                Spacer()
-                Image(systemName: "arrow.right")
-                    .font(.antropicSerif(size: 19, weight: .bold))
-                    .foregroundColor(.appTextOnAccent)
-            }
-            .padding(.horizontal, 26)
-            .frame(height: 66)
-            .background(Color.appAccent)
-            .clipShape(Capsule())
         }
-        .buttonStyle(.plain)
+    }
+
+    private func handleContinueTapped() {
+        if subscriptionManager.isPremium {
+            closePaywall(reason: .purchaseSuccess)
+            return
+        }
+        HapticsManager.impact(.medium)
+        let plan = selectedSubscriptionPlan
+        AnalyticsService.logPaywallContinueTapped(
+            context: .onboarding,
+            plan: selectedPlan == .weekly ? "weekly" : "yearly",
+            trialEnabled: selectedPlanHasTrial
+        )
+        Task {
+            let didPurchase = await subscriptionManager.purchaseSubscription(plan: plan, context: .onboarding)
+            if didPurchase {
+                scheduleClosePaywall(reason: .purchaseSuccess)
+            }
+        }
     }
 
     private var footerLinks: some View {

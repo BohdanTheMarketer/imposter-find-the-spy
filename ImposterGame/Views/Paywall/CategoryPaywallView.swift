@@ -144,25 +144,12 @@ struct CategoryPaywallView: View {
                 trialEnabled: selectedPlanHasTrial
             )
         }) {
-            HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("paywall.plan_yearly")
-                    .font(.antropicSerif(size: 16, weight: .bold))
-                    .foregroundColor(.white)
-                Text(verbatim: "\(subscriptionManager.yearlyPlanSubtitleText), \(String(localized: "paywall.auto_renews_suffix"))")
-                    .font(.antropicSerif(size: 12, weight: .medium))
-                    .foregroundColor(.white.opacity(0.85))
-            }
-            Spacer()
-            VStack(alignment: .trailing, spacing: 2) {
-                Text(verbatim: subscriptionManager.yearlyPlanBilledPriceText)
-                    .font(.antropicSerif(size: 16.5, weight: .bold))
-                    .foregroundColor(.white)
-                Text(verbatim: subscriptionManager.yearlyPlanWeeklyEquivalentText)
-                    .font(.antropicSerif(size: 12, weight: .medium))
-                    .foregroundColor(.white.opacity(0.72))
-            }
-            }
+            PaywallPlanCardBody(
+                title: String(localized: "paywall.plan_yearly"),
+                subtitle: "\(subscriptionManager.yearlyPlanSubtitleText), \(String(localized: "paywall.auto_renews_suffix"))",
+                billedPrice: subscriptionManager.yearlyPlanBilledPriceText,
+                trailingNote: subscriptionManager.yearlyPlanWeeklyEquivalentText
+            )
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
             .background(
@@ -204,26 +191,13 @@ struct CategoryPaywallView: View {
                 trialEnabled: selectedPlanHasTrial
             )
         }) {
-            HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                Text("paywall.plan_weekly")
-                    .font(.antropicSerif(size: 16, weight: .bold))
-                    .foregroundColor(.white)
-                Text(verbatim: weeklyTrialSubtitle)
-                    .font(.antropicSerif(size: 12, weight: .medium))
-                    .foregroundColor(.white.opacity(0.85))
-                    .lineLimit(2)
-            }
-            Spacer()
-            VStack(alignment: .trailing, spacing: 2) {
-                Text(verbatim: subscriptionManager.weeklyPlanWeeklyPriceText)
-                    .font(.antropicSerif(size: 16.5, weight: .bold))
-                    .foregroundColor(.white)
-                Text("paywall.cancel_anytime")
-                    .font(.antropicSerif(size: 12, weight: .medium))
-                    .foregroundColor(.white.opacity(0.72))
-            }
-            }
+            PaywallPlanCardBody(
+                title: String(localized: "paywall.plan_weekly"),
+                subtitle: weeklyTrialSubtitle,
+                billedPrice: subscriptionManager.weeklyPlanWeeklyPriceText,
+                trailingNote: String(localized: "paywall.cancel_anytime"),
+                subtitleLineLimit: 2
+            )
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
             .background(
@@ -254,39 +228,42 @@ struct CategoryPaywallView: View {
     }
 
     private var ctaButton: some View {
-        Button(action: {
-            if subscriptionManager.isPremium {
-                closePaywall(reason: .purchaseSuccess)
-                return
+        Group {
+            if PaywallCopy.usesDualLineCTA(selectedPlanIsWeekly: selectedPlan == .weekly) {
+                PaywallDualLineCTAButton(
+                    billedLine: PaywallCopy.ctaBilledLine(
+                        subscriptionManager: subscriptionManager,
+                        plan: .weekly
+                    ),
+                    subordinateLineKey: PaywallCopy.ctaSubordinateLineKey(showsTrialPitch: selectedPlanHasTrial),
+                    action: handleContinueTapped
+                )
+            } else {
+                PaywallSingleLineCTAButton(
+                    titleKey: "paywall.continue",
+                    action: handleContinueTapped
+                )
             }
-            HapticsManager.impact(.medium)
-            let plan: SubscriptionManager.SubscriptionPlan = selectedPlan == .weekly ? .weekly : .yearly
-            AnalyticsService.logPaywallContinueTapped(
-                context: .category,
-                plan: selectedPlan == .weekly ? "weekly" : "yearly",
-                trialEnabled: selectedPlanHasTrial
-            )
-            Task {
-                let didPurchase = await subscriptionManager.purchaseSubscription(plan: plan, context: .category)
-                if didPurchase {
-                    closePaywall(reason: .purchaseSuccess)
-                }
+        }
+    }
+
+    private func handleContinueTapped() {
+        if subscriptionManager.isPremium {
+            closePaywall(reason: .purchaseSuccess)
+            return
+        }
+        HapticsManager.impact(.medium)
+        let plan = selectedSubscriptionPlan
+        AnalyticsService.logPaywallContinueTapped(
+            context: .category,
+            plan: selectedPlan == .weekly ? "weekly" : "yearly",
+            trialEnabled: selectedPlanHasTrial
+        )
+        Task {
+            let didPurchase = await subscriptionManager.purchaseSubscription(plan: plan, context: .category)
+            if didPurchase {
+                scheduleClosePaywall(reason: .purchaseSuccess)
             }
-        }) {
-            HStack {
-                Text(selectedPlanHasTrial ? "paywall.cta.start_trial" : "paywall.continue")
-                    .font(.antropicSerif(size: 17.5, weight: .bold))
-                    .foregroundColor(.appTextOnAccent)
-                    .lineLimit(1)
-                Spacer()
-                Image(systemName: "arrow.right")
-                    .font(.antropicSerif(size: 18, weight: .bold))
-                    .foregroundColor(.appTextOnAccent)
-            }
-            .padding(.horizontal, 26)
-            .frame(height: 64)
-            .background(Color.appAccent)
-            .clipShape(Capsule())
         }
     }
 
