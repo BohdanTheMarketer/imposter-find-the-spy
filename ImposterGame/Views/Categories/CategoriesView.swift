@@ -37,6 +37,7 @@ struct CategoriesView: View {
     @State private var selectedCategoryID: UUID?
     @State private var showInfoOverlay = false
     @State private var onboardingStep = 0
+    @State private var pushPermissionTask: Task<Void, Never>?
 
     private static let categoryBackgroundPalette: [LinearGradient] = [
         LinearGradient(
@@ -228,6 +229,11 @@ struct CategoriesView: View {
         }
         .onAppear {
             reloadCategories()
+            schedulePushPermissionPromptIfNeeded()
+        }
+        .onDisappear {
+            pushPermissionTask?.cancel()
+            pushPermissionTask = nil
         }
         .onChange(of: localization.currentLocaleCode) { _ in
             reloadCategories()
@@ -240,6 +246,23 @@ struct CategoriesView: View {
     private func reloadCategories() {
         categories = CategoryLoader.loadCategories()
         restoreSelection()
+    }
+
+    private func schedulePushPermissionPromptIfNeeded() {
+        pushPermissionTask?.cancel()
+        pushPermissionTask = Task {
+            guard await PushNotificationService.shouldRequestPermissionOnCategories() else { return }
+            try? await Task.sleep(nanoseconds: 800_000_000)
+            guard !Task.isCancelled else { return }
+
+            let shouldSkip = await MainActor.run { showInfoOverlay }
+            guard !shouldSkip else { return }
+
+            let context = PushNotificationService.permissionAnalyticsContext()
+            PushNotificationService.markPermissionRequestAttempted(context: context)
+            PushNotificationService.logPromptShown(context: context)
+            await PushNotificationService.requestPermission(context: context)
+        }
     }
 
     private func restoreSelection() {

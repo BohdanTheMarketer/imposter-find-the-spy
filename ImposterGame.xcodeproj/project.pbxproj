@@ -51,6 +51,7 @@
 		6901BAE5B9FB092E0E5DA36A /* player_7.png in Resources */ = {isa = PBXBuildFile; fileRef = D9B5272A64719CDF0D1B8E27 /* player_7.png */; };
 		6A1DE64792DD332173B240B6 /* small_player_4.png in Resources */ = {isa = PBXBuildFile; fileRef = 1872172C38AC29DC9A7D75F3 /* small_player_4.png */; };
 		6AB968DB2BE0667EE7D49DEE /* category_party_popper.png in Resources */ = {isa = PBXBuildFile; fileRef = 10513D64393ED72C491A7A16 /* category_party_popper.png */; };
+		6D4E2948451BBF17B71FDC78 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAD177C28FC242CF21117D4 /* AppDelegate.swift */; };
 		6E3F31D3B4CF2C27307F4FC0 /* category_house_fill.png in Resources */ = {isa = PBXBuildFile; fileRef = BE439385A528B4689F8144C1 /* category_house_fill.png */; };
 		7630F80F8F9723D1FCEE4528 /* small_player_6.png in Resources */ = {isa = PBXBuildFile; fileRef = EBB3569C94560999C2ED0104 /* small_player_6.png */; };
 		7A17659DC01BB97400B6E7F8 /* Evolventa-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 644E5C57C317FC091BAE626B /* Evolventa-Regular.ttf */; };
@@ -97,6 +98,8 @@
 		E537C6A60D252CB2788F2691 /* Evolventa-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 84537E46AE774DD1DAEED1EC /* Evolventa-Bold.ttf */; };
 		E78372EEC1931B91E618EDC7 /* GameSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED521C6104609D6FD37E3EC4 /* GameSession.swift */; };
 		E89B457C4BBDD0C8F45C9F5C /* player_11.png in Resources */ = {isa = PBXBuildFile; fileRef = 6FA8E1A829A6103A65B14DC5 /* player_11.png */; };
+		ECD62EA2DD1D5037C3D8B2C1 /* PushNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9FE14D16A4336B40FB70F5E /* PushNotificationService.swift */; };
+		EEA2764BDA8ED72CAAC24BB0 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 706047C26E961DBED30EA12B /* FirebaseMessaging */; };
 		F04E1A30174677770894670B /* HapticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD3B1E2BC3F96DBDE54AA2D /* HapticsManager.swift */; };
 		F6287186F55B1D783D43438A /* small_player_11.png in Resources */ = {isa = PBXBuildFile; fileRef = 06D32F771616E130D8769C0B /* small_player_11.png */; };
 		F6C9306608A448B5BF1E69C8 /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57B1A59DC496A37029B24E08 /* SubscriptionManager.swift */; };
@@ -112,14 +115,14 @@
 		063EC48ECFC96F9FB9F4E451 /* player_12.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = player_12.png; sourceTree = "<group>"; };
 		06D32F771616E130D8769C0B /* small_player_11.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_player_11.png; sourceTree = "<group>"; };
 		0D088712A3A096E28E5DFBE3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		0EEE93E0E5E5607EEB9942D6 /* en.lproj */ = {isa = PBXFileReference; lastKnownFileType = folder; path = en.lproj; sourceTree = "<group>"; };
-		0F68109243E61CDE8494B934 /* tr.lproj */ = {isa = PBXFileReference; lastKnownFileType = folder; path = tr.lproj; sourceTree = "<group>"; };
+		0EEE93E0E5E5607EEB9942D6 /* en.lproj */ = {isa = PBXFileReference; path = en.lproj; sourceTree = "<group>"; };
+		0F68109243E61CDE8494B934 /* tr.lproj */ = {isa = PBXFileReference; path = tr.lproj; sourceTree = "<group>"; };
 		10513D64393ED72C491A7A16 /* category_party_popper.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_party_popper.png; sourceTree = "<group>"; };
 		12BF0BF73F70CB46376EA1B7 /* category_star_fill.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_star_fill.png; sourceTree = "<group>"; };
 		13B5C558F99CCFDBA2EFE8E4 /* category_fork_knife.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_fork_knife.png; sourceTree = "<group>"; };
 		1514880D1F4929843D0C5B3A /* small_player_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_player_1.png; sourceTree = "<group>"; };
 		16290548E5CB15614AEC125E /* CategoryPaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryPaywallView.swift; sourceTree = "<group>"; };
-		16EB346595CB035E5801B875 /* pt-BR.lproj */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "pt-BR.lproj"; sourceTree = "<group>"; };
+		16EB346595CB035E5801B875 /* pt-BR.lproj */ = {isa = PBXFileReference; path = "pt-BR.lproj"; sourceTree = "<group>"; };
 		1872172C38AC29DC9A7D75F3 /* small_player_4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_player_4.png; sourceTree = "<group>"; };
 		1D49E6F6D50A2C78B1A3DE8F /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "pt-BR"; path = "pt-BR.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
 		1FD3B1E2BC3F96DBDE54AA2D /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
@@ -130,6 +133,7 @@
 		2AB5A0FBD13E89FEAC222DA0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		2B130CB915268A2EB274470B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		2BCF7E76BA12D6882B6FDE2B /* player_6.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = player_6.png; sourceTree = "<group>"; };
+		2CAD177C28FC242CF21117D4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2F602BD702C8BCF51C1222C7 /* LanguagePickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguagePickerSheet.swift; sourceTree = "<group>"; };
 		323A1F4BCCF2D068A2FA5207 /* small_player_5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_player_5.png; sourceTree = "<group>"; };
 		32666DF2B0BD9B1C5D707138 /* small_player_12.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_player_12.png; sourceTree = "<group>"; };
@@ -149,7 +153,7 @@
 		57C61F1BBC6120C344AE0D25 /* LocalizationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationService.swift; sourceTree = "<group>"; };
 		59D6E6DDD49C2175CD72FDF4 /* category_bolt_fill.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_bolt_fill.png; sourceTree = "<group>"; };
 		5A119C731D260729D61FD1B3 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
-		5A3D39D79EBFEE259F695500 /* ImposterGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImposterGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A3D39D79EBFEE259F695500 /* ImposterGame.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ImposterGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D3215E5DDAD80503605AE3D /* es-MX */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "es-MX"; path = "es-MX.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
 		644E5C57C317FC091BAE626B /* Evolventa-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Evolventa-Regular.ttf"; sourceTree = "<group>"; };
 		6559DC18C856317EFFAD2A1E /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -158,6 +162,7 @@
 		7024D9671D1CF3A8C2BB08B9 /* CategoriesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoriesView.swift; sourceTree = "<group>"; };
 		718D7CB6EB155A3952AF7FF2 /* UIImage+PortraitBackdrop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+PortraitBackdrop.swift"; sourceTree = "<group>"; };
 		72306E64D2E6FCD28B44F21D /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = tr; path = tr.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		741F3D6035F91ABB99253748 /* ImposterGame.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ImposterGame.entitlements; sourceTree = "<group>"; };
 		7A4F33A7BF549965058F632E /* category_book_fill.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_book_fill.png; sourceTree = "<group>"; };
 		7E8AE4E1F93C5FB479CACF5A /* NanumMyeongjo-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NanumMyeongjo-Bold.ttf"; sourceTree = "<group>"; };
 		7F57D7649FC2034A996AD10D /* player_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = player_1.png; sourceTree = "<group>"; };
@@ -170,7 +175,7 @@
 		9B8B4755C749B0A1468CA233 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A1B45AA5EC7D3A5D540E227C /* small_player_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_player_2.png; sourceTree = "<group>"; };
 		A377BEB2DDC8A0578C6B2763 /* LibreBaskerville-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "LibreBaskerville-Medium.ttf"; sourceTree = "<group>"; };
-		A4DC534C6EB33EAE4F7246E6 /* fr.lproj */ = {isa = PBXFileReference; lastKnownFileType = folder; path = fr.lproj; sourceTree = "<group>"; };
+		A4DC534C6EB33EAE4F7246E6 /* fr.lproj */ = {isa = PBXFileReference; path = fr.lproj; sourceTree = "<group>"; };
 		A5E6668A898BCA70D1F2E53A /* AppRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouter.swift; sourceTree = "<group>"; };
 		AA27ACED2644C163A72FD40E /* GameEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameEngine.swift; sourceTree = "<group>"; };
 		AA2C6AC8AA9C574611A86F36 /* OnboardingHero.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = OnboardingHero.jpg; sourceTree = "<group>"; };
@@ -181,6 +186,7 @@
 		B58272799A36548E83628AFE /* LocalizedBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizedBundle.swift; sourceTree = "<group>"; };
 		B8793C77BFC56EE9DC3B49FB /* small_player_8.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_player_8.png; sourceTree = "<group>"; };
 		B9E4FD5E37DE7F6EC24F1019 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
+		B9FE14D16A4336B40FB70F5E /* PushNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationService.swift; sourceTree = "<group>"; };
 		BC2C8BBE6A3377EDF11C07AC /* CategoryPaywallHeroTop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = CategoryPaywallHeroTop.png; sourceTree = "<group>"; };
 		BE439385A528B4689F8144C1 /* category_house_fill.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_house_fill.png; sourceTree = "<group>"; };
 		BED795672AEE4610BC3321F0 /* player_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = player_2.png; sourceTree = "<group>"; };
@@ -188,7 +194,7 @@
 		C1B762503015166BBA74FA0F /* LibreBaskerville-SemiBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "LibreBaskerville-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
 		C8CD45AF718629C1648047AA /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		C9A744A8483ED6E92E70BB16 /* player_10.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = player_10.png; sourceTree = "<group>"; };
-		CE6297DEF8149BEB31004522 /* es-MX.lproj */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "es-MX.lproj"; sourceTree = "<group>"; };
+		CE6297DEF8149BEB31004522 /* es-MX.lproj */ = {isa = PBXFileReference; path = "es-MX.lproj"; sourceTree = "<group>"; };
 		CF8DDF4ED263B824675B7838 /* category_film_fill.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_film_fill.png; sourceTree = "<group>"; };
 		D2FEAFC938D219B05704FA71 /* GameSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSettings.swift; sourceTree = "<group>"; };
 		D7F0A1AF5BF3B63242545D1F /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = fr; path = fr.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
@@ -221,6 +227,7 @@
 				FEDD643230CD1B9D84C79192 /* FirebaseAnalytics in Frameworks */,
 				CBDDD1A5D6252BD8501EFF63 /* FirebaseCrashlytics in Frameworks */,
 				ACC4866899B846DF8C050C45 /* FirebaseInstallations in Frameworks */,
+				EEA2764BDA8ED72CAAC24BB0 /* FirebaseMessaging in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -257,6 +264,7 @@
 		2859DB60DE187487DF8A97D1 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				2CAD177C28FC242CF21117D4 /* AppDelegate.swift */,
 				EBA8D01546EC2FD5D4903EDE /* ImposterGameApp.swift */,
 			);
 			path = App;
@@ -271,6 +279,7 @@
 				1FD3B1E2BC3F96DBDE54AA2D /* HapticsManager.swift */,
 				57C61F1BBC6120C344AE0D25 /* LocalizationService.swift */,
 				B58272799A36548E83628AFE /* LocalizedBundle.swift */,
+				B9FE14D16A4336B40FB70F5E /* PushNotificationService.swift */,
 				6734472499752AFA4872AA9D /* RateUsService.swift */,
 				57B1A59DC496A37029B24E08 /* SubscriptionManager.swift */,
 			);
@@ -461,6 +470,7 @@
 				CE6297DEF8149BEB31004522 /* es-MX.lproj */,
 				A4DC534C6EB33EAE4F7246E6 /* fr.lproj */,
 				8BE02C67520C3F41F354FFC4 /* GoogleService-Info.plist */,
+				741F3D6035F91ABB99253748 /* ImposterGame.entitlements */,
 				16EB346595CB035E5801B875 /* pt-BR.lproj */,
 				0F68109243E61CDE8494B934 /* tr.lproj */,
 				2859DB60DE187487DF8A97D1 /* App */,
@@ -537,6 +547,7 @@
 				AA18741BEA45BBF37BAB5DD9 /* FirebaseAnalytics */,
 				A07314160D6C5EA1AAB20FD6 /* FirebaseCrashlytics */,
 				A2462B968BD5F03BCFEAF2FD /* FirebaseInstallations */,
+				706047C26E961DBED30EA12B /* FirebaseMessaging */,
 			);
 			productName = ImposterGame;
 			productReference = 5A3D39D79EBFEE259F695500 /* ImposterGame.app */;
@@ -704,6 +715,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				93D558B5712E107B8A798489 /* AnalyticsService.swift in Sources */,
+				6D4E2948451BBF17B71FDC78 /* AppDelegate.swift in Sources */,
 				56D2AA90912B97D89F371971 /* AppRouter.swift in Sources */,
 				B8DA7F4590E6E7E31C75EDFC /* CategoriesView.swift in Sources */,
 				AA15A141C41971E4D6E7EF70 /* Category.swift in Sources */,
@@ -726,6 +738,7 @@
 				9E6C49E880BEF67AEF6D2A06 /* PaywallView.swift in Sources */,
 				55BE5F5AC83E295982878890 /* Player.swift in Sources */,
 				24AB6D1CF11A6B2DA84440AB /* PlayerSetupView.swift in Sources */,
+				ECD62EA2DD1D5037C3D8B2C1 /* PushNotificationService.swift in Sources */,
 				D411B5229D8588E498B21961 /* RateUsService.swift in Sources */,
 				CF9E7A8BDF5FE91D7734042C /* ResultView.swift in Sources */,
 				5BF897FD703C7DDC14F783D2 /* RoleRevealView.swift in Sources */,
@@ -813,9 +826,21 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleIconName = AppIcon;
-				INFOPLIST_KEY_UIAppFonts = "LibreBaskerville-Regular.ttf LibreBaskerville-Medium.ttf LibreBaskerville-SemiBold.ttf LibreBaskerville-Bold.ttf LibreBaskerville-Italic.ttf LibreBaskerville-MediumItalic.ttf LibreBaskerville-SemiBoldItalic.ttf LibreBaskerville-BoldItalic.ttf";
+				INFOPLIST_KEY_UIAppFonts = (
+					"LibreBaskerville-Regular.ttf",
+					"LibreBaskerville-Medium.ttf",
+					"LibreBaskerville-SemiBold.ttf",
+					"LibreBaskerville-Bold.ttf",
+					"LibreBaskerville-Italic.ttf",
+					"LibreBaskerville-MediumItalic.ttf",
+					"LibreBaskerville-SemiBoldItalic.ttf",
+					"LibreBaskerville-BoldItalic.ttf",
+				);
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UIBackgroundModes = (
+					"remote-notification",
+				);
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -885,9 +910,21 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleIconName = AppIcon;
-				INFOPLIST_KEY_UIAppFonts = "LibreBaskerville-Regular.ttf LibreBaskerville-Medium.ttf LibreBaskerville-SemiBold.ttf LibreBaskerville-Bold.ttf LibreBaskerville-Italic.ttf LibreBaskerville-MediumItalic.ttf LibreBaskerville-SemiBoldItalic.ttf LibreBaskerville-BoldItalic.ttf";
+				INFOPLIST_KEY_UIAppFonts = (
+					"LibreBaskerville-Regular.ttf",
+					"LibreBaskerville-Medium.ttf",
+					"LibreBaskerville-SemiBold.ttf",
+					"LibreBaskerville-Bold.ttf",
+					"LibreBaskerville-Italic.ttf",
+					"LibreBaskerville-MediumItalic.ttf",
+					"LibreBaskerville-SemiBoldItalic.ttf",
+					"LibreBaskerville-BoldItalic.ttf",
+				);
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UIBackgroundModes = (
+					"remote-notification",
+				);
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -907,20 +944,26 @@
 		1DB3EA977DCA23342B6A6829 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APS_ENVIRONMENT = production;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = ImposterGame/ImposterGame.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = Q35PSLMDJH;
 				INFOPLIST_KEY_CFBundleDisplayName = Imposter;
-				INFOPLIST_KEY_CFBundleLocalizations = "en pt-BR fr es-MX tr";
+				INFOPLIST_KEY_CFBundleLocalizations = (
+					en,
+					"pt-BR",
+					fr,
+					"es-MX",
+					tr,
+				);
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = NO;
-				MARKETING_VERSION = 1.1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.danetka.Danetka;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -930,19 +973,25 @@
 		313A035FC4D791BACDBB3FF3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APS_ENVIRONMENT = development;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = ImposterGame/ImposterGame.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = Q35PSLMDJH;
 				INFOPLIST_KEY_CFBundleDisplayName = Imposter;
-				INFOPLIST_KEY_CFBundleLocalizations = "en pt-BR fr es-MX tr";
+				INFOPLIST_KEY_CFBundleLocalizations = (
+					en,
+					"pt-BR",
+					fr,
+					"es-MX",
+					tr,
+				);
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = NO;
-				MARKETING_VERSION = 1.1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.danetka.Danetka;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -984,6 +1033,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		706047C26E961DBED30EA12B /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2A4396BBF0F911E44E2769CC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
 		A07314160D6C5EA1AAB20FD6 /* FirebaseCrashlytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2A4396BBF0F911E44E2769CC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
