@@ -128,22 +128,23 @@ struct PaywallTrialTimelineView: View {
 struct PaywallSingleLineCTAButton: View {
     let titleKey: String
     let action: () -> Void
+    var usesDarkStyle = true
 
     var body: some View {
         Button(action: action) {
             HStack {
                 Text(LocalizedStringKey(titleKey))
                     .font(.antropicSerif(size: 19, weight: .bold))
-                    .foregroundColor(.appTextOnAccent)
+                    .foregroundColor(usesDarkStyle ? .white : .appTextOnAccent)
                     .lineLimit(1)
                 Spacer()
                 Image(systemName: "arrow.right")
                     .font(.antropicSerif(size: 19, weight: .bold))
-                    .foregroundColor(.appTextOnAccent)
+                    .foregroundColor(usesDarkStyle ? .white : .appTextOnAccent)
             }
             .padding(.horizontal, 22)
             .frame(height: 60)
-            .background(Color.appAccent)
+            .background(usesDarkStyle ? Color.stitchDeepOnyx : Color.appAccent)
             .clipShape(Capsule())
         }
         .buttonStyle(.plain)
@@ -187,23 +188,265 @@ struct PaywallDualLineCTAButton: View {
     }
 }
 
+// MARK: - Selection model
+
+enum PaywallSelection: Equatable {
+    case freeAccess
+    case yearly
+    case weekly
+}
+
+// MARK: - Free-access card
+
+struct PaywallFreeAccessCard: View {
+    let selected: Bool
+    let showsTrialOffer: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(alignment: .center, spacing: 12) {
+                    PaywallRadioIndicator(
+                        style: selected && showsTrialOffer ? .trialEnabled : .empty
+                    )
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(
+                            selected && showsTrialOffer
+                                ? LocalizedStringKey("category_paywall.free_access_on")
+                                : LocalizedStringKey("paywall.trial_prompt_title")
+                        )
+                        .font(PaywallComplianceStyle.planTitle)
+                        .foregroundColor(.white)
+
+                        Text(
+                            selected && showsTrialOffer
+                                ? LocalizedStringKey("category_paywall.trial_on_subtitle")
+                                : LocalizedStringKey("paywall.trial_prompt_subtitle")
+                        )
+                        .font(PaywallComplianceStyle.planSubtitle)
+                        .foregroundColor(.white.opacity(PaywallComplianceStyle.subordinateOpacity))
+                        .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    Spacer(minLength: 0)
+                }
+
+                if selected && showsTrialOffer {
+                    Text("paywall.trial_legal_line")
+                        .font(.antropicSerif(size: 13, weight: .bold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.white.opacity(selected ? 0.24 : 0.14))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.white.opacity(selected ? 1.0 : 0.65), lineWidth: selected ? 2.5 : 1.5)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Subscription option card
+
+struct PaywallSubscriptionOptionCard: View {
+    let title: String
+    let subtitle: String
+    let primaryPrice: String
+    let secondaryPrice: String?
+    let selected: Bool
+    let badgeText: String?
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(alignment: .center, spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(verbatim: title)
+                        .font(PaywallComplianceStyle.planTitle)
+                        .foregroundColor(.white)
+                    Text(verbatim: subtitle)
+                        .font(PaywallComplianceStyle.planSubtitle)
+                        .foregroundColor(.white.opacity(PaywallComplianceStyle.subordinateOpacity))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer(minLength: 4)
+
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text(verbatim: primaryPrice)
+                        .font(PaywallComplianceStyle.billedPrice)
+                        .foregroundColor(.white)
+                        .minimumScaleFactor(0.85)
+                        .lineLimit(1)
+                    if let secondaryPrice {
+                        Text(verbatim: secondaryPrice)
+                            .font(PaywallComplianceStyle.secondaryNote)
+                            .foregroundColor(.white.opacity(PaywallComplianceStyle.subordinateOpacity))
+                            .multilineTextAlignment(.trailing)
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.white.opacity(selected ? 0.24 : 0.14))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.white.opacity(selected ? 1.0 : 0.65), lineWidth: selected ? 2.5 : 1.5)
+            )
+            .overlay(alignment: .topTrailing) {
+                if let badgeText {
+                    Text(verbatim: badgeText)
+                        .font(.antropicSerif(size: 11, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .background(
+                            Capsule()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [Color.appAccent, Color.orange],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                        )
+                        .offset(x: -10, y: -10)
+                        .zIndex(2)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+private struct PaywallRadioIndicator: View {
+    enum Style {
+        case empty
+        case trialEnabled
+    }
+
+    let style: Style
+
+    var body: some View {
+        switch style {
+        case .empty:
+            Circle()
+                .stroke(Color.white.opacity(0.85), lineWidth: 2)
+                .frame(width: 26, height: 26)
+        case .trialEnabled:
+            Circle()
+                .fill(Color(red: 0.22, green: 0.78, blue: 0.36))
+                .frame(width: 26, height: 26)
+                .overlay {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 13, weight: .bold))
+                        .foregroundColor(.white)
+                }
+        }
+    }
+}
+
+// MARK: - Plans section
+
+struct PaywallPlansSection: View {
+    @Binding var selection: PaywallSelection
+    let subscriptionManager: SubscriptionManager
+    let onSelectionChanged: (PaywallSelection) -> Void
+
+    var body: some View {
+        VStack(spacing: 10) {
+            if subscriptionManager.isEligibleForTrial {
+                PaywallFreeAccessCard(
+                    selected: selection == .freeAccess,
+                    showsTrialOffer: subscriptionManager.isEligibleForTrial,
+                    action: {
+                        select(.freeAccess)
+                    }
+                )
+            }
+
+            PaywallSubscriptionOptionCard(
+                title: String(localized: "paywall.plan_yearly"),
+                subtitle: String(localized: "paywall.cancel_anytime"),
+                primaryPrice: subscriptionManager.yearlyPlanBilledPriceText,
+                secondaryPrice: nil,
+                selected: selection == .yearly,
+                badgeText: selection == .yearly ? String(localized: "paywall.badge_best_value") : nil,
+                action: {
+                    select(.yearly)
+                }
+            )
+
+            PaywallSubscriptionOptionCard(
+                title: String(localized: "paywall.plan_weekly"),
+                subtitle: String(localized: "paywall.cancel_anytime"),
+                primaryPrice: subscriptionManager.weeklyPlanWeeklyPriceText,
+                secondaryPrice: nil,
+                selected: selection == .weekly || selection == .freeAccess,
+                badgeText: weeklyBadgeText,
+                action: {
+                    select(.weekly)
+                }
+            )
+        }
+    }
+
+    private var weeklyBadgeText: String? {
+        guard selection == .freeAccess else { return nil }
+        return String(localized: "paywall.badge_most_popular")
+    }
+
+    private func select(_ newSelection: PaywallSelection) {
+        HapticsManager.selection()
+        withAnimation(.easeInOut(duration: 0.2)) {
+            selection = newSelection
+        }
+        onSelectionChanged(newSelection)
+    }
+}
+
 // MARK: - Copy helpers
 
 @MainActor
 enum PaywallCopy {
-    static func ctaBilledLine(
-        subscriptionManager: SubscriptionManager,
-        plan: SubscriptionManager.SubscriptionPlan
-    ) -> String {
-        subscriptionManager.billedPriceText(for: plan)
+    static func ctaTitleKey(selection: PaywallSelection, isEligibleForTrial: Bool) -> String {
+        if selection == .freeAccess && isEligibleForTrial {
+            return "category_paywall.cta_trial"
+        }
+        return "paywall.continue"
     }
 
-    static func ctaSubordinateLineKey(showsTrialPitch: Bool) -> String {
-        showsTrialPitch ? "paywall.cta.start_trial" : "paywall.continue"
+    static func subscriptionPlan(for selection: PaywallSelection) -> SubscriptionManager.SubscriptionPlan {
+        switch selection {
+        case .freeAccess, .weekly:
+            return .weekly
+        case .yearly:
+            return .yearly
+        }
     }
 
-    /// Guideline 3.1.2(c): weekly CTA always shows billed amount on line 2.
-    static func usesDualLineCTA(selectedPlanIsWeekly: Bool) -> Bool {
-        selectedPlanIsWeekly
+    static func trialEnabled(selection: PaywallSelection, isEligibleForTrial: Bool) -> Bool {
+        selection == .freeAccess && isEligibleForTrial
+    }
+
+    static func analyticsPlanName(for selection: PaywallSelection) -> String {
+        switch selection {
+        case .freeAccess, .weekly:
+            return "weekly"
+        case .yearly:
+            return "yearly"
+        }
     }
 }

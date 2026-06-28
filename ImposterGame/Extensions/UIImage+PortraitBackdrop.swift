@@ -75,4 +75,90 @@ extension UIImage {
 
         return UIColor(red: sr, green: sg, blue: sb, alpha: 1)
     }
+
+    private static let transparentBgCache = NSCache<NSString, UIImage>()
+
+    /// Makes edge-connected near-black pixels transparent (typical for PNG heroes on black).
+    func removingBlackBackgroundFromEdges(cacheKey: String) -> UIImage? {
+        if let cached = Self.transparentBgCache.object(forKey: cacheKey as NSString) {
+            return cached
+        }
+
+        guard let sourceCG = cgImage else { return nil }
+
+        let width = sourceCG.width
+        let height = sourceCG.height
+        let bytesPerPixel = 4
+        let bytesPerRow = width * bytesPerPixel
+        let totalBytes = bytesPerRow * height
+        var pixels = [UInt8](repeating: 0, count: totalBytes)
+
+        guard let context = CGContext(
+            data: &pixels,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: bytesPerRow,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ) else {
+            return nil
+        }
+
+        context.draw(sourceCG, in: CGRect(x: 0, y: 0, width: width, height: height))
+
+        func offset(_ x: Int, _ y: Int) -> Int {
+            (y * width + x) * bytesPerPixel
+        }
+
+        func isNearBlack(_ i: Int) -> Bool {
+            let r = Int(pixels[i])
+            let g = Int(pixels[i + 1])
+            let b = Int(pixels[i + 2])
+            let a = Int(pixels[i + 3])
+            return a > 0 && r <= 26 && g <= 26 && b <= 26
+        }
+
+        var visited = [Bool](repeating: false, count: width * height)
+        var queue: [(Int, Int)] = []
+        queue.reserveCapacity((width + height) * 2)
+
+        func enqueueIfBackground(_ x: Int, _ y: Int) {
+            guard x >= 0, x < width, y >= 0, y < height else { return }
+            let idx = y * width + x
+            guard !visited[idx] else { return }
+            let p = offset(x, y)
+            guard isNearBlack(p) else { return }
+            visited[idx] = true
+            queue.append((x, y))
+        }
+
+        for x in 0..<width {
+            enqueueIfBackground(x, 0)
+            enqueueIfBackground(x, height - 1)
+        }
+        for y in 0..<height {
+            enqueueIfBackground(0, y)
+            enqueueIfBackground(width - 1, y)
+        }
+
+        var qIndex = 0
+        while qIndex < queue.count {
+            let (x, y) = queue[qIndex]
+            qIndex += 1
+
+            let p = offset(x, y)
+            pixels[p + 3] = 0
+
+            enqueueIfBackground(x + 1, y)
+            enqueueIfBackground(x - 1, y)
+            enqueueIfBackground(x, y + 1)
+            enqueueIfBackground(x, y - 1)
+        }
+
+        guard let output = context.makeImage() else { return nil }
+        let result = UIImage(cgImage: output, scale: scale, orientation: imageOrientation)
+        Self.transparentBgCache.setObject(result, forKey: cacheKey as NSString)
+        return result
+    }
 }

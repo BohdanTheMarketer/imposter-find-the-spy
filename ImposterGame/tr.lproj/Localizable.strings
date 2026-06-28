@@ -113,7 +113,7 @@
 "game_timer.continue"                         = "Devam";
 
 /* Paywall */
-"paywall.headline"                            = "Tam erişim için\ndevam et";
+"paywall.headline"                            = "Tam erişimin\nkilidini aç";
 "paywall.plan_yearly"                         = "Yıllık";
 "paywall.plan_weekly"                         = "Haftalık";
 "paywall.cancel_anytime"                      = "İstediğin zaman iptal";

@@ -5,14 +5,9 @@ struct CategoryPaywallView: View {
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @Environment(\.openURL) private var openURL
 
-    @State private var selectedPlan: Plan = .weekly
+    @State private var selection: PaywallSelection = .yearly
     @State private var showRestoreMessage = false
     @State private var didClosePaywall = false
-
-    private enum Plan {
-        case yearly
-        case weekly
-    }
 
     private enum CategoryPaywallLinks {
         static let privacyURL = URL(string: "https://www.verte-bro.com/privacy-policy")
@@ -38,23 +33,15 @@ struct CategoryPaywallView: View {
 
                     Spacer(minLength: isCompactHeight ? 8 : 20)
 
-                    weeklyPlanCard(
-                        selected: selectedPlan == .weekly,
-                        badgeText: selectedPlan == .weekly ? String(localized: "paywall.badge_most_popular") : nil
+                    PaywallPlansSection(
+                        selection: $selection,
+                        subscriptionManager: subscriptionManager,
+                        onSelectionChanged: logPlanSelected
                     )
                     .padding(.top, 12)
-                    yearlyPlanCard(selected: selectedPlan == .yearly)
-                    .padding(.top, 10)
 
                     ctaButton
                         .padding(.top, 16)
-
-                    Text(verbatim: selectedPlanTerms)
-                        .font(.antropicSerif(size: 11.5, weight: .medium))
-                        .foregroundColor(.white.opacity(0.78))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 8)
-                        .padding(.top, 8)
 
                     footerLinks
                         .padding(.top, 8)
@@ -132,119 +119,14 @@ struct CategoryPaywallView: View {
             .fixedSize(horizontal: false, vertical: true)
     }
 
-    private func yearlyPlanCard(selected: Bool) -> some View {
-        Button(action: {
-            HapticsManager.selection()
-            withAnimation(.easeInOut(duration: 0.2)) {
-                selectedPlan = .yearly
-            }
-            AnalyticsService.logPaywallPlanSelected(
-                context: .category,
-                plan: "yearly",
-                trialEnabled: selectedPlanHasTrial
-            )
-        }) {
-            PaywallPlanCardBody(
-                title: String(localized: "paywall.plan_yearly"),
-                subtitle: "\(subscriptionManager.yearlyPlanSubtitleText), \(String(localized: "paywall.auto_renews_suffix"))",
-                billedPrice: subscriptionManager.yearlyPlanBilledPriceText,
-                trailingNote: subscriptionManager.yearlyPlanWeeklyEquivalentText
-            )
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white.opacity(selected ? 0.24 : 0.19))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.white.opacity(selected ? 1.0 : 0.65), lineWidth: selected ? 2.5 : 1.5)
-            )
-            .overlay(alignment: .topTrailing) {
-                if selected {
-                    Text("paywall.badge_best_value")
-                        .font(.antropicSerif(size: 11, weight: .bold))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 4)
-                        .background(
-                            Capsule()
-                                .fill(Color.appAccent)
-                        )
-                        .offset(x: -10, y: -10)
-                        .zIndex(2)
-                }
-            }
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func weeklyPlanCard(selected: Bool, badgeText: String?) -> some View {
-        Button(action: {
-            HapticsManager.selection()
-            withAnimation(.easeInOut(duration: 0.2)) {
-                selectedPlan = .weekly
-            }
-            AnalyticsService.logPaywallPlanSelected(
-                context: .category,
-                plan: "weekly",
-                trialEnabled: selectedPlanHasTrial
-            )
-        }) {
-            PaywallPlanCardBody(
-                title: String(localized: "paywall.plan_weekly"),
-                subtitle: weeklyTrialSubtitle,
-                billedPrice: subscriptionManager.weeklyPlanWeeklyPriceText,
-                trailingNote: String(localized: "paywall.cancel_anytime"),
-                subtitleLineLimit: 2
-            )
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white.opacity(selected ? 0.22 : 0.16))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.white.opacity(selected ? 0.95 : 0.45), lineWidth: 1.5)
-            )
-            .overlay(alignment: .topTrailing) {
-                if let badgeText {
-                    Text(verbatim: badgeText)
-                        .font(.antropicSerif(size: 11, weight: .bold))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 4)
-                        .background(
-                            Capsule()
-                                .fill(Color.appAccent)
-                        )
-                        .offset(x: -10, y: -10)
-                        .zIndex(2)
-                }
-            }
-        }
-        .buttonStyle(.plain)
-    }
-
     private var ctaButton: some View {
-        Group {
-            if PaywallCopy.usesDualLineCTA(selectedPlanIsWeekly: selectedPlan == .weekly) {
-                PaywallDualLineCTAButton(
-                    billedLine: PaywallCopy.ctaBilledLine(
-                        subscriptionManager: subscriptionManager,
-                        plan: .weekly
-                    ),
-                    subordinateLineKey: PaywallCopy.ctaSubordinateLineKey(showsTrialPitch: selectedPlanHasTrial),
-                    action: handleContinueTapped
-                )
-            } else {
-                PaywallSingleLineCTAButton(
-                    titleKey: "paywall.continue",
-                    action: handleContinueTapped
-                )
-            }
-        }
+        PaywallSingleLineCTAButton(
+            titleKey: PaywallCopy.ctaTitleKey(
+                selection: selection,
+                isEligibleForTrial: subscriptionManager.isEligibleForTrial
+            ),
+            action: handleContinueTapped
+        )
     }
 
     private func handleContinueTapped() {
@@ -253,11 +135,14 @@ struct CategoryPaywallView: View {
             return
         }
         HapticsManager.impact(.medium)
-        let plan = selectedSubscriptionPlan
+        let plan = PaywallCopy.subscriptionPlan(for: selection)
         AnalyticsService.logPaywallContinueTapped(
             context: .category,
-            plan: selectedPlan == .weekly ? "weekly" : "yearly",
-            trialEnabled: selectedPlanHasTrial
+            plan: PaywallCopy.analyticsPlanName(for: selection),
+            trialEnabled: PaywallCopy.trialEnabled(
+                selection: selection,
+                isEligibleForTrial: subscriptionManager.isEligibleForTrial
+            )
         )
         Task {
             let didPurchase = await subscriptionManager.purchaseSubscription(plan: plan, context: .category)
@@ -265,6 +150,17 @@ struct CategoryPaywallView: View {
                 scheduleClosePaywall(reason: .purchaseSuccess)
             }
         }
+    }
+
+    private func logPlanSelected(_ newSelection: PaywallSelection) {
+        AnalyticsService.logPaywallPlanSelected(
+            context: .category,
+            plan: PaywallCopy.analyticsPlanName(for: newSelection),
+            trialEnabled: PaywallCopy.trialEnabled(
+                selection: newSelection,
+                isEligibleForTrial: subscriptionManager.isEligibleForTrial
+            )
+        )
     }
 
     private var footerLinks: some View {
@@ -290,29 +186,6 @@ struct CategoryPaywallView: View {
         .font(.antropicSerif(size: 12, weight: .medium))
         .foregroundColor(.white.opacity(0.45))
         .padding(.bottom, 6)
-    }
-
-    private var weeklyTrialSubtitle: String {
-        let price = subscriptionManager.weeklyPlanWeeklyPriceText
-        if selectedPlanHasTrial {
-            return LocalizationService.shared.localizedFormat(
-                "paywall.weekly_trial_subtitle",
-                price
-            )
-        }
-        return "\(price), \(LocalizationService.shared.localized("paywall.auto_renews_suffix"))"
-    }
-
-    private var selectedSubscriptionPlan: SubscriptionManager.SubscriptionPlan {
-        selectedPlan == .weekly ? .weekly : .yearly
-    }
-
-    private var selectedPlanHasTrial: Bool {
-        selectedPlan == .weekly && subscriptionManager.isEligibleForTrial
-    }
-
-    private var selectedPlanTerms: String {
-        subscriptionManager.displayTerms(for: selectedSubscriptionPlan)
     }
 
     private func scheduleClosePaywall(reason: AnalyticsService.PaywallCloseReason) {

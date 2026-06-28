@@ -4,17 +4,12 @@ struct OnboardingPaywallView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @Environment(\.openURL) private var openURL
-    @State private var selectedPlan: Plan = .weekly
+    @State private var selection: PaywallSelection = .yearly
     @State private var appearAnimation = false
     @State private var showRestoreMessage = false
     @State private var isCloseButtonVisible = false
     @State private var closeButtonRevealTask: Task<Void, Never>?
     @State private var didClosePaywall = false
-
-    private enum Plan {
-        case yearly
-        case weekly
-    }
 
     private enum OnboardingPaywallLinks {
         static let privacyURL = URL(string: "https://www.verte-bro.com/privacy-policy")
@@ -53,38 +48,15 @@ struct OnboardingPaywallView: View {
 
                     Spacer(minLength: isCompactHeight ? 8 : 20)
 
-                    pricingCard(
-                        plan: .weekly,
-                        title: String(localized: "paywall.plan_weekly"),
-                        subtitle: weeklyTrialSubtitle,
-                        primaryPrice: subscriptionManager.weeklyPlanWeeklyPriceText,
-                        secondaryPrice: String(localized: "paywall.cancel_anytime"),
-                        selected: selectedPlan == .weekly,
-                        badgeText: selectedPlan == .weekly ? String(localized: "paywall.badge_most_popular") : nil,
-                        subtitleLineLimit: 2
+                    PaywallPlansSection(
+                        selection: $selection,
+                        subscriptionManager: subscriptionManager,
+                        onSelectionChanged: logPlanSelected
                     )
-                    .padding(.bottom, 10)
-
-                    pricingCard(
-                        plan: .yearly,
-                        title: String(localized: "paywall.plan_yearly"),
-                        subtitle: "\(subscriptionManager.yearlyPlanSubtitleText), \(String(localized: "paywall.auto_renews_suffix"))",
-                        primaryPrice: subscriptionManager.yearlyPlanBilledPriceText,
-                        secondaryPrice: subscriptionManager.yearlyPlanWeeklyEquivalentText,
-                        selected: selectedPlan == .yearly,
-                        badgeText: selectedPlan == .yearly ? String(localized: "paywall.badge_best_value") : nil
-                    )
-                    .padding(.bottom, 12)
 
                     continueButton
+                        .padding(.top, 12)
                         .padding(.bottom, 6)
-
-                    Text(verbatim: selectedPlanTerms)
-                        .font(.antropicSerif(size: 11.5, weight: .medium))
-                        .foregroundColor(.white.opacity(0.78))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 8)
-                        .padding(.bottom, 8)
 
                     footerLinks
                         .padding(.bottom, 12)
@@ -155,7 +127,7 @@ struct OnboardingPaywallView: View {
     private func heroBlock(height: CGFloat) -> some View {
         Group {
             if let heroImage = PlayerProfiles.loadBundledImage(named: "PaywallHeroTop") {
-                Image(uiImage: heroImage)
+                Image(uiImage: heroImage.removingBlackBackgroundFromEdges(cacheKey: "PaywallHeroTop") ?? heroImage)
                     .resizable()
                     .scaledToFit()
             } else {
@@ -168,92 +140,14 @@ struct OnboardingPaywallView: View {
         .padding(.horizontal, 2)
     }
 
-    private var weeklyTrialSubtitle: String {
-        let price = subscriptionManager.weeklyPlanWeeklyPriceText
-        if selectedPlanHasTrial {
-            return LocalizationService.shared.localizedFormat(
-                "paywall.weekly_trial_subtitle",
-                price
-            )
-        }
-        return "\(price), \(LocalizationService.shared.localized("paywall.auto_renews_suffix"))"
-    }
-
-    private func pricingCard(
-        plan: Plan,
-        title: String,
-        subtitle: String,
-        primaryPrice: String,
-        secondaryPrice: String,
-        selected: Bool,
-        badgeText: String? = nil,
-        subtitleLineLimit: Int? = nil
-    ) -> some View {
-        Button(action: {
-            HapticsManager.selection()
-            withAnimation(.easeInOut(duration: 0.2)) {
-                selectedPlan = plan
-            }
-            AnalyticsService.logPaywallPlanSelected(
-                context: .onboarding,
-                plan: selectedPlan == .weekly ? "weekly" : "yearly",
-                trialEnabled: selectedPlanHasTrial
-            )
-        }) {
-            PaywallPlanCardBody(
-                title: title,
-                subtitle: subtitle,
-                billedPrice: primaryPrice,
-                trailingNote: secondaryPrice,
-                subtitleLineLimit: subtitleLineLimit
-            )
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white.opacity(selected ? 0.24 : 0.19))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.white.opacity(selected ? 1.0 : 0.65), lineWidth: selected ? 2.5 : 1.5)
-            )
-            .overlay(alignment: .topTrailing) {
-                if let badgeText {
-                    Text(verbatim: badgeText)
-                        .font(.antropicSerif(size: 11, weight: .bold))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 4)
-                        .background(
-                            Capsule()
-                                .fill(Color.appAccent)
-                        )
-                        .offset(x: -10, y: -10)
-                        .zIndex(2)
-                }
-            }
-        }
-        .buttonStyle(.plain)
-    }
-
     private var continueButton: some View {
-        Group {
-            if PaywallCopy.usesDualLineCTA(selectedPlanIsWeekly: selectedPlan == .weekly) {
-                PaywallDualLineCTAButton(
-                    billedLine: PaywallCopy.ctaBilledLine(
-                        subscriptionManager: subscriptionManager,
-                        plan: .weekly
-                    ),
-                    subordinateLineKey: PaywallCopy.ctaSubordinateLineKey(showsTrialPitch: selectedPlanHasTrial),
-                    action: handleContinueTapped
-                )
-            } else {
-                PaywallSingleLineCTAButton(
-                    titleKey: "paywall.continue",
-                    action: handleContinueTapped
-                )
-            }
-        }
+        PaywallSingleLineCTAButton(
+            titleKey: PaywallCopy.ctaTitleKey(
+                selection: selection,
+                isEligibleForTrial: subscriptionManager.isEligibleForTrial
+            ),
+            action: handleContinueTapped
+        )
     }
 
     private func handleContinueTapped() {
@@ -262,11 +156,14 @@ struct OnboardingPaywallView: View {
             return
         }
         HapticsManager.impact(.medium)
-        let plan = selectedSubscriptionPlan
+        let plan = PaywallCopy.subscriptionPlan(for: selection)
         AnalyticsService.logPaywallContinueTapped(
             context: .onboarding,
-            plan: selectedPlan == .weekly ? "weekly" : "yearly",
-            trialEnabled: selectedPlanHasTrial
+            plan: PaywallCopy.analyticsPlanName(for: selection),
+            trialEnabled: PaywallCopy.trialEnabled(
+                selection: selection,
+                isEligibleForTrial: subscriptionManager.isEligibleForTrial
+            )
         )
         Task {
             let didPurchase = await subscriptionManager.purchaseSubscription(plan: plan, context: .onboarding)
@@ -274,6 +171,17 @@ struct OnboardingPaywallView: View {
                 scheduleClosePaywall(reason: .purchaseSuccess)
             }
         }
+    }
+
+    private func logPlanSelected(_ newSelection: PaywallSelection) {
+        AnalyticsService.logPaywallPlanSelected(
+            context: .onboarding,
+            plan: PaywallCopy.analyticsPlanName(for: newSelection),
+            trialEnabled: PaywallCopy.trialEnabled(
+                selection: newSelection,
+                isEligibleForTrial: subscriptionManager.isEligibleForTrial
+            )
+        )
     }
 
     private var footerLinks: some View {
@@ -301,18 +209,6 @@ struct OnboardingPaywallView: View {
         }
         .font(.antropicSerif(size: 12, weight: .medium))
         .foregroundColor(.white.opacity(0.5))
-    }
-
-    private var selectedSubscriptionPlan: SubscriptionManager.SubscriptionPlan {
-        selectedPlan == .weekly ? .weekly : .yearly
-    }
-
-    private var selectedPlanHasTrial: Bool {
-        selectedPlan == .weekly && subscriptionManager.isEligibleForTrial
-    }
-
-    private var selectedPlanTerms: String {
-        subscriptionManager.displayTerms(for: selectedSubscriptionPlan)
     }
 
     private func scheduleClosePaywall(reason: AnalyticsService.PaywallCloseReason) {

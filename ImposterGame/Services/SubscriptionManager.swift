@@ -123,28 +123,6 @@ class SubscriptionManager: ObservableObject {
         await loadProducts(trigger: trigger)
     }
 
-    var yearlyPlanSubtitleText: String {
-        guard let product = productsByID[SubscriptionPlan.yearly.productID] else {
-            return isStoreLoading ? "Loading price..." : "Just --/year"
-        }
-        return "Just \(product.displayPrice)/year"
-    }
-
-    var yearlyPlanWeeklyEquivalentText: String {
-        guard let product = productsByID[SubscriptionPlan.yearly.productID] else {
-            return isStoreLoading ? "Loading price..." : "--/week"
-        }
-
-        let yearlyPrice = NSDecimalNumber(decimal: product.price)
-        let weeklyEquivalent = yearlyPrice
-            .dividing(by: NSDecimalNumber(value: 365))
-            .multiplying(by: NSDecimalNumber(value: 7))
-            .decimalValue
-
-        let localizedValue = weeklyEquivalent.formatted(product.priceFormatStyle)
-        return "\(localizedValue)/week"
-    }
-
     var yearlyPlanBilledPriceText: String {
         guard let product = productsByID[SubscriptionPlan.yearly.productID] else {
             return isStoreLoading ? "Loading price..." : "--/year"

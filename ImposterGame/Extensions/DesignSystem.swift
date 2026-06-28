@@ -395,7 +395,7 @@ struct PlayerAvatarThumbnailView: View {
 /// Square tile for voting grid; pair with `aspectRatio(1, contentMode: .fit)` on the parent.
 struct PlayerAvatarSquareTileView: View {
     let avatarIndex: Int
-    var cornerRadius: CGFloat = 16
+    var cornerRadius: CGFloat = 14
 
     private var fillColor: Color {
         AvatarColors.color(for: avatarIndex)
@@ -410,9 +410,8 @@ struct PlayerAvatarSquareTileView: View {
                     Image(uiImage: ui)
                         .renderingMode(.original)
                         .resizable()
-                        .scaledToFill()
+                        .scaledToFit()
                         .frame(width: geo.size.width, height: geo.size.height)
-                        .clipped()
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius))

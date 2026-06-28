@@ -7,8 +7,8 @@ struct VotingView: View {
     @State private var selectedPlayerIDs: Set<UUID> = []
 
     private let columns = [
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12)
+        GridItem(.flexible(), spacing: 8),
+        GridItem(.flexible(), spacing: 8)
     ]
 
     private var maxSelections: Int {
@@ -48,25 +48,25 @@ struct VotingView: View {
 
             VStack(spacing: 0) {
                 // Header
-                VStack(spacing: 8) {
+                VStack(spacing: 4) {
                     Text("voting.title")
-                        .font(.evolventa(size: 28, weight: .bold))
+                        .font(.evolventa(size: 24, weight: .bold))
                         .foregroundColor(.gameplayTitle)
 
                     Text(selectCountInstruction)
-                        .font(.evolventa(size: 15))
+                        .font(.evolventa(size: 14))
                         .foregroundColor(.white.opacity(0.6))
 
                     Text(selectedCountLabel)
-                        .font(.evolventa(size: 14, weight: .regular))
-                        .foregroundColor(.white.opacity(0.6))
+                        .font(.evolventa(size: 13, weight: .regular))
+                        .foregroundColor(.white.opacity(0.55))
                 }
-                .padding(.top, 20)
-                .padding(.bottom, 24)
+                .padding(.top, 12)
+                .padding(.bottom, 14)
 
                 // Player grid
                 ScrollView(showsIndicators: false) {
-                    LazyVGrid(columns: columns, spacing: 12) {
+                    LazyVGrid(columns: columns, spacing: 8) {
                         ForEach(gameSession.players) { player in
                             VotingCard(
                                 player: player,
@@ -84,11 +84,9 @@ struct VotingView: View {
                             )
                         }
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 110)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 96)
                 }
-
-                Spacer()
             }
         }
         .navigationBarHidden(true)
@@ -137,25 +135,26 @@ struct VotingCard: View {
 
     var body: some View {
         Button(action: onTap) {
-            VStack(spacing: 8) {
+            VStack(spacing: 4) {
                 PlayerAvatarSquareTileView(avatarIndex: player.avatarIndex)
                     .aspectRatio(1.0, contentMode: .fit)
 
                 Text(verbatim: player.name)
-                    .font(.evolventa(size: 15, weight: .semibold))
-                    .foregroundColor(.white)
+                    .font(.evolventa(size: 13, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.95))
                     .lineLimit(1)
             }
-            .padding(8)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 5)
             .background(
-                RoundedRectangle(cornerRadius: 20)
+                RoundedRectangle(cornerRadius: 16)
                     .fill(Color.gameplaySurface)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(isSelected ? Color.white : Color.clear, lineWidth: 3)
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(isSelected ? Color.white : Color.clear, lineWidth: 2)
             )
-            .scaleEffect(isSelected ? 1.05 : 1.0)
+            .scaleEffect(isSelected ? 1.02 : 1.0)
             .animation(.easeInOut(duration: 0.2), value: isSelected)
         }
         .buttonStyle(.plain)

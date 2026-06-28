@@ -40,32 +40,42 @@ struct CategoriesView: View {
 
     private static let categoryBackgroundPalette: [LinearGradient] = [
         LinearGradient(
-            colors: [Color(red: 0.15, green: 0.17, blue: 0.24), Color(red: 0.09, green: 0.11, blue: 0.17)],
+            colors: [Color(red: 0.42, green: 0.18, blue: 0.72), Color(red: 0.22, green: 0.10, blue: 0.48)],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         ),
         LinearGradient(
-            colors: [Color(red: 0.20, green: 0.12, blue: 0.34), Color(red: 0.11, green: 0.10, blue: 0.24)],
+            colors: [Color(red: 0.92, green: 0.34, blue: 0.18), Color(red: 0.62, green: 0.14, blue: 0.22)],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         ),
         LinearGradient(
-            colors: [Color(red: 0.06, green: 0.20, blue: 0.35), Color(red: 0.05, green: 0.12, blue: 0.23)],
+            colors: [Color(red: 0.12, green: 0.48, blue: 0.78), Color(red: 0.06, green: 0.26, blue: 0.58)],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         ),
         LinearGradient(
-            colors: [Color(red: 0.22, green: 0.13, blue: 0.17), Color(red: 0.11, green: 0.08, blue: 0.13)],
+            colors: [Color(red: 0.18, green: 0.62, blue: 0.38), Color(red: 0.08, green: 0.36, blue: 0.28)],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         ),
         LinearGradient(
-            colors: [Color(red: 0.14, green: 0.15, blue: 0.25), Color(red: 0.08, green: 0.09, blue: 0.18)],
+            colors: [Color(red: 0.88, green: 0.22, blue: 0.52), Color(red: 0.52, green: 0.10, blue: 0.42)],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         ),
         LinearGradient(
-            colors: [Color(red: 0.18, green: 0.21, blue: 0.14), Color(red: 0.09, green: 0.12, blue: 0.08)],
+            colors: [Color(red: 0.96, green: 0.58, blue: 0.10), Color(red: 0.72, green: 0.28, blue: 0.08)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        ),
+        LinearGradient(
+            colors: [Color(red: 0.28, green: 0.36, blue: 0.92), Color(red: 0.14, green: 0.18, blue: 0.62)],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        ),
+        LinearGradient(
+            colors: [Color(red: 0.20, green: 0.72, blue: 0.78), Color(red: 0.10, green: 0.42, blue: 0.58)],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
@@ -122,12 +132,12 @@ struct CategoriesView: View {
                     }
                 }
                 .padding(.horizontal, 20)
-                .padding(.top, 16)
-                .padding(.bottom, 20)
+                .padding(.top, 12)
+                .padding(.bottom, 14)
 
                 // Category list
                 ScrollView(showsIndicators: false) {
-                    VStack(spacing: 12) {
+                    VStack(spacing: 10) {
                         ForEach(categories, id: \.id) { category in
                             let isLocked = category.isPremium && !subscriptionManager.isPremium
                             CategoryCard(
@@ -299,46 +309,51 @@ struct CategoryCard: View {
     let background: LinearGradient
     let onTap: () -> Void
 
+    private let iconSize: CGFloat = 96
+
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 14) {
+            HStack(spacing: 12) {
                 categoryIcon
 
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 6) {
                         Text(verbatim: category.name)
-                            .font(.evolventa(size: 20, weight: .bold))
-                            .foregroundColor(.white.opacity(0.95))
+                            .font(.evolventa(size: 18, weight: .bold))
+                            .foregroundColor(.white)
                             .lineLimit(1)
 
                         if isLocked {
                             Image(systemName: "lock.fill")
-                                .font(.evolventa(size: 13, weight: .semibold))
-                                .foregroundColor(.gameplayButtonPrimary)
+                                .font(.evolventa(size: 12, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.9))
                         }
                     }
 
                     Text(verbatim: category.description)
-                        .font(.evolventa(size: 13, weight: .medium))
-                        .foregroundColor(.white.opacity(0.55))
-                        .lineLimit(nil)
+                        .font(.evolventa(size: 12, weight: .medium))
+                        .foregroundColor(.white.opacity(0.78))
+                        .lineLimit(2)
                         .minimumScaleFactor(0.9)
                         .multilineTextAlignment(.leading)
-                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 12)
+            .padding(.leading, 10)
+            .padding(.trailing, 14)
+            .padding(.vertical, 8)
             .background(
-                RoundedRectangle(cornerRadius: 30)
+                RoundedRectangle(cornerRadius: 24)
                     .fill(background)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 30)
-                    .stroke(isSelected ? Color.white.opacity(0.85) : Color.white.opacity(0.06), lineWidth: isSelected ? 2 : 1)
+                RoundedRectangle(cornerRadius: 24)
+                    .stroke(
+                        isSelected ? Color.white.opacity(0.95) : Color.white.opacity(0.18),
+                        lineWidth: isSelected ? 2.5 : 1
+                    )
             )
-            .opacity(1.0)
+            .shadow(color: Color.black.opacity(0.18), radius: 6, y: 3)
         }
         .buttonStyle(.plain)
     }
@@ -346,25 +361,31 @@ struct CategoryCard: View {
     @ViewBuilder
     private var categoryIcon: some View {
         if let iconImage = CategoryIconLoader.uiImage(for: category.icon) {
-            Image(uiImage: iconImage)
-                .resizable()
-                .scaledToFill()
-                .frame(width: 76, height: 76)
-                .clipShape(Circle())
-                .overlay(
-                    Circle().stroke(Color.white.opacity(0.16), lineWidth: 1)
-                )
+            ZStack {
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(Color.white.opacity(0.14))
+                Image(uiImage: iconImage)
+                    .resizable()
+                    .scaledToFit()
+                    .padding(4)
+            }
+            .frame(width: iconSize, height: iconSize)
+            .overlay(
+                RoundedRectangle(cornerRadius: 18)
+                    .stroke(Color.white.opacity(0.28), lineWidth: 1)
+            )
         } else {
-            Circle()
-                .fill(Color.black.opacity(0.28))
-                .frame(width: 76, height: 76)
+            RoundedRectangle(cornerRadius: 18)
+                .fill(Color.black.opacity(0.22))
+                .frame(width: iconSize, height: iconSize)
                 .overlay(
                     Image(systemName: category.icon)
-                        .font(.evolventa(size: 30, weight: .bold))
-                        .foregroundColor(.white.opacity(0.92))
+                        .font(.evolventa(size: 34, weight: .bold))
+                        .foregroundColor(.white.opacity(0.95))
                 )
                 .overlay(
-                    Circle().stroke(Color.white.opacity(0.12), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 18)
+                        .stroke(Color.white.opacity(0.22), lineWidth: 1)
                 )
         }
     }

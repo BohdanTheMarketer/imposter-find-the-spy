@@ -121,23 +121,12 @@ struct OnboardingView: View {
 
                     Spacer(minLength: 8)
 
-                    // Primary CTA — deep onyx + electric purple glow (DESIGN.md)
-                    Button(action: { advanceFromOnboarding() }) {
-                        Text("onboarding.hero_cta")
-                            .font(.evolventa(size: 20, weight: .bold))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 58)
-                            .background(Color.stitchDeepOnyx)
-                            .clipShape(Capsule())
-                            .overlay(
-                                Capsule()
-                                    .stroke(Color.stitchElectricPurple.opacity(0.95), lineWidth: 2)
-                            )
-                            .shadow(color: Color.stitchNightBase.opacity(0.75), radius: 16, y: 4)
-                            .shadow(color: Color.stitchNightBase.opacity(0.45), radius: 28, y: 0)
-                    }
-                    .buttonStyle(OnboardingSquishButtonStyle())
+                    OnboardingPulseCTAButton(
+                        titleKey: "onboarding.hero_cta",
+                        height: 58,
+                        shape: .capsule,
+                        action: { advanceFromOnboarding() }
+                    )
                     .padding(.horizontal, 36)
                     .padding(.bottom, 44)
                 }
@@ -180,22 +169,12 @@ struct OnboardingView: View {
 
                     Spacer(minLength: 8)
 
-                    Button(action: { advanceFromOnboarding() }) {
-                        Text(page.buttonTitleKey)
-                            .font(.evolventa(size: 20, weight: .bold))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
-                            .background(Color.stitchDeepOnyx)
-                            .clipShape(RoundedRectangle(cornerRadius: 28))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 28)
-                                    .stroke(Color.stitchElectricPurple.opacity(0.7), lineWidth: 1.5)
-                            )
-                            .shadow(color: page.backgroundColor.opacity(0.55), radius: 8, y: 2)
-                            .shadow(color: page.backgroundColor.opacity(0.35), radius: 16, y: 0)
-                    }
-                    .buttonStyle(OnboardingSquishButtonStyle())
+                    OnboardingPulseCTAButton(
+                        titleKey: page.buttonTitleKey,
+                        height: 56,
+                        shape: .roundedRect,
+                        action: { advanceFromOnboarding() }
+                    )
                     .padding(.horizontal, 40)
                     .padding(.bottom, 50)
                 }
@@ -327,6 +306,51 @@ private struct BlueprintSketchOverlay: View {
 
 // MARK: - Interaction
 
+private enum OnboardingCTAShape {
+    case capsule
+    case roundedRect
+}
+
+private struct OnboardingPulseCTAButton: View {
+    let titleKey: LocalizedStringKey
+    let height: CGFloat
+    let shape: OnboardingCTAShape
+    let action: () -> Void
+
+    @State private var isPulsing = false
+
+    var body: some View {
+        Button(action: action) {
+            buttonLabel
+        }
+        .buttonStyle(OnboardingSquishButtonStyle())
+        .scaleEffect(isPulsing ? 1.04 : 1.0)
+        .onAppear {
+            withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) {
+                isPulsing = true
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var buttonLabel: some View {
+        let label = Text(titleKey)
+            .font(.evolventa(size: 20, weight: .bold))
+            .foregroundColor(.stitchDeepOnyx)
+            .frame(maxWidth: .infinity)
+            .frame(height: height)
+            .background(Color.white)
+            .shadow(color: .black.opacity(isPulsing ? 0.28 : 0.14), radius: isPulsing ? 18 : 8, y: 4)
+
+        switch shape {
+        case .capsule:
+            label.clipShape(Capsule())
+        case .roundedRect:
+            label.clipShape(RoundedRectangle(cornerRadius: 28))
+        }
+    }
+}
+
 private struct OnboardingSquishButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -342,89 +366,3 @@ extension Color {
     fileprivate static let actionRedStitch = Color(red: 1.0, green: 0.231, blue: 0.188)
 }
 
-private extension UIImage {
-    private static let transparentBgCache = NSCache<NSString, UIImage>()
-
-    func removingBlackBackgroundFromEdges(cacheKey: String) -> UIImage? {
-        if let cached = Self.transparentBgCache.object(forKey: cacheKey as NSString) {
-            return cached
-        }
-
-        guard let sourceCG = cgImage else { return nil }
-
-        let width = sourceCG.width
-        let height = sourceCG.height
-        let bytesPerPixel = 4
-        let bytesPerRow = width * bytesPerPixel
-        let totalBytes = bytesPerRow * height
-        var pixels = [UInt8](repeating: 0, count: totalBytes)
-
-        guard let context = CGContext(
-            data: &pixels,
-            width: width,
-            height: height,
-            bitsPerComponent: 8,
-            bytesPerRow: bytesPerRow,
-            space: CGColorSpaceCreateDeviceRGB(),
-            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-        ) else {
-            return nil
-        }
-
-        context.draw(sourceCG, in: CGRect(x: 0, y: 0, width: width, height: height))
-
-        func offset(_ x: Int, _ y: Int) -> Int {
-            (y * width + x) * bytesPerPixel
-        }
-
-        func isNearBlack(_ i: Int) -> Bool {
-            let r = Int(pixels[i])
-            let g = Int(pixels[i + 1])
-            let b = Int(pixels[i + 2])
-            let a = Int(pixels[i + 3])
-            return a > 0 && r <= 26 && g <= 26 && b <= 26
-        }
-
-        var visited = [Bool](repeating: false, count: width * height)
-        var queue: [(Int, Int)] = []
-        queue.reserveCapacity((width + height) * 2)
-
-        func enqueueIfBackground(_ x: Int, _ y: Int) {
-            guard x >= 0, x < width, y >= 0, y < height else { return }
-            let idx = y * width + x
-            guard !visited[idx] else { return }
-            let p = offset(x, y)
-            guard isNearBlack(p) else { return }
-            visited[idx] = true
-            queue.append((x, y))
-        }
-
-        for x in 0..<width {
-            enqueueIfBackground(x, 0)
-            enqueueIfBackground(x, height - 1)
-        }
-        for y in 0..<height {
-            enqueueIfBackground(0, y)
-            enqueueIfBackground(width - 1, y)
-        }
-
-        var qIndex = 0
-        while qIndex < queue.count {
-            let (x, y) = queue[qIndex]
-            qIndex += 1
-
-            let p = offset(x, y)
-            pixels[p + 3] = 0
-
-            enqueueIfBackground(x + 1, y)
-            enqueueIfBackground(x - 1, y)
-            enqueueIfBackground(x, y + 1)
-            enqueueIfBackground(x, y - 1)
-        }
-
-        guard let output = context.makeImage() else { return nil }
-        let result = UIImage(cgImage: output, scale: scale, orientation: imageOrientation)
-        Self.transparentBgCache.setObject(result, forKey: cacheKey as NSString)
-        return result
-    }
-}

@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASA Traffic & Funnel — Imposter Game</title>
+  <style>
+    :root {
+      --bg: #0f0f14;
+      --surface: #1a1a24;
+      --accent: #7c5cff;
+      --accent2: #ff6b9d;
+      --green: #3dd68c;
+      --yellow: #f5c542;
+      --red: #ff5c5c;
+      --text: #f0f0f5;
+      --muted: #9898a8;
+      --border: rgba(255,255,255,0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    .deck { height: 100vh; position: relative; }
+
+    .slide {
+      display: none;
+      height: 100vh;
+      padding: 48px 64px 80px;
+      flex-direction: column;
+      justify-content: center;
+      animation: fadeIn 0.35s ease;
+    }
+
+    .slide.active { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #fff 0%, #c4b5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    h2 {
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+
+    .subtitle {
+      font-size: 1.15rem;
+      color: var(--muted);
+      max-width: 680px;
+      line-height: 1.55;
+    }
+
+    .meta {
+      margin-top: 32px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 32px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 28px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .card .value {
+      font-size: 2.4rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .card .name {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .card.green .value { color: var(--green); }
+    .card.yellow .value { color: var(--yellow); }
+    .card.red .value { color: var(--red); }
+    .card.purple .value { color: var(--accent); }
+    .card.pink .value { color: var(--accent2); }
+
+    .funnel { margin-top: 24px; display: flex; flex-direction: column; gap: 10px; }
+
+    .funnel-row {
+      display: grid;
+      grid-template-columns: 200px 1fr 80px 90px;
+      align-items: center;
+      gap: 16px;
+      font-size: 0.92rem;
+    }
+
+    .funnel-row .bar-wrap {
+      background: rgba(255,255,255,0.06);
+      border-radius: 8px;
+      height: 28px;
+      overflow: hidden;
+    }
+
+    .funnel-row .bar {
+      height: 100%;
+      border-radius: 8px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width 0.6s ease;
+    }
+
+    .funnel-row .bar.warn { background: linear-gradient(90deg, #f5c542, #ff9f43); }
+    .funnel-row .bar.bad { background: linear-gradient(90deg, #ff6b6b, #ff5c5c); }
+    .funnel-row .bar.good { background: linear-gradient(90deg, #3dd68c, #2ecc71); }
+
+    .funnel-row .pct { text-align: right; font-weight: 700; }
+    .funnel-row .users { text-align: right; color: var(--muted); }
+
+    .arrow-conv {
+      font-size: 0.78rem;
+      color: var(--muted);
+      padding-left: 216px;
+      margin: -4px 0;
+    }
+
+    .arrow-conv strong { color: var(--yellow); }
+
+    ul.bullets {
+      list-style: none;
+      margin-top: 20px;
+    }
+
+    ul.bullets li {
+      padding: 12px 0 12px 28px;
+      position: relative;
+      border-bottom: 1px solid var(--border);
+      line-height: 1.5;
+      font-size: 0.95rem;
+    }
+
+    ul.bullets li::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    .tag.good { background: rgba(61,214,140,0.15); color: var(--green); }
+    .tag.warn { background: rgba(245,197,66,0.15); color: var(--yellow); }
+    .tag.bad { background: rgba(255,92,92,0.15); color: var(--red); }
+
+    .insight-box {
+      background: linear-gradient(135deg, rgba(124,92,255,0.12), rgba(255,107,157,0.08));
+      border: 1px solid rgba(124,92,255,0.3);
+      border-radius: 14px;
+      padding: 20px 24px;
+      margin-top: 20px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .insight-box strong { color: #c4b5fd; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 0.88rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th { color: var(--muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+    .nav {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(26,26,36,0.92);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 10px 20px;
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+
+    .nav button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav button:hover { filter: brightness(1.1); }
+    .nav button:disabled { opacity: 0.3; cursor: default; }
+
+    .nav .counter { font-size: 0.85rem; color: var(--muted); min-width: 60px; text-align: center; }
+
+    .progress-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .progress-dots span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .progress-dots span.on { background: var(--accent); }
+
+    .two-col-funnel { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 16px; }
+
+    .section-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 900px) {
+      .slide { padding: 32px 24px 80px; }
+      .grid-3, .grid-2, .two-col-funnel { grid-template-columns: 1fr; }
+      .funnel-row { grid-template-columns: 140px 1fr 60px 70px; font-size: 0.82rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="deck" id="deck">
+
+    <!-- SLIDE 1: Title -->
+    <section class="slide active">
+      <div class="label">Google Analytics 4 · Apple Search Ads</div>
+      <h1>Аналіз трафіку та воронки<br>Imposter — Find The Spy</h1>
+      <p class="subtitle">
+        Оцінка якості ASA-трафіку, прохідності етапів і монетизації за період
+        <strong style="color:#fff">19 травня — 15 червня 2026</strong> (28 днів).
+      </p>
+      <p class="meta">Джерело: GA4 → Events · first_open cohort · 24 події</p>
+    </section>
+
+    <!-- SLIDE 2: Executive Summary -->
+    <section class="slide">
+      <div class="label">Executive Summary</div>
+      <h2>Загальна картина</h2>
+      <div class="grid-3">
+        <div class="card purple">
+          <div class="value">221</div>
+          <div class="name">Унікальних користувачів<br>(first_open)</div>
+        </div>
+        <div class="card green">
+          <div class="value">$689.86</div>
+          <div class="name">Загальний дохід<br>за 28 днів</div>
+        </div>
+        <div class="card yellow">
+          <div class="value">65.5</div>
+          <div class="name">Подій на активного<br>користувача</div>
+        </div>
+      </div>
+      <div class="grid-3" style="margin-top:16px">
+        <div class="card green">
+          <div class="value">90.5%</div>
+          <div class="name">Проходять онбординг<br><span class="tag good">Сильно</span></div>
+        </div>
+        <div class="card yellow">
+          <div class="value">10.4%</div>
+          <div class="name">Доходять до покупки<br><span class="tag warn">Середньо</span></div>
+        </div>
+        <div class="card red">
+          <div class="value">1.4%</div>
+          <div class="name">Платять renewal<br><span class="tag bad">Вузько</span></div>
+        </div>
+      </div>
+      <div class="insight-box">
+        <strong>Висновок:</strong> ASA дає якісний верх воронки — 9 з 10 користувачів доходять до paywall.
+        Основні втрати — між paywall і грою (35% не стартують гру) та на етапі вибору плану (лише 12% тих, хто бачив paywall).
+        Дохід зараз формує крихітна база з 3 renewing-підписників, а не масовий новий трафік.
+      </div>
+    </section>
+
+    <!-- SLIDE 3: Full Funnel -->
+    <section class="slide">
+      <div class="label">Воронка</div>
+      <h2>Повний шлях користувача</h2>
+      <div class="funnel">
+        <div class="funnel-row">
+          <span>first_open</span>
+          <div class="bar-wrap"><div class="bar good" style="width:100%"></div></div>
+          <span class="pct">100%</span>
+          <span class="users">221</span>
+        </div>
+        <div class="arrow-conv">↓ прохідність <strong>95.9%</strong></div>
+        <div class="funnel-row">
+          <span>session_start</span>
+          <div class="bar-wrap"><div class="bar good" style="width:95.9%"></div></div>
+          <span class="pct">95.9%</span>
+          <span class="users">212</span>
+        </div>
+        <div class="arrow-conv">↓ прохідність <strong>90.5%</strong></div>
+        <div class="funnel-row">
+          <span>onboarding_complete</span>
+          <div class="bar-wrap"><div class="bar good" style="width:90.5%"></div></div>
+          <span class="pct">90.5%</span>
+          <span class="users">200</span>
+        </div>
+        <div class="arrow-conv">↓ paywall одразу після онбордингу — <strong>100%</strong> з тих, хто завершив</div>
+        <div class="funnel-row">
+          <span>paywall_show</span>
+          <div class="bar-wrap"><div class="bar" style="width:90.5%"></div></div>
+          <span class="pct">90.5%</span>
+          <span class="users">200</span>
+        </div>
+        <div class="arrow-conv">↓ <strong>78.7%</strong> закрили paywall · лише <strong>12%</strong> обрали план</div>
+        <div class="funnel-row">
+          <span>paywall_plan_selected</span>
+          <div class="bar-wrap"><div class="bar warn" style="width:10.9%"></div></div>
+          <span class="pct">10.9%</span>
+          <span class="users">24</span>
+        </div>
+        <div class="arrow-conv">↓ прохідність <strong>95.8%</strong> (intent → result)</div>
+        <div class="funnel-row">
+          <span>purchase_result</span>
+          <div class="bar-wrap"><div class="bar warn" style="width:10.4%"></div></div>
+          <span class="pct">10.4%</span>
+          <span class="users">23</span>
+        </div>
+        <div class="funnel-row">
+          <span>game_start</span>
+          <div class="bar-wrap"><div class="bar warn" style="width:65.2%"></div></div>
+          <span class="pct">65.2%</span>
+          <span class="users">144</span>
+        </div>
+        <div class="arrow-conv">↓ завершили гру <strong>68.8%</strong> від стартувавших</div>
+        <div class="funnel-row">
+          <span>game_end</span>
+          <div class="bar-wrap"><div class="bar bad" style="width:44.8%"></div></div>
+          <span class="pct">44.8%</span>
+          <span class="users">99</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: Onboarding -->
+    <section class="slide">
+      <div class="label">Етап 1</div>
+      <h2>Онбординг — сильна сторона</h2>
+      <div class="grid-2">
+        <div>
+          <div class="funnel">
+            <div class="funnel-row">
+              <span>Встановлення</span>
+              <div class="bar-wrap"><div class="bar good" style="width:100%"></div></div>
+              <span class="pct">221</span>
+              <span class="users"></span>
+            </div>
+            <div class="arrow-conv">−21 користувач (9.5%) відвалились до онбордингу</div>
+            <div class="funnel-row">
+              <span>Онбординг ✓</span>
+              <div class="bar-wrap"><div class="bar good" style="width:90.5%"></div></div>
+              <span class="pct">200</span>
+              <span class="users"></span>
+            </div>
+          </div>
+          <ul class="bullets" style="margin-top:24px">
+            <li><strong>90.5% прохідність</strong> — вище за типовий mobile benchmark (60–75%)</li>
+            <li>ASA-трафік релевантний: люди розуміють продукт і доходять до кінця intro</li>
+            <li>21 користувач (9.5%) не завершив онбординг — можливий bounce при першому екрані</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="section-title">Бенчмарки</div>
+          <table>
+            <tr><th>Метрика</th><th class="num">Ви</th><th class="num">Норма</th></tr>
+            <tr><td>Install → Onboarding</td><td class="num" style="color:var(--green)">90.5%</td><td class="num">60–75%</td></tr>
+            <tr><td>Install → Session</td><td class="num" style="color:var(--green)">95.9%</td><td class="num">85–90%</td></tr>
+            <tr><td>rate_us_requested</td><td class="num">89.6%</td><td class="num">—</td></tr>
+            <tr><td>app_exception</td><td class="num" style="color:var(--green)">0.9%</td><td class="num">&lt;2%</td></tr>
+          </table>
+          <div class="insight-box" style="margin-top:16px;font-size:0.88rem">
+            Технічно продукт стабільний. Проблема не в крашах, а в <strong>продуктовій логіці після онбордингу</strong>.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: Paywall -->
+    <section class="slide">
+      <div class="label">Етап 2</div>
+      <h2>Paywall — головне вузьке місце</h2>
+      <div class="grid-3">
+        <div class="card">
+          <div class="value" style="color:var(--accent)">200</div>
+          <div class="name">Бачили paywall (90.5%)</div>
+        </div>
+        <div class="card">
+          <div class="value" style="color:var(--red)">174</div>
+          <div class="name">Закрили paywall (87% від показу)</div>
+        </div>
+        <div class="card">
+          <div class="value" style="color:var(--yellow)">24</div>
+          <div class="name">Обрали план (12% від показу)</div>
+        </div>
+      </div>
+      <div class="two-col-funnel">
+        <div>
+          <div class="section-title">Воронка монетизації</div>
+          <table>
+            <tr><th>Крок</th><th class="num">Users</th><th class="num">Крок→крок</th></tr>
+            <tr><td>paywall_show</td><td class="num">200</td><td class="num">—</td></tr>
+            <tr><td>paywall_closed</td><td class="num">174</td><td class="num" style="color:var(--red)">87% закрили</td></tr>
+            <tr><td>paywall_plan_selected</td><td class="num">24</td><td class="num" style="color:var(--yellow)">12% від show</td></tr>
+            <tr><td>subscription_attempt</td><td class="num">28</td><td class="num">—</td></tr>
+            <tr><td>purchase_started</td><td class="num">26</td><td class="num">—</td></tr>
+            <tr><td>purchase_result</td><td class="num">23</td><td class="num" style="color:var(--green)">95.8% від plan</td></tr>
+          </table>
+        </div>
+        <div>
+          <ul class="bullets">
+            <li>Paywall показується <strong>одразу після онбордингу</strong> — 200 = 200, без винятків</li>
+            <li>87% закривають без дії — високий опір, типовий для hard paywall</li>
+            <li>Хто обрав план — <strong>майже завжди купує</strong> (23/24 ≈ 96%) — офер і checkout працюють</li>
+            <li>Install → Purchase <strong>10.4%</strong> — непогано для subscription app, але обмежено обсягом на вході в paywall</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: Gameplay -->
+    <section class="slide">
+      <div class="label">Етап 3</div>
+      <h2>Геймплей — розрив після онбордингу</h2>
+      <div class="grid-2">
+        <div class="card">
+          <div class="section-title">Engagement funnel</div>
+          <div class="funnel" style="margin-top:8px">
+            <div class="funnel-row">
+              <span>onboarding ✓</span>
+              <div class="bar-wrap"><div class="bar good" style="width:100%"></div></div>
+              <span class="pct">200</span>
+              <span class="users"></span>
+            </div>
+            <div class="arrow-conv">↓ лише <strong>72%</strong> стартують гру</div>
+            <div class="funnel-row">
+              <span>game_start</span>
+              <div class="bar-wrap"><div class="bar warn" style="width:72%"></div></div>
+              <span class="pct">144</span>
+              <span class="users"></span>
+            </div>
+            <div class="arrow-conv">↓ <strong>68.8%</strong> завершують сесію</div>
+            <div class="funnel-row">
+              <span>game_end</span>
+              <div class="bar-wrap"><div class="bar warn" style="width:49.5%"></div></div>
+              <span class="pct">99</span>
+              <span class="users"></span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <ul class="bullets">
+            <li><strong>56 користувачів</strong> (28% від онбордингу) не стартували гру взагалі — ймовірно закрили paywall і пішли</li>
+            <li>Серед тих, хто грає: <strong>741 game_start / 144 users ≈ 5.1 гри</strong> на гравця — висока залученість ядра</li>
+            <li>Лише <strong>44.8%</strong> всіх install'ів коли-небудь завершили гру — продукт «вузький», але липкий для активних</li>
+            <li><strong>65.5 events/user</strong> — ті, хто залишається, дуже активні</li>
+          </ul>
+          <div class="insight-box">
+            Гіпотеза: paywall блокує доступ до core loop. Користувачі або платять, або йдуть — мало «спробувати безкоштовно».
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: Revenue -->
+    <section class="slide">
+      <div class="label">Дохід</div>
+      <h2>Монетизація та retention</h2>
+      <div class="grid-3">
+        <div class="card green">
+          <div class="value">$689.86</div>
+          <div class="name">Загальний revenue</div>
+        </div>
+        <div class="card pink">
+          <div class="value">3</div>
+          <div class="name">Користувачі з renewal</div>
+        </div>
+        <div class="card purple">
+          <div class="value">~$230</div>
+          <div class="name">Середній renewal / user</div>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top:20px">
+        <div class="card">
+          <div class="section-title">Розбіжність у даних</div>
+          <table>
+            <tr><th>Подія</th><th class="num">Users</th><th class="num">Revenue</th></tr>
+            <tr><td>purchase_result</td><td class="num">23</td><td class="num" style="color:var(--muted)">$0*</td></tr>
+            <tr><td>app_store_subscription_renew</td><td class="num">3</td><td class="num" style="color:var(--green)">$689.86</td></tr>
+          </table>
+          <p style="font-size:0.8rem;color:var(--muted);margin-top:12px;line-height:1.5">
+            *Ймовірно: trial-період ще не конвертувався в paid у цьому вікні,
+            або revenue attribution в GA4 прив'язаний лише до renew-події.
+          </p>
+        </div>
+        <div>
+          <ul class="bullets">
+            <li>Дохід зараз — від <strong>лояльного ядра</strong> (3 whales), не від нової когорти ASA</li>
+            <li>23 purchase_result — потенційний pipeline, треба відстежити D7/D30 conversion trial→paid</li>
+            <li>При 221 install і $690 revenue: <strong>~$3.12 ARPU</strong> за когорту — прийнятно на ранній стадії</li>
+            <li>LTV залежить від того, скільки з 23 trial перейдуть у renewal</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: Traffic Quality -->
+    <section class="slide">
+      <div class="label">Якість трафіку ASA</div>
+      <h2>Оцінка джерела</h2>
+      <div class="grid-2">
+        <div>
+          <table>
+            <tr><th>Сигнал</th><th>Оцінка</th><th>Коментар</th></tr>
+            <tr>
+              <td>Релевантність</td>
+              <td><span class="tag good">Висока</span></td>
+              <td>90.5% онбординг, 95.9% сесія</td>
+            </tr>
+            <tr>
+              <td>Intent to pay</td>
+              <td><span class="tag warn">Середня</span></td>
+              <td>10.4% до purchase_result</td>
+            </tr>
+            <tr>
+              <td>Engagement</td>
+              <td><span class="tag warn">Полярна</span></td>
+              <td>Або 5+ ігор, або 0 — мало середини</td>
+            </tr>
+            <tr>
+              <td>Технічна якість</td>
+              <td><span class="tag good">Добра</span></td>
+              <td>0.9% з exception</td>
+            </tr>
+            <tr>
+              <td>Монетизація</td>
+              <td><span class="tag bad">Рання</span></td>
+              <td>Revenue = renewals, не нова когорта</td>
+            </tr>
+          </table>
+        </div>
+        <div class="insight-box">
+          <strong>ASA в цілому працює:</strong> користувачі приходять з наміром, проходять intro, частина конвертується.
+          <br><br>
+          <strong>Але:</strong> агресивний paywall після онбордингу «з'їдає» engagement — 35% install'ів ніколи не бачать core product (game_start).
+          <br><br>
+          Для масштабування ASA потрібно або знизити CPI через кращу конверсію, або підвищити LTV через trial→paid.
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: Recommendations -->
+    <section class="slide">
+      <div class="label">Рекомендації</div>
+      <h2>Пріоритети на наступний спринт</h2>
+      <ul class="bullets">
+        <li>
+          <strong>1. Дати спробувати гру до paywall</strong> — 1 безкоштовна партія після онбордингу.
+          Ціль: підняти game_start з 65% → 80%+ і дати користувачу «aha moment».
+        </li>
+        <li>
+          <strong>2. A/B тест paywall timing</strong> — зараз 100% бачать одразу (200/200).
+          Тест: paywall після 1-ї гри vs після 2-ї vs поточний hard gate.
+        </li>
+        <li>
+          <strong>3. Розібрати 87% paywall_closed</strong> — додати подію <code>paywall_dismiss_reason</code>,
+          тестувати soft CTA («Continue with limits») замість жорсткого закриття.
+        </li>
+        <li>
+          <strong>4. Відстежити trial → paid</strong> — 23 purchase_result без revenue = сліпа зона.
+          Побудувати когортний звіт D1/D7/D30 для ASA-когорти.
+        </li>
+        <li>
+          <strong>5. Знизити rate_us на 89.6%</strong> — запит оцінки майже у всіх;
+          перенести після 2–3 ігор, щоб не відволікати на paywall-екрані.
+        </li>
+        <li>
+          <strong>6. Масштабувати ASA обережно</strong> — поки renewal revenue &lt; 5% когорти,
+          збільшення бюджету може не окупитись без змін у воронці.
+        </li>
+      </ul>
+    </section>
+
+    <!-- SLIDE 10: KPI targets -->
+    <section class="slide">
+      <div class="label">Цілі</div>
+      <h2>Target KPI на наступні 28 днів</h2>
+      <table>
+        <tr>
+          <th>Метрика</th>
+          <th class="num">Зараз</th>
+          <th class="num">Target</th>
+          <th class="num">Δ</th>
+        </tr>
+        <tr>
+          <td>Install → game_start</td>
+          <td class="num">65.2%</td>
+          <td class="num" style="color:var(--green)">80%</td>
+          <td class="num">+14.8pp</td>
+        </tr>
+        <tr>
+          <td>paywall_show → plan_selected</td>
+          <td class="num">12.0%</td>
+          <td class="num" style="color:var(--green)">18%</td>
+          <td class="num">+6pp</td>
+        </tr>
+        <tr>
+          <td>Install → purchase_result</td>
+          <td class="num">10.4%</td>
+          <td class="num" style="color:var(--green)">14%</td>
+          <td class="num">+3.6pp</td>
+        </tr>
+        <tr>
+          <td>Trial → paid (D30)</td>
+          <td class="num">н/д</td>
+          <td class="num" style="color:var(--green)">40%+</td>
+          <td class="num">—</td>
+        </tr>
+        <tr>
+          <td>game_start → game_end</td>
+          <td class="num">68.8%</td>
+          <td class="num" style="color:var(--green)">75%</td>
+          <td class="num">+6.2pp</td>
+        </tr>
+      </table>
+      <div class="insight-box" style="margin-top:28px">
+        При збереженні 221 install/міс і досягненні 14% purchase: <strong>~31 покупок/міс</strong> замість 23.
+        Якщо 40% trial конвертуються в paid з avg $10/mo — потенціал <strong>+$120–150 MRR</strong> з тієї ж когорти.
+      </div>
+      <p class="meta" style="margin-top:24px">Imposter — Find The Spy · Analytics Review · Червень 2026</p>
+    </section>
+
+  </div>
+
+  <nav class="nav">
+    <button id="prev" aria-label="Previous">←</button>
+    <div class="progress-dots" id="dots"></div>
+    <span class="counter" id="counter">1 / 10</span>
+    <button id="next" aria-label="Next">→</button>
+  </nav>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.getElementById('dots');
+    const counter = document.getElementById('counter');
+    const prev = document.getElementById('prev');
+    const next = document.getElementById('next');
+    let current = 0;
+
+    slides.forEach((_, i) => {
+      const d = document.createElement('span');
+      d.addEventListener('click', () => go(i));
+      dots.appendChild(d);
+    });
+
+    function go(n) {
+      slides[current].classList.remove('active');
+      current = Math.max(0, Math.min(n, slides.length - 1));
+      slides[current].classList.add('active');
+      counter.textContent = `${current + 1} / ${slides.length}`;
+      prev.disabled = current === 0;
+      next.disabled = current === slides.length - 1;
+      dots.querySelectorAll('span').forEach((d, i) => d.classList.toggle('on', i === current));
+    }
+
+    prev.addEventListener('click', () => go(current - 1));
+    next.addEventListener('click', () => go(current + 1));
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); go(current + 1); }
+      if (e.key === 'ArrowLeft') go(current - 1);
+    });
+
+    go(0);
+  </script>
+</body>
+</html>

@@ -113,7 +113,7 @@
 "game_timer.continue"                         = "Continuer";
 
 /* Paywall */
-"paywall.headline"                            = "Continuez pour un\naccès complet";
+"paywall.headline"                            = "Débloquez\nl'accès complet";
 "paywall.plan_yearly"                         = "Annuel";
 "paywall.plan_weekly"                         = "Hebdomadaire";
 "paywall.cancel_anytime"                      = "Annulez à tout moment";
