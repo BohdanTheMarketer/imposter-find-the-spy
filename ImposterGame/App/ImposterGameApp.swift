@@ -3,6 +3,8 @@ import SwiftUI
 
 @main
 struct ImposterGameApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
     init() {
         AppFontRegistrar.registerAppFonts()
         FirebaseApp.configure()
@@ -61,6 +63,7 @@ private struct AppRootView: View {
         .preferredColorScheme(.dark)
         .onChange(of: scenePhase) { phase in
             guard phase == .active else { return }
+            RateUsService.requestReviewIfNeeded()
             Task {
                 await subscriptionManager.refreshStoreProducts(trigger: "scene_active")
                 await subscriptionManager.refreshSubscriptionStatus()
