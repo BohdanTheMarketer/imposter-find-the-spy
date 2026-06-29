@@ -101,6 +101,7 @@
 		ECD62EA2DD1D5037C3D8B2C1 /* PushNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9FE14D16A4336B40FB70F5E /* PushNotificationService.swift */; };
 		EEA2764BDA8ED72CAAC24BB0 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 706047C26E961DBED30EA12B /* FirebaseMessaging */; };
 		F04E1A30174677770894670B /* HapticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD3B1E2BC3F96DBDE54AA2D /* HapticsManager.swift */; };
+		F15CB53474F5DA7144C2F21A /* AppUpdateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F01484148D85E5D158779B1 /* AppUpdateService.swift */; };
 		F6287186F55B1D783D43438A /* small_player_11.png in Resources */ = {isa = PBXBuildFile; fileRef = 06D32F771616E130D8769C0B /* small_player_11.png */; };
 		F6C9306608A448B5BF1E69C8 /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57B1A59DC496A37029B24E08 /* SubscriptionManager.swift */; };
 		FDCCC613281DAB0E1C331525 /* NanumMyeongjo-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2283F75A3920742284B725D3 /* NanumMyeongjo-Regular.ttf */; };
@@ -158,6 +159,7 @@
 		644E5C57C317FC091BAE626B /* Evolventa-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Evolventa-Regular.ttf"; sourceTree = "<group>"; };
 		6559DC18C856317EFFAD2A1E /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		6734472499752AFA4872AA9D /* RateUsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateUsService.swift; sourceTree = "<group>"; };
+		6F01484148D85E5D158779B1 /* AppUpdateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateService.swift; sourceTree = "<group>"; };
 		6FA8E1A829A6103A65B14DC5 /* player_11.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = player_11.png; sourceTree = "<group>"; };
 		7024D9671D1CF3A8C2BB08B9 /* CategoriesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoriesView.swift; sourceTree = "<group>"; };
 		718D7CB6EB155A3952AF7FF2 /* UIImage+PortraitBackdrop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+PortraitBackdrop.swift"; sourceTree = "<group>"; };
@@ -274,6 +276,7 @@
 			isa = PBXGroup;
 			children = (
 				FB41651CAAFA80CFD091161B /* AnalyticsService.swift */,
+				6F01484148D85E5D158779B1 /* AppUpdateService.swift */,
 				52B4C73F586F99F9FD593FA9 /* CategoryLoader.swift */,
 				AA27ACED2644C163A72FD40E /* GameEngine.swift */,
 				1FD3B1E2BC3F96DBDE54AA2D /* HapticsManager.swift */,
@@ -717,6 +720,7 @@
 				93D558B5712E107B8A798489 /* AnalyticsService.swift in Sources */,
 				6D4E2948451BBF17B71FDC78 /* AppDelegate.swift in Sources */,
 				56D2AA90912B97D89F371971 /* AppRouter.swift in Sources */,
+				F15CB53474F5DA7144C2F21A /* AppUpdateService.swift in Sources */,
 				B8DA7F4590E6E7E31C75EDFC /* CategoriesView.swift in Sources */,
 				AA15A141C41971E4D6E7EF70 /* Category.swift in Sources */,
 				23B5B5E6AECC686FCF506E42 /* CategoryLoader.swift in Sources */,

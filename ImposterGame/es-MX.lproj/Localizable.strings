@@ -9,6 +9,11 @@
 "common.later"                        = "Después";
 "common.restart_now"                  = "Reiniciar ahora";
 
+/* App Update */
+"app_update.title"                    = "Actualización disponible";
+"app_update.message"                  = "Hay una nueva versión de Imposter en la App Store.";
+"app_update.update"                   = "Actualizar";
+
 /* Legal */
 "legal.privacy_policy"                = "Política de privacidad";
 "legal.terms"                         = "Términos y condiciones";

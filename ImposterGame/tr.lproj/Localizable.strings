@@ -9,6 +9,11 @@
 "common.later"                        = "Sonra";
 "common.restart_now"                  = "Şimdi yeniden başlat";
 
+/* App Update */
+"app_update.title"                    = "Güncelleme mevcut";
+"app_update.message"                  = "Imposter'ın yeni bir sürümü App Store'da mevcut.";
+"app_update.update"                   = "Güncelle";
+
 /* Legal */
 "legal.privacy_policy"                = "Gizlilik Politikası";
 "legal.terms"                         = "Şartlar ve Koşullar";

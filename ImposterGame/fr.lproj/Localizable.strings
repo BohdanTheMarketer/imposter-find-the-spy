@@ -9,6 +9,11 @@
 "common.later"                        = "Plus tard";
 "common.restart_now"                  = "Redémarrer";
 
+/* App Update */
+"app_update.title"                    = "Mise à jour disponible";
+"app_update.message"                  = "Une nouvelle version d'Imposter est disponible sur l'App Store.";
+"app_update.update"                   = "Mettre à jour";
+
 /* Legal */
 "legal.privacy_policy"                = "Politique de confidentialité";
 "legal.terms"                         = "Conditions générales";
