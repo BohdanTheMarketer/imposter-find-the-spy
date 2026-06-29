@@ -8,6 +8,7 @@ struct ImposterGameApp: App {
     init() {
         AppFontRegistrar.registerAppFonts()
         FirebaseApp.configure()
+        AnalyticsService.setInstallWeekIfNeeded()
     }
 
     var body: some Scene {

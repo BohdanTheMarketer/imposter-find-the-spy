@@ -81,7 +81,6 @@ struct OnboardingPaywallView: View {
                 scheduleClosePaywall(reason: .purchaseSuccess)
                 return
             }
-            AnalyticsService.logEvent("paywall_show", parameters: ["context": "onboarding"])
             AnalyticsService.logPaywallViewed(context: .onboarding)
             Task {
                 await subscriptionManager.refreshStoreProducts(trigger: "onboarding_paywall_appear")

@@ -10,6 +10,15 @@ class SubscriptionManager: ObservableObject {
         case new
         case trialUsedOrExpired
         case activeSubscriber
+
+        var analyticsValue: String {
+            switch self {
+            case .unknown: return "unknown"
+            case .new: return "new"
+            case .trialUsedOrExpired: return "trial_used"
+            case .activeSubscriber: return "active_subscriber"
+            }
+        }
     }
 
     enum SubscriptionPlan {
@@ -39,12 +48,16 @@ class SubscriptionManager: ObservableObject {
     }
 
     private let isPremiumKey = "com.imposter.isPremium"
+    private let paymentCountersKey = "com.imposter.analytics.paymentCounters"
+    private let loggedTransactionIDsKey = "com.imposter.analytics.loggedTransactionIDs"
     private let premiumProductIDs = [
         "com.vertebro.imposter.weekly",
         "com.vertebro.imposter.yearly"
     ]
     private var transactionUpdatesTask: Task<Void, Never>?
     private var lastEntitlementState: AnalyticsService.SubscriptionEntitlementState?
+    private var lastPurchaseContext: AnalyticsService.PaywallContext?
+    private var lastPurchaseTrialEnabled = false
 
     @Published var isPremium: Bool {
         didSet { keychainWrite(key: isPremiumKey, value: isPremium) }
@@ -219,12 +232,18 @@ class SubscriptionManager: ObservableObject {
     }
 
     private func purchase(plan: SubscriptionPlan, context: AnalyticsService.PaywallContext?) async -> Bool {
+        let trialEnabled = plan == .weekly && isEligibleForTrial
+        lastPurchaseContext = context
+        lastPurchaseTrialEnabled = trialEnabled
+
         AnalyticsService.logSubscriptionAttempt(source: AnalyticsSource.inApp.rawValue)
         AnalyticsService.logPurchaseStarted(
             source: AnalyticsSource.inApp.rawValue,
             context: context,
             plan: plan.analyticsValue,
-            productID: plan.productID
+            productID: plan.productID,
+            trialEnabled: trialEnabled,
+            trialEligibility: trialEligibilityState.analyticsValue
         )
         do {
             if productsByID[plan.productID] == nil {
@@ -237,7 +256,9 @@ class SubscriptionManager: ObservableObject {
                     context: context,
                     plan: plan.analyticsValue,
                     productID: plan.productID,
-                    result: "product_not_found"
+                    result: "product_not_found",
+                    trialEnabled: trialEnabled,
+                    trialEligibility: trialEligibilityState.analyticsValue
                 )
                 return false
             }
@@ -252,10 +273,18 @@ class SubscriptionManager: ObservableObject {
                         context: context,
                         plan: plan.analyticsValue,
                         productID: plan.productID,
-                        result: "success_unverified"
+                        result: "success_unverified",
+                        trialEnabled: trialEnabled,
+                        trialEligibility: trialEligibilityState.analyticsValue
                     )
                     return false
                 }
+                logSubscriptionTransactionIfNeeded(
+                    transaction,
+                    trigger: "purchase_success",
+                    paywallContext: context,
+                    trialEnabled: trialEnabled
+                )
                 await transaction.finish()
                 await refreshSubscriptionStatus(trigger: "purchase_success")
                 if isPremium {
@@ -266,7 +295,9 @@ class SubscriptionManager: ObservableObject {
                     context: context,
                     plan: plan.analyticsValue,
                     productID: plan.productID,
-                    result: isPremium ? "success_verified" : "success_no_entitlement"
+                    result: isPremium ? "success_verified" : "success_no_entitlement",
+                    trialEnabled: trialEnabled,
+                    trialEligibility: trialEligibilityState.analyticsValue
                 )
                 return isPremium
             case .userCancelled:
@@ -275,7 +306,9 @@ class SubscriptionManager: ObservableObject {
                     context: context,
                     plan: plan.analyticsValue,
                     productID: plan.productID,
-                    result: "user_cancelled"
+                    result: "user_cancelled",
+                    trialEnabled: trialEnabled,
+                    trialEligibility: trialEligibilityState.analyticsValue
                 )
                 return false
             case .pending:
@@ -284,7 +317,9 @@ class SubscriptionManager: ObservableObject {
                     context: context,
                     plan: plan.analyticsValue,
                     productID: plan.productID,
-                    result: "pending"
+                    result: "pending",
+                    trialEnabled: trialEnabled,
+                    trialEligibility: trialEligibilityState.analyticsValue
                 )
                 return false
             @unknown default:
@@ -293,7 +328,9 @@ class SubscriptionManager: ObservableObject {
                     context: context,
                     plan: plan.analyticsValue,
                     productID: plan.productID,
-                    result: "unknown"
+                    result: "unknown",
+                    trialEnabled: trialEnabled,
+                    trialEligibility: trialEligibilityState.analyticsValue
                 )
                 return false
             }
@@ -305,6 +342,8 @@ class SubscriptionManager: ObservableObject {
                 plan: plan.analyticsValue,
                 productID: plan.productID,
                 result: "error",
+                trialEnabled: trialEnabled,
+                trialEligibility: trialEligibilityState.analyticsValue,
                 errorCode: String(describing: error)
             )
             return false
@@ -334,6 +373,7 @@ class SubscriptionManager: ObservableObject {
         var activeProductID: String?
         var activePlan: String?
         var hasRevokedSubscription = false
+        var isOnTrial = false
 
         for await result in Transaction.currentEntitlements {
             guard case let .verified(transaction) = result else { continue }
@@ -351,6 +391,13 @@ class SubscriptionManager: ObservableObject {
             hasActiveSubscription = true
             activeProductID = transaction.productID
             activePlan = transaction.productID == SubscriptionPlan.weekly.productID ? "weekly" : "yearly"
+            isOnTrial = {
+                if #available(iOS 17.0, *) {
+                    return transaction.offerType == .introductory
+                }
+                return transaction.productID == SubscriptionPlan.weekly.productID
+                    && trialEligibilityState == .activeSubscriber
+            }()
             break
         }
 
@@ -375,7 +422,7 @@ class SubscriptionManager: ObservableObject {
         }
 
         isPremium = hasActiveSubscription
-        syncSubscriptionUserProperties(plan: activePlan)
+        syncSubscriptionUserProperties(plan: activePlan, isOnTrial: isOnTrial, hasRevokedSubscription: hasRevokedSubscription)
         await refreshTrialEligibilityState(trigger: "entitlements_\(trigger)")
     }
 
@@ -405,16 +452,148 @@ class SubscriptionManager: ObservableObject {
         Task.detached(priority: .background) { [weak self] in
             for await result in Transaction.updates {
                 guard case let .verified(transaction) = result else { continue }
+                await self?.logSubscriptionTransactionIfNeeded(
+                    transaction,
+                    trigger: "transaction_update",
+                    paywallContext: await self?.lastPurchaseContext,
+                    trialEnabled: await self?.lastPurchaseTrialEnabled
+                )
                 await transaction.finish()
                 await self?.refreshSubscriptionStatus(trigger: "transaction_update")
             }
         }
     }
 
-    private func syncSubscriptionUserProperties(plan: String?) {
+    private func syncSubscriptionUserProperties(plan: String?, isOnTrial: Bool, hasRevokedSubscription: Bool) {
         AnalyticsService.setUserProperty(isPremium ? "true" : "false", for: "is_premium")
         AnalyticsService.setUserProperty(plan ?? "none", for: "active_plan")
         AnalyticsService.setUserProperty(hasCompletedOnboarding ? "true" : "false", for: "onboarding_completed")
+
+        let status: AnalyticsService.SubscriptionStatus
+        if isPremium {
+            status = isOnTrial ? .trial : .paid
+        } else if hasRevokedSubscription {
+            status = .expired
+        } else {
+            status = .free
+        }
+        AnalyticsService.setSubscriptionStatus(status)
+    }
+
+    private func logSubscriptionTransactionIfNeeded(
+        _ transaction: StoreKit.Transaction,
+        trigger: String,
+        paywallContext: AnalyticsService.PaywallContext?,
+        trialEnabled: Bool?
+    ) {
+        guard premiumProductIDs.contains(transaction.productID) else { return }
+        guard !hasLoggedTransaction(transaction.id) else { return }
+        markTransactionLogged(transaction.id)
+
+        let transactionType = subscriptionTransactionType(for: transaction)
+        let offerType = offerTypeAnalytics(for: transaction)
+        let plan = transaction.productID == SubscriptionPlan.weekly.productID ? "weekly" : "yearly"
+        let paymentNumber = paymentNumber(for: transaction, transactionType: transactionType)
+        let (value, currency) = priceInfo(for: transaction.productID, transactionType: transactionType)
+
+        AnalyticsService.logSubscriptionTransaction(
+            transactionType: transactionType,
+            offerType: offerType,
+            plan: plan,
+            productID: transaction.productID,
+            trigger: trigger,
+            value: value,
+            currency: currency,
+            paymentNumber: paymentNumber,
+            paywallContext: paywallContext,
+            trialEnabled: trialEnabled
+        )
+    }
+
+    private func subscriptionTransactionType(for transaction: StoreKit.Transaction) -> AnalyticsService.SubscriptionTransactionType {
+        if transaction.revocationDate != nil {
+            return .refund
+        }
+        if #available(iOS 17.0, *) {
+            if transaction.reason == .renewal {
+                return .renewal
+            }
+            if transaction.offerType == .introductory {
+                return .trialStart
+            }
+            return .initialPurchase
+        }
+
+        let counterKey = String(transaction.originalID)
+        let counters = UserDefaults.standard.dictionary(forKey: paymentCountersKey) as? [String: Int] ?? [:]
+        if (counters[counterKey] ?? 0) > 0 {
+            return .renewal
+        }
+        if transaction.productID == SubscriptionPlan.weekly.productID, lastPurchaseTrialEnabled {
+            return .trialStart
+        }
+        return .initialPurchase
+    }
+
+    private func offerTypeAnalytics(for transaction: StoreKit.Transaction) -> AnalyticsService.OfferTypeAnalytics {
+        if #available(iOS 17.0, *) {
+            switch transaction.offerType {
+            case .introductory:
+                return .introductory
+            case .promotional:
+                return .promotional
+            default:
+                return .standard
+            }
+        }
+        return subscriptionTransactionType(for: transaction) == .trialStart ? .introductory : .standard
+    }
+
+    private func paymentNumber(
+        for transaction: StoreKit.Transaction,
+        transactionType: AnalyticsService.SubscriptionTransactionType
+    ) -> Int {
+        if transactionType == .trialStart || transactionType == .refund {
+            return 0
+        }
+
+        let counterKey = String(transaction.originalID)
+        var counters = UserDefaults.standard.dictionary(forKey: paymentCountersKey) as? [String: Int] ?? [:]
+        let nextNumber = (counters[counterKey] ?? 0) + 1
+        counters[counterKey] = nextNumber
+        UserDefaults.standard.set(counters, forKey: paymentCountersKey)
+        return nextNumber
+    }
+
+    private func priceInfo(
+        for productID: String,
+        transactionType: AnalyticsService.SubscriptionTransactionType
+    ) -> (Double, String) {
+        if transactionType == .trialStart || transactionType == .refund {
+            return (0, currencyCode)
+        }
+        guard let product = productsByID[productID] else {
+            return (0, currencyCode)
+        }
+        return (NSDecimalNumber(decimal: product.price).doubleValue, currencyCode)
+    }
+
+    private var currencyCode: String {
+        Locale.current.currency?.identifier ?? "USD"
+    }
+
+    private func hasLoggedTransaction(_ transactionID: UInt64) -> Bool {
+        let loggedIDs = UserDefaults.standard.stringArray(forKey: loggedTransactionIDsKey) ?? []
+        return loggedIDs.contains(String(transactionID))
+    }
+
+    private func markTransactionLogged(_ transactionID: UInt64) {
+        var loggedIDs = UserDefaults.standard.stringArray(forKey: loggedTransactionIDsKey) ?? []
+        loggedIDs.append(String(transactionID))
+        if loggedIDs.count > 200 {
+            loggedIDs = Array(loggedIDs.suffix(200))
+        }
+        UserDefaults.standard.set(loggedIDs, forKey: loggedTransactionIDsKey)
     }
 
     private func logLoadedProductPricing(trigger: String, products: [Product]) {

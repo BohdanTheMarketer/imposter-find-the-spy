@@ -65,7 +65,6 @@ struct CategoryPaywallView: View {
                 scheduleClosePaywall(reason: .purchaseSuccess)
                 return
             }
-            AnalyticsService.logEvent("paywall_show", parameters: ["context": "category"])
             AnalyticsService.logPaywallViewed(context: .category)
             Task {
                 await subscriptionManager.refreshStoreProducts(trigger: "category_paywall_appear")

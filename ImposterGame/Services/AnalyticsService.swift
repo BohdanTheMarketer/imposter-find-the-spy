@@ -20,6 +20,26 @@ enum AnalyticsService {
         case revoked
     }
 
+    enum SubscriptionTransactionType: String {
+        case trialStart = "trial_start"
+        case initialPurchase = "initial_purchase"
+        case renewal = "renewal"
+        case refund = "refund"
+    }
+
+    enum OfferTypeAnalytics: String {
+        case introductory
+        case standard
+        case promotional
+    }
+
+    enum SubscriptionStatus: String {
+        case free
+        case trial
+        case paid
+        case expired
+    }
+
     static func logScreenView(for screen: AppScreen) {
         Analytics.logEvent(AnalyticsEventScreenView, parameters: [
             AnalyticsParameterScreenName: screen.rawValue,
@@ -103,12 +123,21 @@ enum AnalyticsService {
         ])
     }
 
-    static func logPurchaseStarted(source: String, context: PaywallContext?, plan: String, productID: String) {
+    static func logPurchaseStarted(
+        source: String,
+        context: PaywallContext?,
+        plan: String,
+        productID: String,
+        trialEnabled: Bool,
+        trialEligibility: String
+    ) {
         logEvent("purchase_started", parameters: [
             "source": source,
             "paywall_context": context?.rawValue ?? "unknown",
             "plan": plan,
-            "product_id": productID
+            "product_id": productID,
+            "trial_enabled": trialEnabled,
+            "trial_eligibility": trialEligibility
         ])
     }
 
@@ -118,6 +147,8 @@ enum AnalyticsService {
         plan: String,
         productID: String,
         result: String,
+        trialEnabled: Bool,
+        trialEligibility: String,
         errorCode: String? = nil
     ) {
         var params: [String: Any] = [
@@ -125,12 +156,61 @@ enum AnalyticsService {
             "paywall_context": context?.rawValue ?? "unknown",
             "plan": plan,
             "product_id": productID,
-            "result": result
+            "result": result,
+            "trial_enabled": trialEnabled,
+            "trial_eligibility": trialEligibility
         ]
         if let errorCode {
             params["error_code"] = errorCode
         }
         logEvent("purchase_result", parameters: params)
+    }
+
+    static func logSubscriptionTransaction(
+        transactionType: SubscriptionTransactionType,
+        offerType: OfferTypeAnalytics,
+        plan: String,
+        productID: String,
+        trigger: String,
+        value: Double,
+        currency: String,
+        paymentNumber: Int,
+        paywallContext: PaywallContext? = nil,
+        trialEnabled: Bool? = nil
+    ) {
+        var params: [String: Any] = [
+            "transaction_type": transactionType.rawValue,
+            "offer_type": offerType.rawValue,
+            "plan": plan,
+            "product_id": productID,
+            "trigger": trigger,
+            AnalyticsParameterValue: value,
+            AnalyticsParameterCurrency: currency,
+            "payment_number": paymentNumber
+        ]
+        if let paywallContext {
+            params["paywall_context"] = paywallContext.rawValue
+        }
+        if let trialEnabled {
+            params["trial_enabled"] = trialEnabled
+        }
+        logEvent("subscription_transaction", parameters: params)
+    }
+
+    static func setInstallWeekIfNeeded() {
+        let key = "com.imposter.analytics.installWeekSet"
+        guard !UserDefaults.standard.bool(forKey: key) else { return }
+
+        let calendar = Calendar(identifier: .iso8601)
+        let week = calendar.component(.weekOfYear, from: Date())
+        let year = calendar.component(.yearForWeekOfYear, from: Date())
+        let installWeek = String(format: "%d-W%02d", year, week)
+        setUserProperty(installWeek, for: "install_week")
+        UserDefaults.standard.set(true, forKey: key)
+    }
+
+    static func setSubscriptionStatus(_ status: SubscriptionStatus) {
+        setUserProperty(status.rawValue, for: "subscription_status")
     }
 
     static func logRestoreStarted(source: String, context: PaywallContext?) {
