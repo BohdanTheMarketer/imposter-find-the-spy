@@ -48,6 +48,7 @@ enum CategoryLoader {
 
     static let fileNames: [String] = [
         "party_time",
+        "world_cup",
         "food",
         "celebrities",
         "hobbies",
@@ -65,11 +66,24 @@ enum CategoryLoader {
         "places"
     ]
 
+    /// Event packs hidden automatically after this date (start of day, UTC).
+    private static let eventPackExpiry: [String: Date] = {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let components = DateComponents(year: 2026, month: 7, day: 21)
+        let worldCupExpiry = calendar.date(from: components) ?? Date.distantFuture
+        return ["world_cup": worldCupExpiry]
+    }()
+
     static func loadCategories() -> [Category] {
         let localeFolders = resolvedLocaleFolders()
         var categories: [Category] = []
+        let now = Date()
 
         for fileName in fileNames {
+            if let expiry = eventPackExpiry[fileName], now >= expiry {
+                continue
+            }
             if let category = loadCategory(fileName: fileName, localeFolders: localeFolders) {
                 categories.append(category)
             }

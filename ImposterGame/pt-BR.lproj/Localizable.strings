@@ -122,8 +122,10 @@
 "paywall.plan_yearly"                         = "Anual";
 "paywall.plan_weekly"                         = "Semanal";
 "paywall.cancel_anytime"                      = "Cancele quando quiser";
-"paywall.badge_best_value"                    = "Melhor custo";
+"paywall.badge_best_value"                    = "MELHOR VALOR";
 "paywall.badge_most_popular"                  = "Mais popular";
+"paywall.badge_free_trial"                    = "3 DIAS GRÁTIS";
+"paywall.weekly_subtitle_trial"               = "3 dias grátis, depois %@";
 "paywall.trial_prompt_title"                  = "Ainda em dúvida?";
 "paywall.trial_prompt_subtitle"               = "Ative o acesso grátis";
 "paywall.trial_legal_line"                    = "0 USD hoje • 3 dias GRÁTIS";

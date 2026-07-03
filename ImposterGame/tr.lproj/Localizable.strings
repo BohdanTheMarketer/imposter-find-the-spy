@@ -122,8 +122,10 @@
 "paywall.plan_yearly"                         = "Yıllık";
 "paywall.plan_weekly"                         = "Haftalık";
 "paywall.cancel_anytime"                      = "İstediğin zaman iptal";
-"paywall.badge_best_value"                    = "En iyi değer";
+"paywall.badge_best_value"                    = "EN İYİ DEĞER";
 "paywall.badge_most_popular"                  = "En popüler";
+"paywall.badge_free_trial"                    = "3 GÜN ÜCRETSİZ";
+"paywall.weekly_subtitle_trial"               = "3 gün ücretsiz, ardından %@";
 "paywall.trial_prompt_title"                  = "Henüz emin değil misin?";
 "paywall.trial_prompt_subtitle"               = "Ücretsiz erişimi aç";
 "paywall.trial_legal_line"                    = "Bugün 0 USD • 3 gün ÜCRETSİZ";

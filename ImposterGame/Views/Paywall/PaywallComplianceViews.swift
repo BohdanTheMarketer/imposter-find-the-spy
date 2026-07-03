@@ -191,68 +191,8 @@ struct PaywallDualLineCTAButton: View {
 // MARK: - Selection model
 
 enum PaywallSelection: Equatable {
-    case freeAccess
     case yearly
     case weekly
-}
-
-// MARK: - Free-access card
-
-struct PaywallFreeAccessCard: View {
-    let selected: Bool
-    let showsTrialOffer: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack(alignment: .center, spacing: 12) {
-                    PaywallRadioIndicator(
-                        style: selected && showsTrialOffer ? .trialEnabled : .empty
-                    )
-
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(
-                            selected && showsTrialOffer
-                                ? LocalizedStringKey("category_paywall.free_access_on")
-                                : LocalizedStringKey("paywall.trial_prompt_title")
-                        )
-                        .font(PaywallComplianceStyle.planTitle)
-                        .foregroundColor(.white)
-
-                        Text(
-                            selected && showsTrialOffer
-                                ? LocalizedStringKey("category_paywall.trial_on_subtitle")
-                                : LocalizedStringKey("paywall.trial_prompt_subtitle")
-                        )
-                        .font(PaywallComplianceStyle.planSubtitle)
-                        .foregroundColor(.white.opacity(PaywallComplianceStyle.subordinateOpacity))
-                        .fixedSize(horizontal: false, vertical: true)
-                    }
-
-                    Spacer(minLength: 0)
-                }
-
-                if selected && showsTrialOffer {
-                    Text("paywall.trial_legal_line")
-                        .font(.antropicSerif(size: 13, weight: .bold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color.white.opacity(selected ? 0.24 : 0.14))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.white.opacity(selected ? 1.0 : 0.65), lineWidth: selected ? 2.5 : 1.5)
-            )
-        }
-        .buttonStyle(.plain)
-    }
 }
 
 // MARK: - Subscription option card
@@ -331,35 +271,6 @@ struct PaywallSubscriptionOptionCard: View {
     }
 }
 
-private struct PaywallRadioIndicator: View {
-    enum Style {
-        case empty
-        case trialEnabled
-    }
-
-    let style: Style
-
-    var body: some View {
-        switch style {
-        case .empty:
-            Circle()
-                .stroke(Color.white.opacity(0.85), lineWidth: 2)
-                .frame(width: 26, height: 26)
-        case .trialEnabled:
-            Circle()
-                .fill(Color(red: 0.22, green: 0.78, blue: 0.36))
-                .frame(width: 26, height: 26)
-                .overlay {
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 13, weight: .bold))
-                        .foregroundColor(.white)
-                }
-        }
-    }
-}
-
-// MARK: - Plans section
-
 struct PaywallPlansSection: View {
     @Binding var selection: PaywallSelection
     let subscriptionManager: SubscriptionManager
@@ -367,15 +278,17 @@ struct PaywallPlansSection: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            if subscriptionManager.isEligibleForTrial {
-                PaywallFreeAccessCard(
-                    selected: selection == .freeAccess,
-                    showsTrialOffer: subscriptionManager.isEligibleForTrial,
-                    action: {
-                        select(.freeAccess)
-                    }
-                )
-            }
+            PaywallSubscriptionOptionCard(
+                title: String(localized: "paywall.plan_weekly"),
+                subtitle: weeklySubtitle,
+                primaryPrice: subscriptionManager.weeklyPlanWeeklyPriceText,
+                secondaryPrice: nil,
+                selected: selection == .weekly,
+                badgeText: weeklyBadgeText,
+                action: {
+                    select(.weekly)
+                }
+            )
 
             PaywallSubscriptionOptionCard(
                 title: String(localized: "paywall.plan_yearly"),
@@ -383,29 +296,27 @@ struct PaywallPlansSection: View {
                 primaryPrice: subscriptionManager.yearlyPlanBilledPriceText,
                 secondaryPrice: nil,
                 selected: selection == .yearly,
-                badgeText: selection == .yearly ? String(localized: "paywall.badge_best_value") : nil,
+                badgeText: String(localized: "paywall.badge_best_value"),
                 action: {
                     select(.yearly)
-                }
-            )
-
-            PaywallSubscriptionOptionCard(
-                title: String(localized: "paywall.plan_weekly"),
-                subtitle: String(localized: "paywall.cancel_anytime"),
-                primaryPrice: subscriptionManager.weeklyPlanWeeklyPriceText,
-                secondaryPrice: nil,
-                selected: selection == .weekly || selection == .freeAccess,
-                badgeText: weeklyBadgeText,
-                action: {
-                    select(.weekly)
                 }
             )
         }
     }
 
-    private var weeklyBadgeText: String? {
-        guard selection == .freeAccess else { return nil }
+    private var weeklyBadgeText: String {
+        if subscriptionManager.isEligibleForTrial {
+            return String(localized: "paywall.badge_free_trial")
+        }
         return String(localized: "paywall.badge_most_popular")
+    }
+
+    private var weeklySubtitle: String {
+        let price = subscriptionManager.weeklyPlanWeeklyPriceText
+        if subscriptionManager.isEligibleForTrial {
+            return LocalizationService.shared.localizedFormat("paywall.weekly_subtitle_trial", price)
+        }
+        return String(localized: "paywall.cancel_anytime")
     }
 
     private func select(_ newSelection: PaywallSelection) {
@@ -422,7 +333,7 @@ struct PaywallPlansSection: View {
 @MainActor
 enum PaywallCopy {
     static func ctaTitleKey(selection: PaywallSelection, isEligibleForTrial: Bool) -> String {
-        if selection == .freeAccess && isEligibleForTrial {
+        if selection == .weekly && isEligibleForTrial {
             return "category_paywall.cta_trial"
         }
         return "paywall.continue"
@@ -430,7 +341,7 @@ enum PaywallCopy {
 
     static func subscriptionPlan(for selection: PaywallSelection) -> SubscriptionManager.SubscriptionPlan {
         switch selection {
-        case .freeAccess, .weekly:
+        case .weekly:
             return .weekly
         case .yearly:
             return .yearly
@@ -438,12 +349,12 @@ enum PaywallCopy {
     }
 
     static func trialEnabled(selection: PaywallSelection, isEligibleForTrial: Bool) -> Bool {
-        selection == .freeAccess && isEligibleForTrial
+        selection == .weekly && isEligibleForTrial
     }
 
     static func analyticsPlanName(for selection: PaywallSelection) -> String {
         switch selection {
-        case .freeAccess, .weekly:
+        case .weekly:
             return "weekly"
         case .yearly:
             return "yearly"

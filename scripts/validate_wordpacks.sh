@@ -6,7 +6,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PACKS_ROOT="${ROOT}/ImposterGame/Resources/WordPacks"
 REQUIRED_LOCALES=(en pt-BR fr es-MX tr)
 REQUIRED_PACKS=(
-  party_time food celebrities hobbies family school spicy sports
+  party_time world_cup food celebrities hobbies family school spicy sports
   travel work_life movies shopping tech superpowers music places
 )
 

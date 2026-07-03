@@ -174,6 +174,17 @@ LOCALE_PACKS: dict[str, dict[str, dict]] = {
                 10: ("Brasília", "capital"),
             },
         },
+        "world_cup": {
+            "category": "Copa do Mundo",
+            "description": "Gols, drama e paixão nacional. Saiba seu futebol ou fique impedido!",
+            "overrides": {
+                28: ("Maracanã", "estádio carioca"),
+                33: ("Neymar", "camisa 10"),
+                34: ("Pelé", "rei do futebol"),
+                35: ("Brasil", "amarelinha"),
+                36: ("Argentina", "albiceleste"),
+            },
+        },
         "spicy": {
             "category": "Picante",
             "description": "Temas ousados com humor — mantenha na brincadeira!",
@@ -306,6 +317,15 @@ LOCALE_PACKS: dict[str, dict[str, dict]] = {
                 10: ("Marseille", "port"),
             },
         },
+        "world_cup": {
+            "category": "Coupe du Monde",
+            "description": "Buts, drame et fierté nationale. Connais ton foot ou hors-jeu !",
+            "overrides": {
+                33: ("Mbappé", "attaquant rapide"),
+                34: ("Zinedine Zidane", "légende française"),
+                39: ("France", "bleu blanc rouge"),
+            },
+        },
         "spicy": {
             "category": "Coquin",
             "description": "Thèmes osés avec humour — restez fair-play !",
@@ -397,6 +417,17 @@ LOCALE_PACKS: dict[str, dict[str, dict]] = {
             "description": "Ciudades y paisajes — ¿nunca fuiste? ¡Inventa!",
             "overrides": {0: ("Ciudad de México", "capital"), 5: ("Guadalajara", "tequila")},
         },
+        "world_cup": {
+            "category": "Copa Mundial",
+            "description": "Goles, drama y orgullo nacional. ¡Conoce tu fútbol o queda fuera de juego!",
+            "overrides": {
+                28: ("Estadio Azteca", "Ciudad de México"),
+                29: ("Azteca", "templo del fútbol"),
+                33: ("Messi", "campeón del mundo"),
+                35: ("México", "tricolor"),
+                36: ("Argentina", "albiceleste"),
+            },
+        },
         "spicy": {"category": "Picante", "description": "Temas atrevidos con humor — ¡fair play!", "overrides": {}},
     },
     "tr": {
@@ -479,6 +510,15 @@ LOCALE_PACKS: dict[str, dict[str, dict]] = {
             "category": "Mekanlar",
             "description": "Şehirler ve manzaralar — gitmediysen uydur!",
             "overrides": {0: ("İstanbul", "köprü"), 5: ("Ankara", "başkent")},
+        },
+        "world_cup": {
+            "category": "Dünya Kupası",
+            "description": "Goller, dram ve millî gurur. Futbolunu bil ya da ofsatta kal!",
+            "overrides": {
+                33: ("Arda Güler", "genç yetenek"),
+                37: ("Türkiye", "ayı yıldız"),
+                38: ("Almanya", "siyah beyaz"),
+            },
         },
         "spicy": {
             "category": "Cesur",
