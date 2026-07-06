@@ -5,15 +5,19 @@ import UIKit
 enum RateUsService {
     private static let lastRatePromptDateKey = "lastRatePromptDate"
     private static let legacyOnboardingPromptKey = "hasPresentedOnboardingRatePrompt"
+    private static let completedGamesCountKey = "completedGamesCount"
 
     /// Minimum spacing between prompt attempts (~4 months, aligned with Apple's ~3×/year cap).
     private static let minimumMonthsBetweenPrompts = 4
 
-    static func requestOnboardingReviewIfNeeded() {
-        requestReviewIfNeeded(context: "onboarding_last_page")
+    /// Call when a round finishes. Shows the review prompt once, after the first completed game.
+    static func requestReviewAfterFirstGameIfNeeded() {
+        let completedGames = recordCompletedGame()
+        guard completedGames == 1 else { return }
+        requestReviewIfNeeded(context: "first_game_completed")
     }
 
-    static func requestReviewIfNeeded(context: String = "app_active") {
+    private static func requestReviewIfNeeded(context: String) {
         migrateLegacyFlagIfNeeded()
         guard isEligibleForPrompt else { return }
 
@@ -53,6 +57,13 @@ enum RateUsService {
         UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: lastRatePromptDateKey)
     }
 
+    private static func recordCompletedGame() -> Int {
+        let defaults = UserDefaults.standard
+        let count = defaults.integer(forKey: completedGamesCountKey) + 1
+        defaults.set(count, forKey: completedGamesCountKey)
+        return count
+    }
+
     /// Users who already saw the one-time onboarding prompt get a baseline date so the 4-month cycle starts from this update.
     private static func migrateLegacyFlagIfNeeded() {
         let defaults = UserDefaults.standard
@@ -65,6 +76,7 @@ enum RateUsService {
     static func resetRatePromptForQA() {
         UserDefaults.standard.removeObject(forKey: lastRatePromptDateKey)
         UserDefaults.standard.removeObject(forKey: legacyOnboardingPromptKey)
+        UserDefaults.standard.removeObject(forKey: completedGamesCountKey)
     }
 
     static func simulateEligibleForQA() {

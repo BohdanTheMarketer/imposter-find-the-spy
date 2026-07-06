@@ -359,6 +359,7 @@ struct ResultView: View {
                     showActionButtons = true
                 }
                 HapticsManager.selection()
+                RateUsService.requestReviewAfterFirstGameIfNeeded()
             }
         }
     }

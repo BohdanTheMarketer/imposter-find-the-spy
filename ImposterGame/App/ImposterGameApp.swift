@@ -68,7 +68,6 @@ private struct AppRootView: View {
         }
         .onChange(of: scenePhase) { phase in
             guard phase == .active else { return }
-            RateUsService.requestReviewIfNeeded()
             Task {
                 await subscriptionManager.refreshStoreProducts(trigger: "scene_active")
                 await subscriptionManager.refreshSubscriptionStatus()
