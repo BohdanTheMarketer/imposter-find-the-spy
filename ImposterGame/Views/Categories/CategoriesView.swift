@@ -39,49 +39,6 @@ struct CategoriesView: View {
     @State private var onboardingStep = 0
     @State private var pushPermissionTask: Task<Void, Never>?
 
-    private static let categoryBackgroundPalette: [LinearGradient] = [
-        LinearGradient(
-            colors: [Color(red: 0.42, green: 0.18, blue: 0.72), Color(red: 0.22, green: 0.10, blue: 0.48)],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        ),
-        LinearGradient(
-            colors: [Color(red: 0.92, green: 0.34, blue: 0.18), Color(red: 0.62, green: 0.14, blue: 0.22)],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        ),
-        LinearGradient(
-            colors: [Color(red: 0.12, green: 0.48, blue: 0.78), Color(red: 0.06, green: 0.26, blue: 0.58)],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        ),
-        LinearGradient(
-            colors: [Color(red: 0.18, green: 0.62, blue: 0.38), Color(red: 0.08, green: 0.36, blue: 0.28)],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        ),
-        LinearGradient(
-            colors: [Color(red: 0.88, green: 0.22, blue: 0.52), Color(red: 0.52, green: 0.10, blue: 0.42)],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        ),
-        LinearGradient(
-            colors: [Color(red: 0.96, green: 0.58, blue: 0.10), Color(red: 0.72, green: 0.28, blue: 0.08)],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        ),
-        LinearGradient(
-            colors: [Color(red: 0.28, green: 0.36, blue: 0.92), Color(red: 0.14, green: 0.18, blue: 0.62)],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        ),
-        LinearGradient(
-            colors: [Color(red: 0.20, green: 0.72, blue: 0.78), Color(red: 0.10, green: 0.42, blue: 0.58)],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-    ]
-
     private var selectedCategoryCount: Int {
         selectedCategoryID == nil ? 0 : 1
     }
@@ -108,8 +65,11 @@ struct CategoriesView: View {
                 HStack {
                     Button(action: { router.pop() }) {
                         Image(systemName: "person.2.fill")
-                            .font(.evolventa(size: 18))
-                            .foregroundColor(.white)
+                            .font(.evolventa(size: 16))
+                            .foregroundColor(.white.opacity(0.85))
+                            .frame(width: 38, height: 38)
+                            .background(Circle().fill(Color.appSurface))
+                            .overlay(Circle().stroke(Color.white.opacity(0.10), lineWidth: 1))
                     }
 
                     Spacer()
@@ -128,8 +88,11 @@ struct CategoriesView: View {
                         }
                     }) {
                         Image(systemName: "info.circle")
-                            .font(.evolventa(size: 24, weight: .semibold))
-                            .foregroundColor(.white.opacity(0.9))
+                            .font(.evolventa(size: 18, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.85))
+                            .frame(width: 38, height: 38)
+                            .background(Circle().fill(Color.appSurface))
+                            .overlay(Circle().stroke(Color.white.opacity(0.10), lineWidth: 1))
                     }
                 }
                 .padding(.horizontal, 20)
@@ -145,7 +108,6 @@ struct CategoriesView: View {
                                 category: category,
                                 isSelected: selectedCategoryID == category.id,
                                 isLocked: isLocked,
-                                background: backgroundForCategory(category, in: categories),
                                 onTap: {
                                     if isLocked {
                                         HapticsManager.notification(.warning)
@@ -220,6 +182,11 @@ struct CategoriesView: View {
                         .frame(height: 56)
                         .background(Color.gameplayButtonPrimary)
                         .clipShape(RoundedRectangle(cornerRadius: 28))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 28)
+                                .stroke(Color.white.opacity(0.22), lineWidth: 1)
+                        )
+                        .shadow(color: Color.appAccent.opacity(0.45), radius: 12, x: 0, y: 6)
                 }
                     .opacity(selectedCategoryID == nil ? 0.85 : 1.0)
                 }
@@ -294,99 +261,99 @@ struct CategoriesView: View {
         }
     }
 
-    private func backgroundForCategory(_ category: Category, in allCategories: [Category]) -> LinearGradient {
-        let paletteCount = Self.categoryBackgroundPalette.count
-        guard paletteCount > 0 else {
-            return LinearGradient(colors: [.black, .black], startPoint: .topLeading, endPoint: .bottomTrailing)
-        }
-
-        guard let currentIndex = allCategories.firstIndex(where: { $0.id == category.id }) else {
-            let fallback = deterministicPaletteIndex(for: category.name, paletteCount: paletteCount)
-            return Self.categoryBackgroundPalette[fallback]
-        }
-
-        var paletteIndex = deterministicPaletteIndex(for: category.name, paletteCount: paletteCount)
-        if currentIndex > 0 {
-            let previousName = allCategories[currentIndex - 1].name
-            let previousIndex = deterministicPaletteIndex(for: previousName, paletteCount: paletteCount)
-            if previousIndex == paletteIndex {
-                paletteIndex = (paletteIndex + 1) % paletteCount
-            }
-        }
-
-        return Self.categoryBackgroundPalette[paletteIndex]
-    }
-
-    private func deterministicPaletteIndex(for key: String, paletteCount: Int) -> Int {
-        var hasher = Hasher()
-        hasher.combine(key.lowercased())
-        let value = hasher.finalize()
-        return Int(UInt(bitPattern: value) % UInt(paletteCount))
-    }
 }
 
 struct CategoryCard: View {
     let category: Category
     let isSelected: Bool
     let isLocked: Bool
-    let background: LinearGradient
     let onTap: () -> Void
 
-    private let iconSize: CGFloat = 96
+    private let iconSize: CGFloat = 76
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 12) {
-                categoryIcon
-
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 6) {
+            HStack(spacing: 14) {
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 10) {
                         Text(verbatim: category.name)
-                            .font(.evolventa(size: 18, weight: .bold))
+                            .font(.evolventa(size: 21, weight: .bold))
                             .foregroundColor(.white)
                             .lineLimit(1)
 
-                        if isLocked {
-                            Image(systemName: "lock.fill")
-                                .font(.evolventa(size: 12, weight: .semibold))
-                                .foregroundColor(.white.opacity(0.9))
+                        if isSelected && !isLocked {
+                            selectedBadge
+                        } else if isLocked {
+                            proChip
                         }
                     }
 
                     Text(verbatim: category.description)
-                        .font(.evolventa(size: 12, weight: .medium))
-                        .foregroundColor(.white.opacity(0.78))
+                        .font(.evolventa(size: 14, weight: .medium))
+                        .foregroundColor(.white.opacity(0.6))
                         .lineLimit(2)
                         .minimumScaleFactor(0.9)
                         .multilineTextAlignment(.leading)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+
+                categoryIcon
             }
-            .padding(.leading, 10)
-            .padding(.trailing, 14)
-            .padding(.vertical, 8)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 16)
             .background(
-                RoundedRectangle(cornerRadius: 24)
-                    .fill(background)
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.appSurface)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 24)
+                RoundedRectangle(cornerRadius: 20)
                     .stroke(
-                        isSelected ? Color.white.opacity(0.95) : Color.white.opacity(0.18),
-                        lineWidth: isSelected ? 2.5 : 1
+                        isSelected ? Color.appAccent : Color.white.opacity(0.07),
+                        lineWidth: isSelected ? 1.5 : 1
                     )
             )
-            .shadow(color: Color.black.opacity(0.18), radius: 6, y: 3)
+            .shadow(color: Color.appAccent.opacity(isSelected ? 0.25 : 0.0), radius: 20, x: 0, y: 0)
         }
         .buttonStyle(.plain)
+    }
+
+    /// Pink "selected" checkmark chip (mock 2c).
+    private var selectedBadge: some View {
+        Image(systemName: "checkmark")
+            .font(.evolventa(size: 11, weight: .bold))
+            .foregroundColor(.appTextOnAccent)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(Capsule().fill(Color.appAccent))
+    }
+
+    /// Locked "PRO" pill (mock 2c).
+    private var proChip: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "lock.fill")
+                .font(.evolventa(size: 10, weight: .bold))
+            Text(verbatim: "PRO")
+                .font(.evolventa(size: 11, weight: .bold))
+        }
+        .foregroundColor(.appAccentHigh)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 3)
+        .background(
+            RoundedRectangle(cornerRadius: 9)
+                .fill(Color.appSurface2)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 9)
+                .stroke(Color.white.opacity(0.14), lineWidth: 1)
+        )
     }
 
     @ViewBuilder
     private var categoryIcon: some View {
         if let iconImage = CategoryIconLoader.uiImage(for: category.icon) {
             ZStack {
-                RoundedRectangle(cornerRadius: 18)
-                    .fill(Color.white.opacity(0.14))
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(Color.white.opacity(0.10))
                 Image(uiImage: iconImage)
                     .resizable()
                     .scaledToFit()
@@ -394,21 +361,21 @@ struct CategoryCard: View {
             }
             .frame(width: iconSize, height: iconSize)
             .overlay(
-                RoundedRectangle(cornerRadius: 18)
-                    .stroke(Color.white.opacity(0.28), lineWidth: 1)
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(Color.white.opacity(0.14), lineWidth: 1)
             )
         } else {
-            RoundedRectangle(cornerRadius: 18)
-                .fill(Color.black.opacity(0.22))
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color.white.opacity(0.06))
                 .frame(width: iconSize, height: iconSize)
                 .overlay(
                     Image(systemName: category.icon)
-                        .font(.evolventa(size: 34, weight: .bold))
-                        .foregroundColor(.white.opacity(0.95))
+                        .font(.evolventa(size: 30, weight: .bold))
+                        .foregroundColor(.white.opacity(0.85))
                 )
                 .overlay(
-                    RoundedRectangle(cornerRadius: 18)
-                        .stroke(Color.white.opacity(0.22), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.white.opacity(0.14), lineWidth: 1)
                 )
         }
     }
@@ -473,7 +440,7 @@ struct CategoryInfoOverlay: View {
                 HStack(spacing: 8) {
                     ForEach(0..<steps.count, id: \.self) { index in
                         Circle()
-                            .fill(index == currentStep ? Color.white : Color.white.opacity(0.35))
+                            .fill(index == currentStep ? Color.appAccent : Color.white.opacity(0.35))
                             .frame(width: 9, height: 9)
                     }
                 }

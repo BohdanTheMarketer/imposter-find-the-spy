@@ -32,14 +32,6 @@ struct ResultView: View {
         gameSession.players.filter { $0.isImposter }
     }
 
-    private var outcomeAccentColor: Color {
-        didPlayersWin ? Color.revealGreen : Color.revealOrange
-    }
-
-    private var frameColor: Color {
-        didPlayersWin ? Color.onboardingGreen : Color.onboardingRed
-    }
-
     private var outcomeTitle: String {
         didPlayersWin
             ? String(localized: "result.title_players_win")
@@ -118,13 +110,20 @@ struct ResultView: View {
                             Text(intrigueKeys[index])
                                 .font(.evolventa(size: 48, weight: .bold))
                                 .foregroundStyle(
-                                    LinearGradient(
-                                        colors: [.white, .white.opacity(0.88)],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
+                                    index == intrigueKeys.count - 1
+                                        ? AnyShapeStyle(Color.appAccent)
+                                        : AnyShapeStyle(
+                                            LinearGradient(
+                                                colors: [.white, .white.opacity(0.88)],
+                                                startPoint: .leading,
+                                                endPoint: .trailing
+                                            )
+                                        )
                                 )
-                                .shadow(color: Color.gameplayTitle.opacity(0.35), radius: 18, x: 0, y: 0)
+                                .shadow(
+                                    color: (index == intrigueKeys.count - 1 ? Color.appAccent : Color.gameplayTitle).opacity(0.35),
+                                    radius: 18, x: 0, y: 0
+                                )
                                 .transition(
                                     .asymmetric(
                                         insertion: .opacity.combined(with: .scale(scale: 0.92)).combined(with: .move(edge: .leading)),
@@ -145,9 +144,9 @@ struct ResultView: View {
 
     private var resultRevealView: some View {
         ZStack {
-            frameColor
+            LinearGradient.gameplayBackground
                 .ignoresSafeArea()
-                .overlay(GridPatternView().opacity(0.08))
+                .overlay(GridPatternView().opacity(0.06))
 
             if showOutcomeSection {
                 resultFullscreenLayout
@@ -170,11 +169,11 @@ struct ResultView: View {
                         .font(.evolventa(size: 50, weight: .bold))
                         .minimumScaleFactor(0.75)
                         .lineLimit(1)
-                        .foregroundColor(.white)
+                        .foregroundColor(.appAccentHigh)
 
                     Text(verbatim: outcomeSubtitle)
                         .font(.evolventa(size: 15, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.78))
+                        .foregroundColor(.white.opacity(0.6))
                         .multilineTextAlignment(.center)
 
                     imposterGridSection
@@ -182,8 +181,12 @@ struct ResultView: View {
                 .padding(.top, 12)
                 .padding(.horizontal, 14)
                 .padding(.bottom, 16)
-                .background(Color.appBackground.opacity(0.94))
+                .background(Color.appSurface)
                 .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                )
 
                 if !gameSession.secretWord.isEmpty {
                     VStack(spacing: 6) {
@@ -200,8 +203,12 @@ struct ResultView: View {
                     }
                     .padding(.vertical, 10)
                     .frame(maxWidth: .infinity)
-                    .background(Color.appBackground.opacity(0.94))
+                    .background(Color.appSurface)
                     .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                    )
                 }
 
                 Spacer(minLength: 0)
@@ -223,8 +230,13 @@ struct ResultView: View {
                             }
                             .frame(maxWidth: .infinity)
                             .frame(height: 56)
-                            .background(Color.black)
+                            .background(Color.appAccent)
                             .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 28, style: .continuous)
+                                    .stroke(Color.white.opacity(0.22), lineWidth: 1)
+                            )
+                            .shadow(color: Color.appAccent.opacity(0.45), radius: 12, x: 0, y: 6)
                         }
                         .buttonStyle(.plain)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -289,9 +301,9 @@ struct ResultView: View {
             .frame(width: size, height: size)
             .overlay(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .stroke(Color.white.opacity(0.18), lineWidth: 1.5)
+                    .stroke(Color.appAccent, lineWidth: 2.5)
             )
-            .shadow(color: Color.black.opacity(0.28), radius: 8, x: 0, y: 4)
+            .shadow(color: Color.appAccent.opacity(0.45), radius: 18, x: 0, y: 0)
 
             Text(verbatim: imposter.name)
                 .font(.evolventa(size: 15, weight: .semibold))

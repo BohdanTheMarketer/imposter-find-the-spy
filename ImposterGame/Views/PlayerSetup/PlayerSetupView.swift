@@ -65,6 +65,10 @@ struct PlayerSetupView: View {
                 .frame(height: 50)
                 .background(Color.gameplaySurface)
                 .clipShape(RoundedRectangle(cornerRadius: 25))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 25)
+                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                )
 
                 Button(action: addPlayer) {
                     Image(systemName: "plus")
@@ -109,6 +113,11 @@ struct PlayerSetupView: View {
                     .frame(height: 56)
                     .background(Color.gameplayButtonPrimary)
                     .clipShape(RoundedRectangle(cornerRadius: 28))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 28)
+                            .stroke(Color.white.opacity(0.22), lineWidth: 1)
+                    )
+                    .shadow(color: Color.appAccent.opacity(0.45), radius: 12, x: 0, y: 6)
                 }
                 .opacity(canContinue ? 1.0 : 0.85)
             } else {
@@ -710,6 +719,10 @@ struct PlayerRow: View {
         .padding(.vertical, 10)
         .background(Color.gameplaySurface)
         .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.white.opacity(0.07), lineWidth: 1)
+        )
     }
 }
 

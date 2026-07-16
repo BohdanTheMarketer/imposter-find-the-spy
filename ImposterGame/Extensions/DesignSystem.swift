@@ -6,7 +6,7 @@ import CoreText
 extension Color {
     // Claude Design system tokens (mapped to SwiftUI)
     static let appBackground = Color(red: 0.055, green: 0.043, blue: 0.122) // #0E0B1F
-    static let appBackgroundElevated = Color(red: 0.082, green: 0.071, blue: 0.165) // #15122A
+    static let appBackgroundElevated = Color(red: 0.098, green: 0.082, blue: 0.212) // #191536
     static let appAccent = Color(red: 1.0, green: 0.063, blue: 0.620) // #FF109E
     static let appAccentHigh = Color(red: 1.0, green: 0.345, blue: 0.745) // #FF58BE
     static let appTextOnAccent = Color.white

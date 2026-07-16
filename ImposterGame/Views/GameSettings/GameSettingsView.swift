@@ -65,6 +65,10 @@ struct GameSettingsView: View {
                 .frame(maxWidth: .infinity)
                 .background(Color.gameplayButtonPrimary)
                 .clipShape(Capsule())
+                .overlay(
+                    Capsule().stroke(Color.white.opacity(0.22), lineWidth: 1)
+                )
+                .shadow(color: Color.appAccent.opacity(0.45), radius: 12, x: 0, y: 6)
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 10)
@@ -249,11 +253,14 @@ struct GameSettingsView: View {
                 HapticsManager.selection()
             } label: {
                 Text("game_settings.hints_disabled")
-                    .font(.evolventa(size: 12, weight: .bold))
-                    .foregroundColor(hintsEnabled ? .white.opacity(0.55) : .black)
+                    .font(.evolventa(size: 15, weight: .bold))
+                    .foregroundColor(hintsEnabled ? .white.opacity(0.5) : .appTextOnAccent)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 46)
-                    .background(hintsEnabled ? Color.clear : Color.white)
+                    .frame(height: 44)
+                    .background(
+                        Capsule().fill(hintsEnabled ? Color.clear : Color.appAccent)
+                            .shadow(color: hintsEnabled ? .clear : Color.appAccent.opacity(0.4), radius: 10, x: 0, y: 3)
+                    )
             }
 
             Button {
@@ -263,14 +270,18 @@ struct GameSettingsView: View {
                 HapticsManager.selection()
             } label: {
                 Text("game_settings.hints_enabled")
-                    .font(.evolventa(size: 12, weight: .bold))
-                    .foregroundColor(hintsEnabled ? .black : .white.opacity(0.55))
+                    .font(.evolventa(size: 15, weight: .bold))
+                    .foregroundColor(hintsEnabled ? .appTextOnAccent : .white.opacity(0.5))
                     .frame(maxWidth: .infinity)
-                    .frame(height: 46)
-                    .background(hintsEnabled ? Color.white : Color.clear)
+                    .frame(height: 44)
+                    .background(
+                        Capsule().fill(hintsEnabled ? Color.appAccent : Color.clear)
+                            .shadow(color: hintsEnabled ? Color.appAccent.opacity(0.4) : .clear, radius: 10, x: 0, y: 3)
+                    )
             }
         }
-        .background(Color.white.opacity(0.08))
+        .padding(4)
+        .background(Color.appSurface2)
         .clipShape(Capsule())
     }
 
@@ -279,19 +290,22 @@ struct GameSettingsView: View {
         disabled: Bool,
         action: @escaping () -> Void
     ) -> some View {
-        Button(action: action) {
+        // Increment ("+") is the hot-pink accent control; decrement stays on the neutral surface (mock 2d).
+        let isAccent = (icon == "plus")
+        return Button(action: action) {
             Image(systemName: icon)
                 .font(.evolventa(size: 26, weight: .bold))
                 .foregroundColor(.white)
                 .frame(width: 58, height: 58)
-                .background(Color.white.opacity(disabled ? 0.05 : 0.10))
+                .background(isAccent ? Color.appAccent : Color.appSurface2)
                 .clipShape(Circle())
                 .overlay(
-                    Circle().stroke(Color.white.opacity(disabled ? 0.08 : 0.14), lineWidth: 1)
+                    Circle().stroke(Color.white.opacity(isAccent ? 0.22 : 0.12), lineWidth: 1)
                 )
+                .shadow(color: isAccent ? Color.appAccent.opacity(0.4) : .clear, radius: 12, x: 0, y: 4)
         }
         .disabled(disabled)
-        .opacity(disabled ? 0.45 : 1.0)
+        .opacity(disabled ? 0.4 : 1.0)
     }
 
     private func startGame() {

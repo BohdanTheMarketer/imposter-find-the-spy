@@ -112,6 +112,11 @@ struct VotingView: View {
                             .frame(height: 56)
                             .background(Color.gameplayButtonPrimary)
                             .clipShape(RoundedRectangle(cornerRadius: 28))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 28)
+                                    .stroke(Color.white.opacity(0.22), lineWidth: 1)
+                            )
+                            .shadow(color: Color.appAccent.opacity(0.45), radius: 12, x: 0, y: 6)
                     }
                     .buttonStyle(.plain)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -152,8 +157,21 @@ struct VotingCard: View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 16)
-                    .stroke(isSelected ? Color.white : Color.clear, lineWidth: 2)
+                    .stroke(isSelected ? Color.appAccent : Color.white.opacity(0.06), lineWidth: isSelected ? 2.5 : 1)
             )
+            // Pink "voted" check badge (mock 2g)
+            .overlay(alignment: .topTrailing) {
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .font(.evolventa(size: 13, weight: .bold))
+                        .foregroundColor(.appTextOnAccent)
+                        .frame(width: 26, height: 26)
+                        .background(Circle().fill(Color.appAccent))
+                        .padding(10)
+                        .transition(.scale.combined(with: .opacity))
+                }
+            }
+            .shadow(color: Color.appAccent.opacity(isSelected ? 0.5 : 0.0), radius: 16, x: 0, y: 0)
             .scaleEffect(isSelected ? 1.02 : 1.0)
             .animation(.easeInOut(duration: 0.2), value: isSelected)
         }

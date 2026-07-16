@@ -57,34 +57,27 @@ struct OnboardingView: View {
 
     private var stitchFirstOnboardingPage: some View {
         ZStack {
-            // Stage lighting (radial) + deep night base — Stitch “toy-box” depth
-            LinearGradient(
-                colors: [
-                    Color.stitchElectricPurple.opacity(0.38),
-                    Color.stitchNightBase,
-                    Color(red: 0.04, green: 0.03, blue: 0.09)
-                ],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
+            // Neon Night stage — deep navy gradient (#0E0B1F → #191536)
+            LinearGradient.gameplayBackground
+                .ignoresSafeArea()
 
+            // Faint structural grid (matches gameplay screens)
+            GridPatternView(lineColor: .white.opacity(0.05))
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
+
+            // Hot-pink hero glow
             RadialGradient(
                 colors: [
-                    Color.stitchElectricPurple.opacity(0.28),
+                    Color.appAccent.opacity(0.20),
                     Color.clear
                 ],
-                center: UnitPoint(x: 0.5, y: 0.15),
+                center: UnitPoint(x: 0.5, y: 0.32),
                 startRadius: 10,
-                endRadius: 340
+                endRadius: 360
             )
             .ignoresSafeArea()
-
-            // Blueprint grid (glass & grid)
-            BlueprintGridOverlay(lineColor: Color.stitchElectricPurple.opacity(0.22), spacing: 28)
-
-            // Floating technical sketches
-            BlueprintSketchOverlay()
+            .allowsHitTesting(false)
 
             GeometryReader { geo in
                 VStack(spacing: 0) {
@@ -108,13 +101,16 @@ struct OnboardingView: View {
 
                     Text("onboarding.hero_body")
                         .font(.evolventa(size: 16, weight: .regular))
-                        .foregroundColor(.white.opacity(0.92))
+                        .foregroundColor(.white.opacity(0.65))
                         .multilineTextAlignment(.center)
                         .lineSpacing(4)
                         .padding(.horizontal, 36)
-                        .padding(.bottom, 28)
+                        .padding(.bottom, 22)
 
                     Spacer(minLength: 8)
+
+                    OnboardingPageDots(current: currentPage, total: totalPages)
+                        .padding(.bottom, 20)
 
                     OnboardingPulseCTAButton(
                         titleKey: "onboarding.hero_cta",
@@ -134,12 +130,22 @@ struct OnboardingView: View {
     @ViewBuilder
     private func classicOnboardingPage(_ page: OnboardingPage) -> some View {
         ZStack {
-            page.backgroundColor
+            // Neon Night stage — same navy world on every onboarding page
+            LinearGradient.gameplayBackground
                 .ignoresSafeArea()
-                .overlay(
-                    GridPatternView(lineColor: .white.opacity(0.35))
-                        .opacity(0.15)
-                )
+
+            GridPatternView(lineColor: .white.opacity(0.05))
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
+
+            RadialGradient(
+                colors: [Color.appAccent.opacity(0.16), Color.clear],
+                center: UnitPoint(x: 0.5, y: 0.32),
+                startRadius: 10,
+                endRadius: 340
+            )
+            .ignoresSafeArea()
+            .allowsHitTesting(false)
 
             GeometryReader { geo in
                 VStack(spacing: 0) {
@@ -156,18 +162,21 @@ struct OnboardingView: View {
 
                     Text(page.subtitleKey)
                         .font(.evolventa(size: 16, weight: .regular))
-                        .foregroundColor(.white.opacity(0.9))
+                        .foregroundColor(.white.opacity(0.65))
                         .multilineTextAlignment(.center)
                         .lineSpacing(4)
                         .padding(.horizontal, 40)
-                        .padding(.bottom, 40)
+                        .padding(.bottom, 34)
 
                     Spacer(minLength: 8)
+
+                    OnboardingPageDots(current: currentPage, total: totalPages)
+                        .padding(.bottom, 20)
 
                     OnboardingPulseCTAButton(
                         titleKey: page.buttonTitleKey,
                         height: 56,
-                        shape: .roundedRect,
+                        shape: .capsule,
                         action: { advanceFromOnboarding() }
                     )
                     .padding(.horizontal, 40)
@@ -331,18 +340,41 @@ private struct OnboardingPulseCTAButton: View {
     private var buttonLabel: some View {
         let label = Text(titleKey)
             .font(.evolventa(size: 20, weight: .bold))
-            .foregroundColor(.stitchDeepOnyx)
+            .foregroundColor(.appTextOnAccent)
             .frame(maxWidth: .infinity)
             .frame(height: height)
-            .background(Color.white)
-            .shadow(color: .black.opacity(isPulsing ? 0.28 : 0.14), radius: isPulsing ? 18 : 8, y: 4)
+            .background(Color.appAccent)
 
         switch shape {
         case .capsule:
-            label.clipShape(Capsule())
+            label
+                .clipShape(Capsule())
+                .overlay(Capsule().stroke(Color.white.opacity(0.22), lineWidth: 1))
+                .shadow(color: Color.appAccent.opacity(isPulsing ? 0.55 : 0.4), radius: isPulsing ? 26 : 18, y: 6)
         case .roundedRect:
-            label.clipShape(RoundedRectangle(cornerRadius: 28))
+            label
+                .clipShape(RoundedRectangle(cornerRadius: 28))
+                .overlay(RoundedRectangle(cornerRadius: 28).stroke(Color.white.opacity(0.22), lineWidth: 1))
+                .shadow(color: Color.appAccent.opacity(isPulsing ? 0.55 : 0.4), radius: isPulsing ? 26 : 18, y: 6)
         }
+    }
+}
+
+// MARK: - Page indicator (Neon Night)
+
+private struct OnboardingPageDots: View {
+    let current: Int
+    let total: Int
+
+    var body: some View {
+        HStack(spacing: 7) {
+            ForEach(0 ..< total, id: \.self) { index in
+                Capsule()
+                    .fill(index == current ? Color.appAccent : Color.white.opacity(0.25))
+                    .frame(width: index == current ? 22 : 7, height: 7)
+            }
+        }
+        .animation(.easeInOut(duration: 0.25), value: current)
     }
 }
 

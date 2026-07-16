@@ -98,6 +98,7 @@ struct GameTimerView: View {
                             .font(.evolventa(size: 58, weight: .bold))
                             .foregroundColor(.white)
                             .monospacedDigit()
+                            .shadow(color: ringColor.opacity(0.35), radius: 18, x: 0, y: 0)
                     }
                     .frame(width: timerRingSize, height: timerRingSize)
                 }

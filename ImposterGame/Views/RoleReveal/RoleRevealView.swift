@@ -33,9 +33,12 @@ struct RoleRevealView: View {
 
     var body: some View {
         ZStack {
-            // Background matches sampled portrait backdrop when possible.
-            revealScreenColor
+            // Neon Night navy world (mock 2e).
+            LinearGradient.gameplayBackground
                 .ignoresSafeArea()
+            GridPatternView(lineColor: .white.opacity(0.05))
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
 
             roleRevealContent
         }
@@ -59,7 +62,7 @@ struct RoleRevealView: View {
         ZStack {
             // Revealed content underneath the top card.
             ZStack {
-                    (currentPlayer.isImposter ? Color.black : revealScreenColor)
+                    LinearGradient.gameplayBackground
                         .ignoresSafeArea()
 
                     VStack {
@@ -106,16 +109,29 @@ struct RoleRevealView: View {
                                     .padding(.top, 8)
                                 }
                             } else {
-                                Text("role_reveal.crew_secret_prefix")
-                                    .font(.evolventa(size: 18, weight: .semibold))
-                                    .foregroundColor(.black.opacity(0.8))
+                                VStack(spacing: 6) {
+                                    Text("role_reveal.crew_secret_prefix")
+                                        .font(.evolventa(size: 15, weight: .semibold))
+                                        .foregroundColor(.white.opacity(0.55))
 
-                                Text(verbatim: currentPlayer.secretWord)
-                                    .font(.evolventa(size: 42, weight: .bold))
-                                    .foregroundColor(.black)
-                                    .multilineTextAlignment(.center)
-                                    .minimumScaleFactor(0.6)
-                                    .lineLimit(2)
+                                    Text(verbatim: currentPlayer.secretWord)
+                                        .font(.evolventa(size: 40, weight: .bold))
+                                        .foregroundColor(.white)
+                                        .multilineTextAlignment(.center)
+                                        .minimumScaleFactor(0.6)
+                                        .lineLimit(2)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 22)
+                                .padding(.horizontal, 20)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 24)
+                                        .fill(Color.appSurface)
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 24)
+                                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                                )
                             }
                         }
 
@@ -126,24 +142,16 @@ struct RoleRevealView: View {
                     .padding(.bottom, geo.size.height * 0.18)
             }
 
-            // Cover (draggable): centered portrait with top/bottom chrome overlaid.
+            // Cover (draggable): navy world with a contained avatar card (mock 2e).
             ZStack {
-                revealScreenColor
+                LinearGradient.gameplayBackground
                     .ignoresSafeArea()
-
-                Group {
-                    if let portrait = PlayerProfiles.roleRevealUIImage(for: currentPlayer.avatarIndex) {
-                        Image(uiImage: portrait)
-                            .renderingMode(.original)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: geo.size.width * 0.9, height: geo.size.height * 0.52)
-                            .clipped()
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                GridPatternView(lineColor: .white.opacity(0.05))
+                    .ignoresSafeArea()
+                    .allowsHitTesting(false)
 
                 VStack(spacing: 0) {
+                    // Header: back control + player position
                     HStack {
                         Button(action: {
                             if currentIndex == 0 {
@@ -158,27 +166,62 @@ struct RoleRevealView: View {
                         .disabled(currentIndex != 0)
 
                         Spacer()
+
+                        Text(verbatim: "\(currentIndex + 1) / \(gameSession.players.count)")
+                            .font(.evolventa(size: 15, weight: .bold))
+                            .foregroundColor(.white.opacity(0.6))
+
+                        Spacer()
+
+                        Color.clear.frame(width: 22, height: 22)
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 52)
 
-                    Text(verbatim: "\(currentIndex + 1)")
-                        .font(.evolventa(size: 40, weight: .black))
-                        .foregroundColor(.white)
-                        .padding(.top, 14)
+                    if !hasSeenCurrentWord {
+                        Text(String(format: String(localized: "role_reveal.pass_phone_format"), currentPlayer.name))
+                            .font(.evolventa(size: 24, weight: .bold))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                            .padding(.top, 14)
+                            .padding(.horizontal, 24)
+                    }
+
+                    // Contained avatar card
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 28)
+                            .fill(revealScreenColor)
+                        if let portrait = PlayerProfiles.roleRevealUIImage(for: currentPlayer.avatarIndex) {
+                            Image(uiImage: portrait)
+                                .renderingMode(.original)
+                                .resizable()
+                                .scaledToFill()
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: geo.size.height * 0.5)
+                    .clipShape(RoundedRectangle(cornerRadius: 28))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 28)
+                            .stroke(Color.white.opacity(0.14), lineWidth: 1)
+                    )
+                    .shadow(color: .black.opacity(0.5), radius: 24, x: 0, y: 16)
+                    .padding(.horizontal, 28)
+                    .padding(.top, 18)
 
                     Spacer()
-                    VStack(spacing: 10) {
+
+                    VStack(spacing: 12) {
                         if hasSeenCurrentWord {
                             if isLastPlayer {
                                 Text("role_reveal.all_done")
                                     .font(.evolventa(size: 18, weight: .bold))
-                                    .foregroundColor(.black)
+                                    .foregroundColor(.white)
                                     .multilineTextAlignment(.center)
                             } else if let next = nextPlayer {
                                 Text(String(format: String(localized: "role_reveal.pass_phone_format"), next.name))
                                     .font(.evolventa(size: 18, weight: .bold))
-                                    .foregroundColor(.black)
+                                    .foregroundColor(.white)
                                     .multilineTextAlignment(.center)
                             }
 
@@ -188,27 +231,32 @@ struct RoleRevealView: View {
                                 Text(isLastPlayer
                                      ? LocalizedStringKey("role_reveal.start_game")
                                      : LocalizedStringKey("common.continue"))
-                                    .font(.evolventa(size: 20, weight: .black))
-                                    .foregroundColor(.white)
+                                    .font(.evolventa(size: 20, weight: .bold))
+                                    .foregroundColor(.appTextOnAccent)
                                     .frame(maxWidth: .infinity)
-                                    .frame(height: 62)
-                                    .background(Color.black)
-                                    .clipShape(RoundedRectangle(cornerRadius: 31))
+                                    .frame(height: 56)
+                                    .background(Color.appAccent)
+                                    .clipShape(RoundedRectangle(cornerRadius: 28))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 28)
+                                            .stroke(Color.white.opacity(0.22), lineWidth: 1)
+                                    )
+                                    .shadow(color: Color.appAccent.opacity(0.45), radius: 12, x: 0, y: 6)
                             }
-                            .padding(.horizontal, 40)
+                            .padding(.horizontal, 28)
                         } else {
                             Text("role_reveal.swipe_instruction")
-                                .font(.evolventa(size: 20, weight: .bold))
+                                .font(.evolventa(size: 19, weight: .bold))
                                 .foregroundColor(.white)
                                 .multilineTextAlignment(.center)
-                        }
 
-                        Image(systemName: "chevron.up")
-                            .font(.evolventa(size: 24, weight: .bold))
-                            .foregroundColor(.white)
-                            .offset(y: -4)
+                            Image(systemName: "chevron.up")
+                                .font(.evolventa(size: 24, weight: .bold))
+                                .foregroundColor(.appAccent)
+                                .offset(y: -2)
+                        }
                     }
-                    .padding(.bottom, 36)
+                    .padding(.bottom, 40)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
