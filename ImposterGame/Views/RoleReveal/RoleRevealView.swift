@@ -341,63 +341,11 @@ private struct ImposterRevealBrandMark: View {
                         )
                 )
 
-            // Hood + anonymous “visor” silhouette (white on red).
-            ImposterMarkGlyph()
-                .frame(width: 72, height: 72)
+            // Spy emoji mark.
+            Text(verbatim: "🕵️")
+                .font(.system(size: 66))
         }
         .accessibilityLabel(Text("role_reveal.imposter_label"))
-    }
-}
-
-private struct ImposterMarkGlyph: View {
-    var body: some View {
-        Canvas { context, size in
-            let w = size.width
-            let h = size.height
-            let hood = Path { p in
-                p.move(to: CGPoint(x: w * 0.12, y: h * 0.72))
-                p.addQuadCurve(
-                    to: CGPoint(x: w * 0.5, y: h * 0.08),
-                    control: CGPoint(x: w * 0.02, y: h * 0.32)
-                )
-                p.addQuadCurve(
-                    to: CGPoint(x: w * 0.88, y: h * 0.72),
-                    control: CGPoint(x: w * 0.98, y: h * 0.32)
-                )
-                p.addQuadCurve(
-                    to: CGPoint(x: w * 0.5, y: h * 0.88),
-                    control: CGPoint(x: w * 0.78, y: h * 0.95)
-                )
-                p.addQuadCurve(
-                    to: CGPoint(x: w * 0.12, y: h * 0.72),
-                    control: CGPoint(x: w * 0.22, y: h * 0.95)
-                )
-                p.closeSubpath()
-            }
-            context.fill(hood, with: .color(.white.opacity(0.95)))
-
-            // Visor band — negative space feel
-            let visor = Path { p in
-                p.move(to: CGPoint(x: w * 0.22, y: h * 0.42))
-                p.addQuadCurve(
-                    to: CGPoint(x: w * 0.78, y: h * 0.42),
-                    control: CGPoint(x: w * 0.5, y: h * 0.36)
-                )
-                p.addLine(to: CGPoint(x: w * 0.76, y: h * 0.58))
-                p.addQuadCurve(
-                    to: CGPoint(x: w * 0.24, y: h * 0.58),
-                    control: CGPoint(x: w * 0.5, y: h * 0.64)
-                )
-                p.closeSubpath()
-            }
-            context.fill(visor, with: .color(Color(red: 0.55, green: 0.02, blue: 0.08).opacity(0.92)))
-
-            // Eyes
-            let eyeL = Path(ellipseIn: CGRect(x: w * 0.32, y: h * 0.46, width: w * 0.1, height: h * 0.08))
-            let eyeR = Path(ellipseIn: CGRect(x: w * 0.58, y: h * 0.46, width: w * 0.1, height: h * 0.08))
-            context.fill(eyeL, with: .color(.white.opacity(0.92)))
-            context.fill(eyeR, with: .color(.white.opacity(0.92)))
-        }
     }
 }
 

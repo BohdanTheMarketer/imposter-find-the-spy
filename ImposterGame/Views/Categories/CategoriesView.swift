@@ -291,8 +291,7 @@ struct CategoryCard: View {
                     Text(verbatim: category.description)
                         .font(.evolventa(size: 14, weight: .medium))
                         .foregroundColor(.white.opacity(0.6))
-                        .lineLimit(2)
-                        .minimumScaleFactor(0.9)
+                        .fixedSize(horizontal: false, vertical: true)
                         .multilineTextAlignment(.leading)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
