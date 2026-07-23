@@ -46,13 +46,13 @@
 "player_setup.options_title"                  = "Seçenekler";
 "player_setup.options_language"               = "Dil";
 "player_setup.options_contact"                = "Bize ulaşın";
-"player_setup.udid_loading"                   = "Yükleniyor…";
-"player_setup.udid_unavailable"               = "Kullanılamıyor";
-"player_setup.udid_label"                     = "UDID:";
-"player_setup.udid_toast_loading"             = "UDID hâlâ yükleniyor. Biraz sonra deneyin.";
-"player_setup.udid_toast_unavailable"         = "UDID şu an kullanılamıyor.";
-"player_setup.udid_toast_copied"              = "UDID kopyalandı";
-"player_setup.udid_toast_copy_failed"         = "UDID kopyalanamadı";
+"player_setup.install_id_loading"             = "Yükleniyor…";
+"player_setup.install_id_unavailable"         = "Kullanılamıyor";
+"player_setup.install_id_label"               = "ID:";
+"player_setup.install_id_toast_loading"       = "ID hâlâ yükleniyor. Biraz sonra deneyin.";
+"player_setup.install_id_toast_unavailable"   = "ID şu an kullanılamıyor.";
+"player_setup.install_id_toast_copied"        = "ID kopyalandı";
+"player_setup.install_id_toast_copy_failed"   = "ID kopyalanamadı";
 
 /* Language picker sheet */
 "language.sheet.title"                        = "Dil";

@@ -25,12 +25,19 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
     ) {
         Messaging.messaging().apnsToken = deviceToken
+        #if DEBUG
+        let token = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
+        print("[APNs] device token registered (\(token.prefix(16))…)")
+        #endif
     }
 
     func application(
         _ application: UIApplication,
         didFailToRegisterForRemoteNotificationsWithError error: Error
     ) {
+        #if DEBUG
+        print("[APNs] registration failed: \(error.localizedDescription)")
+        #endif
         Crashlytics.crashlytics().record(error: error)
     }
 

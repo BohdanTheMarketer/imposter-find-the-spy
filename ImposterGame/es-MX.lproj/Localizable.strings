@@ -46,13 +46,13 @@
 "player_setup.options_title"                  = "Opciones";
 "player_setup.options_language"               = "Idioma";
 "player_setup.options_contact"                = "Contáctanos";
-"player_setup.udid_loading"                   = "Cargando…";
-"player_setup.udid_unavailable"               = "No disponible";
-"player_setup.udid_label"                     = "UDID:";
-"player_setup.udid_toast_loading"             = "UDID aún cargando. Intenta en un momento.";
-"player_setup.udid_toast_unavailable"         = "UDID no disponible ahora.";
-"player_setup.udid_toast_copied"              = "UDID copiado";
-"player_setup.udid_toast_copy_failed"         = "No se pudo copiar el UDID";
+"player_setup.install_id_loading"             = "Cargando…";
+"player_setup.install_id_unavailable"         = "No disponible";
+"player_setup.install_id_label"               = "ID:";
+"player_setup.install_id_toast_loading"       = "ID aún cargando. Intenta en un momento.";
+"player_setup.install_id_toast_unavailable"   = "ID no disponible ahora.";
+"player_setup.install_id_toast_copied"        = "ID copiado";
+"player_setup.install_id_toast_copy_failed"   = "No se pudo copiar el ID";
 
 /* Language picker sheet */
 "language.sheet.title"                        = "Idioma";

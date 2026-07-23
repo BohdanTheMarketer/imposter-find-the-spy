@@ -474,9 +474,9 @@ private enum PlayerOptionsLinks {
 
 struct PlayerOptionsSheet: View {
     @Binding var isPresented: Bool
-    @State private var firebaseInstallationId: String = ""
-    @State private var isLoadingFirebaseId = true
-    @State private var didCopyUDID = false
+    @State private var installationId: String = ""
+    @State private var isLoadingInstallationId = true
+    @State private var didCopyInstallationId = false
     @State private var toastMessage = ""
     @State private var showToast = false
     @State private var showLanguagePicker = false
@@ -519,7 +519,7 @@ struct PlayerOptionsSheet: View {
                 }
                 .padding(.horizontal, 20)
 
-                firebaseInstallationIdRow
+                installationIdRow
 
                 Spacer(minLength: 12)
 
@@ -540,7 +540,7 @@ struct PlayerOptionsSheet: View {
             }
         }
         .onAppear {
-            loadFirebaseInstallationID()
+            loadInstallationId()
         }
         .sheet(isPresented: $showLanguagePicker) {
             LanguagePickerSheet(isPresented: $showLanguagePicker)
@@ -563,16 +563,16 @@ struct PlayerOptionsSheet: View {
         .presentationDragIndicator(.visible)
     }
 
-    private var firebaseInstallationIdRow: some View {
+    private var installationIdRow: some View {
         let valueText: String = {
-            if isLoadingFirebaseId { return String(localized: "player_setup.udid_loading") }
-            if firebaseInstallationId.isEmpty { return String(localized: "player_setup.udid_unavailable") }
-            return firebaseInstallationId
+            if isLoadingInstallationId { return String(localized: "player_setup.install_id_loading") }
+            if installationId.isEmpty { return String(localized: "player_setup.install_id_unavailable") }
+            return installationId
         }()
 
-        return Button(action: copyFirebaseInstallationID) {
+        return Button(action: copyInstallationId) {
             HStack(alignment: .center, spacing: 12) {
-                Text("player_setup.udid_label")
+                Text("player_setup.install_id_label")
                     .font(.evolventa(size: 12, weight: .semibold))
                     .foregroundColor(.white.opacity(0.6))
                 Text(verbatim: valueText)
@@ -582,9 +582,9 @@ struct PlayerOptionsSheet: View {
                     .truncationMode(.middle)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                Image(systemName: didCopyUDID ? "checkmark.circle.fill" : "doc.on.doc")
+                Image(systemName: didCopyInstallationId ? "checkmark.circle.fill" : "doc.on.doc")
                     .font(.evolventa(size: 16, weight: .semibold))
-                    .foregroundColor(didCopyUDID ? .green.opacity(0.9) : .white.opacity(0.55))
+                    .foregroundColor(didCopyInstallationId ? .green.opacity(0.9) : .white.opacity(0.55))
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
@@ -597,41 +597,37 @@ struct PlayerOptionsSheet: View {
         .padding(.top, 16)
     }
 
-    private func loadFirebaseInstallationID() {
-        isLoadingFirebaseId = true
+    private func loadInstallationId() {
+        isLoadingInstallationId = true
         Installations.installations().installationID { id, _ in
             DispatchQueue.main.async {
-                if let id, !id.isEmpty {
-                    firebaseInstallationId = id
-                } else {
-                    firebaseInstallationId = ""
-                }
-                isLoadingFirebaseId = false
+                installationId = id ?? ""
+                isLoadingInstallationId = false
             }
         }
     }
 
-    private func copyFirebaseInstallationID() {
-        guard !isLoadingFirebaseId else {
-            showToast(message: String(localized: "player_setup.udid_toast_loading"))
+    private func copyInstallationId() {
+        guard !isLoadingInstallationId else {
+            showToast(message: String(localized: "player_setup.install_id_toast_loading"))
             HapticsManager.notification(.warning)
             return
         }
-        guard !firebaseInstallationId.isEmpty else {
-            showToast(message: String(localized: "player_setup.udid_toast_unavailable"))
+        guard !installationId.isEmpty else {
+            showToast(message: String(localized: "player_setup.install_id_toast_unavailable"))
             HapticsManager.notification(.warning)
             return
         }
-        UIPasteboard.general.string = firebaseInstallationId
-        didCopyUDID = UIPasteboard.general.string == firebaseInstallationId
-        if didCopyUDID {
-            showToast(message: String(localized: "player_setup.udid_toast_copied"))
+        UIPasteboard.general.string = installationId
+        didCopyInstallationId = UIPasteboard.general.string == installationId
+        if didCopyInstallationId {
+            showToast(message: String(localized: "player_setup.install_id_toast_copied"))
             HapticsManager.impact(.light)
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-                didCopyUDID = false
+                didCopyInstallationId = false
             }
         } else {
-            showToast(message: String(localized: "player_setup.udid_toast_copy_failed"))
+            showToast(message: String(localized: "player_setup.install_id_toast_copy_failed"))
             HapticsManager.notification(.warning)
         }
     }
