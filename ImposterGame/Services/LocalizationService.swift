@@ -45,7 +45,10 @@ final class LocalizationService: ObservableObject {
 
     func selectLocale(code: String) {
         guard code != currentLocaleCode else { return }
+        let previousCode = currentLocaleCode
         applyLanguage(code, notify: true)
+        AnalyticsService.logLanguageChanged(from: previousCode, to: currentLocaleCode)
+        AnalyticsService.setAppLanguage(currentLocaleCode)
     }
 
     var currentLocale: SupportedLocale? {

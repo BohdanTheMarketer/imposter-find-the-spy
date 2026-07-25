@@ -147,6 +147,12 @@
 "paywall.restore_alert_title"                 = "Restaurar compras";
 "paywall.restore_alert_message"               = "Si tienes suscripción activa, se restaurará pronto.";
 "paywall.auto_renews_suffix"                  = "se renueva solo";
+"paywall.price_per_day_format"                = "%@/día";
+"paywall.billed_price_format"                 = "Se factura %@";
+"paywall.price_loading"                       = "Cargando precio...";
+"paywall.benefit_ai_packs"                    = "🤖 Paquetes de palabras con IA personalizados";
+"paywall.benefit_all_packs"                   = "🔓 Todos los paquetes premium desbloqueados";
+"paywall.benefit_no_ads"                      = "🚫 Sin anuncios, nunca";
 "category_paywall.free_access_on"             = "Acceso gratis activado";
 "category_paywall.trial_on_subtitle"          = "Sin compromiso, cancela cuando quieras";
 "category_paywall.cta_trial"                  = "Pruébalo gratis";
@@ -167,6 +173,32 @@
 "categories.info.vote_win"                    = "✅  Aciertas — ganas";
 "categories.info.vote_lose"                   = "❌  Fallas — gana el impostor";
 "categories.info.instant_win_warning"         = "⚠️ Si el impostor adivina la palabra a tiempo, gana al instante";
+"categories.custom_packs_section_title"       = "Paquetes personalizados";
+"categories.custom_pack_create_cta"           = "Crear paquete con IA";
+"categories.custom_pack_limit_reached"        = "Límite de paquetes alcanzado (10/10)";
+"categories.custom_pack_unlock_premium"       = "Desbloquear con Premium";
+"categories.premium_banner_title"             = "Hazte Premium ✨";
+"categories.premium_banner_subtitle"          = "Desbloquea todos los paquetes, los paquetes con IA y más";
+
+"custom_pack.title"                           = "Paquete de palabras IA";
+"custom_pack.prompt_label"                    = "¿De qué debería tratar este paquete?";
+"custom_pack.prompt_placeholder"              = "ej. “Películas de acción de los 80”, “Animales marinos”…";
+"custom_pack.generate_button"                 = "Generar paquete";
+"custom_pack.generating"                      = "Generando tu paquete…";
+"custom_pack.success_title"                   = "¡Paquete creado!";
+"custom_pack.word_count_format"               = "%d palabras";
+"custom_pack.remaining_slots_format"          = "%d de %d paquetes disponibles";
+"custom_pack.done_button"                     = "Listo";
+"custom_pack.cancel"                          = "Cancelar";
+"custom_pack.delete_confirm_title"            = "¿Eliminar este paquete?";
+"custom_pack.delete_confirm_message"          = "Esta acción no se puede deshacer.";
+"custom_pack.delete_confirm_action"           = "Eliminar";
+"custom_pack.error_missing_key"               = "La generación con IA aún no está configurada. Inténtalo más tarde.";
+"custom_pack.error_invalid_prompt"            = "Primero describe un tema.";
+"custom_pack.error_network"                   = "No se pudo conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.";
+"custom_pack.error_unauthorized"              = "La generación con IA no está configurada correctamente. Inténtalo más tarde.";
+"custom_pack.error_rate_limited"              = "Demasiadas solicitudes por ahora. Inténtalo de nuevo en un momento.";
+"custom_pack.error_generation_failed"         = "No se pudo generar un paquete con esa descripción. Intenta reformularla.";
 
 /* Loader */
 "loader.tagline"                              = "ENCUENTRA  •  ACUSA  •  SOBREVIVE";

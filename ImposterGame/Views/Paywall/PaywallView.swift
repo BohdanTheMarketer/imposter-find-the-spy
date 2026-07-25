@@ -10,6 +10,7 @@ struct OnboardingPaywallView: View {
     @State private var isCloseButtonVisible = false
     @State private var closeButtonRevealTask: Task<Void, Never>?
     @State private var didClosePaywall = false
+    @State private var showDailyPricing = false
 
     private enum OnboardingPaywallLinks {
         static let privacyURL = URL(string: "https://www.verte-bro.com/privacy-policy")
@@ -46,12 +47,16 @@ struct OnboardingPaywallView: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.top, isCompactHeight ? 0 : 4)
 
+                    PaywallBenefitsList()
+                        .padding(.top, isCompactHeight ? 6 : 10)
+
                     Spacer(minLength: isCompactHeight ? 8 : 20)
 
                     PaywallPlansSection(
                         selection: $selection,
                         subscriptionManager: subscriptionManager,
-                        onSelectionChanged: logPlanSelected
+                        onSelectionChanged: logPlanSelected,
+                        showDailyPricing: showDailyPricing
                     )
 
                     continueButton
@@ -81,6 +86,7 @@ struct OnboardingPaywallView: View {
                 scheduleClosePaywall(reason: .purchaseSuccess)
                 return
             }
+            showDailyPricing = !subscriptionManager.markPaywallShown()
             AnalyticsService.logPaywallViewed(context: .onboarding)
             Task {
                 await subscriptionManager.refreshStoreProducts(trigger: "onboarding_paywall_appear")
@@ -221,7 +227,7 @@ struct OnboardingPaywallView: View {
         didClosePaywall = true
 
         AnalyticsService.logPaywallClosed(context: .onboarding, reason: reason)
-        router.navigateToPlayerSetup()
+        router.navigateToCategories()
     }
 
     private func scheduleCloseButtonReveal() {

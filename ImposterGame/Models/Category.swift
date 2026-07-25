@@ -8,6 +8,10 @@ struct Category: Identifiable, Codable, Hashable {
     let words: [String]
     let imposterHints: [String]
     let isPremium: Bool
+    /// True for AI-generated packs created and stored locally by the user (see `CustomWordPackStore`).
+    var isCustom: Bool = false
+    /// Timestamp used to order custom packs (most recent first). Unused for bundled packs.
+    var createdAt: Date = Date()
 
     init(
         id: UUID = UUID(),
@@ -16,7 +20,9 @@ struct Category: Identifiable, Codable, Hashable {
         description: String,
         words: [String],
         imposterHints: [String] = [],
-        isPremium: Bool = false
+        isPremium: Bool = false,
+        isCustom: Bool = false,
+        createdAt: Date = Date()
     ) {
         self.id = id
         self.name = name
@@ -25,6 +31,8 @@ struct Category: Identifiable, Codable, Hashable {
         self.words = words
         self.imposterHints = imposterHints
         self.isPremium = isPremium
+        self.isCustom = isCustom
+        self.createdAt = createdAt
     }
 }
 

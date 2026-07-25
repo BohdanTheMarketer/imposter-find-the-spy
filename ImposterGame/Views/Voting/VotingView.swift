@@ -80,6 +80,10 @@ struct VotingView: View {
                                             selectedPlayerIDs.insert(player.id)
                                         }
                                     }
+                                    AnalyticsService.logVotingSelectionChanged(
+                                        selectedCount: selectedPlayerIDs.count,
+                                        maxSelections: maxSelections
+                                    )
                                 }
                             )
                         }
@@ -96,6 +100,7 @@ struct VotingView: View {
                 if hasRequiredSelectionCount {
                     Button(action: {
                         HapticsManager.impact(.heavy)
+                        AnalyticsService.logVotingRevealTapped(selectedCount: selectedIndices.count)
                         let selected = selectedIndices
                         gameSession.votedPlayerIndices = selected
                         let engine = GameEngine()

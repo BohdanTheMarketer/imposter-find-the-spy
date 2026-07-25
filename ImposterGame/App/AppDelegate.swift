@@ -9,6 +9,9 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
+        // Initialize Amplitude Analytics + Session Replay once, on-device, at launch.
+        AmplitudeManager.start()
+
         UNUserNotificationCenter.current().delegate = self
         Messaging.messaging().delegate = self
         PushNotificationService.migratePromptVersionIfNeeded()

@@ -169,6 +169,34 @@ class SubscriptionManager: ObservableObject {
         }
     }
 
+    /// Marketing "price broken into days" text (e.g. "$1.43/day"), shown on repeat paywall views.
+    /// Actual billing terms remain weekly/yearly — see `billedPriceText`/`displayTerms`.
+    func dailyPriceText(for plan: SubscriptionPlan) -> String {
+        guard let product = productsByID[plan.productID] else {
+            return isStoreLoading ? LocalizationService.shared.localized("paywall.price_loading") : "--/day"
+        }
+        let daysInPeriod: Decimal
+        switch plan {
+        case .weekly: daysInPeriod = 7
+        case .yearly: daysInPeriod = 365
+        }
+        let dailyPrice = product.price / daysInPeriod
+        let formatted = product.priceFormatStyle.format(dailyPrice)
+        return LocalizationService.shared.localizedFormat("paywall.price_per_day_format", formatted)
+    }
+
+    var weeklyPlanDailyPriceText: String { dailyPriceText(for: .weekly) }
+    var yearlyPlanDailyPriceText: String { dailyPriceText(for: .yearly) }
+
+    /// Call when a paywall screen actually appears (and isn't auto-closing for an existing subscriber).
+    /// Returns `true` if this is the very first time any paywall has been shown to this user.
+    @discardableResult
+    func markPaywallShown() -> Bool {
+        let isFirstShow = !hasSeenPaywall
+        hasSeenPaywall = true
+        return isFirstShow
+    }
+
     func displayTerms(for plan: SubscriptionPlan) -> String {
         guard let product = productsByID[plan.productID] else {
             return LocalizationService.shared.localized("paywall.terms.fallback")

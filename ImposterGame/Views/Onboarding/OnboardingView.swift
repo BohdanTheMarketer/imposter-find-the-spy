@@ -51,6 +51,17 @@ struct OnboardingView: View {
         .ignoresSafeArea()
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
+        .onAppear {
+            AnalyticsService.logOnboardingPageViewed(pageIndex: currentPage, pageID: pageID(for: currentPage))
+        }
+        .onChange(of: currentPage) { newValue in
+            AnalyticsService.logOnboardingPageViewed(pageIndex: newValue, pageID: pageID(for: newValue))
+        }
+    }
+
+    /// Stable identifier for the current onboarding page, for analytics.
+    private func pageID(for index: Int) -> String {
+        index == 0 ? "hero" : "page\(index + 1)"
     }
 
     // MARK: - Stitch first screen (blueprint / 3D hero)
@@ -202,17 +213,14 @@ struct OnboardingView: View {
 
     private func advanceFromOnboarding() {
         HapticsManager.impact(.light)
+        AnalyticsService.logOnboardingCTATapped(pageIndex: currentPage, pageID: pageID(for: currentPage))
         if currentPage < totalPages - 1 {
             currentPage += 1
         } else {
             subscriptionManager.hasCompletedOnboarding = true
-            let next = subscriptionManager.isPremium ? "player_setup" : "paywall"
-            AnalyticsService.logEvent("onboarding_complete", parameters: ["next": next])
-            if subscriptionManager.isPremium {
-                router.navigate(to: .playerSetup)
-            } else {
-                router.navigate(to: .paywall)
-            }
+            // The first paywall now shows after player setup (once players are entered), not here.
+            AnalyticsService.logEvent("onboarding_complete", parameters: ["next": "player_setup"])
+            router.navigate(to: .playerSetup)
         }
     }
 }

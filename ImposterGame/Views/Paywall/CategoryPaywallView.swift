@@ -8,6 +8,7 @@ struct CategoryPaywallView: View {
     @State private var selection: PaywallSelection = .yearly
     @State private var showRestoreMessage = false
     @State private var didClosePaywall = false
+    @State private var showDailyPricing = false
 
     private enum CategoryPaywallLinks {
         static let privacyURL = URL(string: "https://www.verte-bro.com/privacy-policy")
@@ -31,12 +32,16 @@ struct CategoryPaywallView: View {
                     heroBlock(height: isCompactHeight ? 240 : 285, topPadding: isCompactHeight ? -6 : 4, bottomPadding: isCompactHeight ? 2 : 10)
                     titleBlock(isCompactHeight: isCompactHeight)
 
+                    PaywallBenefitsList()
+                        .padding(.top, isCompactHeight ? 6 : 10)
+
                     Spacer(minLength: isCompactHeight ? 8 : 20)
 
                     PaywallPlansSection(
                         selection: $selection,
                         subscriptionManager: subscriptionManager,
-                        onSelectionChanged: logPlanSelected
+                        onSelectionChanged: logPlanSelected,
+                        showDailyPricing: showDailyPricing
                     )
                     .padding(.top, 12)
 
@@ -65,6 +70,7 @@ struct CategoryPaywallView: View {
                 scheduleClosePaywall(reason: .purchaseSuccess)
                 return
             }
+            showDailyPricing = !subscriptionManager.markPaywallShown()
             AnalyticsService.logPaywallViewed(context: .category)
             Task {
                 await subscriptionManager.refreshStoreProducts(trigger: "category_paywall_appear")

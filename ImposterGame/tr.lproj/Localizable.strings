@@ -147,6 +147,12 @@
 "paywall.restore_alert_title"                 = "Satın alımları geri yükle";
 "paywall.restore_alert_message"               = "Aktif aboneliğin varsa kısa sürede geri yüklenir.";
 "paywall.auto_renews_suffix"                  = "otomatik yenilenir";
+"paywall.price_per_day_format"                = "%@/gün";
+"paywall.billed_price_format"                 = "Faturalandırma: %@";
+"paywall.price_loading"                       = "Fiyat yükleniyor...";
+"paywall.benefit_ai_packs"                    = "🤖 Özel yapay zeka kelime paketleri";
+"paywall.benefit_all_packs"                   = "🔓 Tüm premium paketlerin kilidi açık";
+"paywall.benefit_no_ads"                      = "🚫 Reklamsız, hiç";
 "category_paywall.free_access_on"             = "Ücretsiz erişim açık";
 "category_paywall.trial_on_subtitle"          = "Taahhüt yok, istediğin zaman iptal";
 "category_paywall.cta_trial"                  = "Ücretsiz dene";
@@ -167,6 +173,32 @@
 "categories.info.vote_win"                    = "✅  Doğru tahmin — kazandın";
 "categories.info.vote_lose"                   = "❌  Kaçırdın — sahtekar kazandı";
 "categories.info.instant_win_warning"         = "⚠️ Sahtekar süre dolmadan kelimeyi bilirse anında kazanır";
+"categories.custom_packs_section_title"       = "Özel Paketler";
+"categories.custom_pack_create_cta"           = "Yapay Zeka Paketi Oluştur";
+"categories.custom_pack_limit_reached"        = "Paket sınırına ulaşıldı (10/10)";
+"categories.custom_pack_unlock_premium"       = "Premium ile kilidini aç";
+"categories.premium_banner_title"             = "Premium'a Geç ✨";
+"categories.premium_banner_subtitle"          = "Tüm paketlerin, yapay zeka paketlerinin kilidini aç ve daha fazlası";
+
+"custom_pack.title"                           = "Yapay Zeka Kelime Paketi";
+"custom_pack.prompt_label"                    = "Bu paket ne hakkında olmalı?";
+"custom_pack.prompt_placeholder"              = "ör. “80'ler aksiyon filmleri”, “Deniz hayvanları”…";
+"custom_pack.generate_button"                 = "Paketi Oluştur";
+"custom_pack.generating"                      = "Paketiniz oluşturuluyor…";
+"custom_pack.success_title"                   = "Paket Oluşturuldu!";
+"custom_pack.word_count_format"               = "%d kelime";
+"custom_pack.remaining_slots_format"          = "%d / %d paket kaldı";
+"custom_pack.done_button"                     = "Tamam";
+"custom_pack.cancel"                          = "İptal";
+"custom_pack.delete_confirm_title"            = "Bu paket silinsin mi?";
+"custom_pack.delete_confirm_message"          = "Bu işlem geri alınamaz.";
+"custom_pack.delete_confirm_action"           = "Sil";
+"custom_pack.error_missing_key"               = "Yapay zeka oluşturma henüz yapılandırılmadı. Lütfen daha sonra tekrar deneyin.";
+"custom_pack.error_invalid_prompt"            = "Lütfen önce bir tema açıklayın.";
+"custom_pack.error_network"                   = "Sunucuya ulaşılamadı. Bağlantınızı kontrol edip tekrar deneyin.";
+"custom_pack.error_unauthorized"              = "Yapay zeka oluşturma doğru yapılandırılmadı. Lütfen daha sonra tekrar deneyin.";
+"custom_pack.error_rate_limited"              = "Şu anda çok fazla istek var. Lütfen biraz sonra tekrar deneyin.";
+"custom_pack.error_generation_failed"         = "Bu açıklamadan paket oluşturulamadı. Farklı bir ifade deneyin.";
 
 /* Loader */
 "loader.tagline"                              = "BUL  •  SUÇLA  •  HAYATTA KAL";

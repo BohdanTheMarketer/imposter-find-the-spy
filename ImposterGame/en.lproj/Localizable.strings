@@ -147,6 +147,12 @@
 "paywall.restore_alert_title"                 = "Restore Purchases";
 "paywall.restore_alert_message"               = "If you have an active subscription, it will be restored shortly.";
 "paywall.auto_renews_suffix"                  = "auto-renews";
+"paywall.price_per_day_format"                = "%@/day";
+"paywall.billed_price_format"                 = "Billed %@";
+"paywall.price_loading"                       = "Loading price...";
+"paywall.benefit_ai_packs"                    = "🤖 Custom AI word packs";
+"paywall.benefit_all_packs"                   = "🔓 All premium packs unlocked";
+"paywall.benefit_no_ads"                      = "🚫 No ads, ever";
 "category_paywall.free_access_on"             = "Free access enabled";
 "category_paywall.trial_on_subtitle"          = "No commitment, cancel anytime";
 "category_paywall.cta_trial"                  = "Try it for Free";
@@ -167,6 +173,32 @@
 "categories.info.vote_win"                    = "✅  Guess right - you win";
 "categories.info.vote_lose"                   = "❌  Miss - imposter wins";
 "categories.info.instant_win_warning"         = "⚠️ If the imposter guesses the word before time runs out, they win instantly";
+"categories.custom_packs_section_title"       = "Custom Packs";
+"categories.custom_pack_create_cta"           = "Create AI Pack";
+"categories.custom_pack_limit_reached"        = "Pack limit reached (10/10)";
+"categories.custom_pack_unlock_premium"       = "Unlock with Premium";
+"categories.premium_banner_title"             = "Go Premium ✨";
+"categories.premium_banner_subtitle"          = "Unlock every pack, AI packs & more";
+
+"custom_pack.title"                           = "AI Word Pack";
+"custom_pack.prompt_label"                    = "What should this pack be about?";
+"custom_pack.prompt_placeholder"              = "e.g. “80s action movies”, “Ocean animals”…";
+"custom_pack.generate_button"                 = "Generate Pack";
+"custom_pack.generating"                      = "Generating your pack…";
+"custom_pack.success_title"                   = "Pack Created!";
+"custom_pack.word_count_format"               = "%d words";
+"custom_pack.remaining_slots_format"          = "%d of %d packs left";
+"custom_pack.done_button"                     = "Done";
+"custom_pack.cancel"                          = "Cancel";
+"custom_pack.delete_confirm_title"            = "Delete this pack?";
+"custom_pack.delete_confirm_message"          = "This can't be undone.";
+"custom_pack.delete_confirm_action"           = "Delete";
+"custom_pack.error_missing_key"               = "AI generation isn't configured yet. Please try again later.";
+"custom_pack.error_invalid_prompt"            = "Please describe a theme first.";
+"custom_pack.error_network"                   = "Couldn't reach the server. Check your connection and try again.";
+"custom_pack.error_unauthorized"              = "AI generation isn't configured correctly. Please try again later.";
+"custom_pack.error_rate_limited"              = "Too many requests right now. Please try again in a moment.";
+"custom_pack.error_generation_failed"         = "Couldn't generate a pack from that prompt. Try rephrasing it.";
 
 /* Loader */
 "loader.tagline"                              = "FIND  •  ACCUSE  •  SURVIVE";

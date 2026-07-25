@@ -13,6 +13,7 @@ struct PlayerSetupView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var gameSession: GameSession
     @EnvironmentObject var localization: LocalizationService
+    @EnvironmentObject var subscriptionManager: SubscriptionManager
     @State private var players: [PlayerEntry] = []
     @State private var newPlayerName: String = ""
     @State private var showOptionsMenu = false
@@ -94,9 +95,14 @@ struct PlayerSetupView: View {
                     }
 
                     HapticsManager.impact(.medium)
+                    AnalyticsService.logPlayerSetupContinueTapped(playerCount: validPlayerCount)
                     PlayerSetupKeyboard.dismiss()
                     setupPlayers()
-                    router.navigate(to: .categories)
+                    if subscriptionManager.isPremium {
+                        router.navigate(to: .categories)
+                    } else {
+                        router.navigate(to: .paywall)
+                    }
                 }) {
                     HStack(spacing: 14) {
                         Text("player_setup.continue")
@@ -156,6 +162,7 @@ struct PlayerSetupView: View {
                 .overlay(alignment: .trailing) {
                     Button(action: {
                         HapticsManager.impact(.light)
+                        AnalyticsService.logPlayerSetupOptionsOpened()
                         showOptionsMenu = true
                     }) {
                         Image(systemName: "gearshape.fill")
@@ -183,6 +190,7 @@ struct PlayerSetupView: View {
                                             players.removeAll { $0.id == entry.id }
                                         }
                                         HapticsManager.impact(.light)
+                                        AnalyticsService.logPlayerRemoved(playerCount: players.count)
                                     }
                                 )
                                 .id(entry.id)
@@ -291,6 +299,7 @@ struct PlayerSetupView: View {
             )
         }
         newPlayerName = ""
+        AnalyticsService.logPlayerAdded(playerCount: players.count)
         scrollInputRowToVisible()
         HapticsManager.impact(.light)
     }

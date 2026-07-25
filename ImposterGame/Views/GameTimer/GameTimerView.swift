@@ -159,6 +159,7 @@ struct GameTimerView: View {
 
                             Button(action: {
                                 HapticsManager.impact(.medium)
+                                AnalyticsService.logGameTimerVoteNowTapped()
                                 withAnimation(.spring(response: 0.45, dampingFraction: 0.86)) {
                                     showPauseMenu = false
                                 }
@@ -215,6 +216,7 @@ struct GameTimerView: View {
         .navigationBarBackButtonHidden(true)
         .onAppear {
             timeRemaining = gameSession.settings.roundDuration
+            AnalyticsService.logGameTimerStarted(durationSeconds: timeRemaining)
             startTimer()
         }
         .onDisappear {
@@ -237,6 +239,7 @@ struct GameTimerView: View {
             } else {
                 stopTimer()
                 HapticsManager.notification(.error)
+                AnalyticsService.logGameTimerExpired()
                 gameSession.gamePhase = .voting
                 router.navigate(to: .voting)
             }
@@ -246,11 +249,13 @@ struct GameTimerView: View {
     private func pauseTimer() {
         stopTimer()
         isPaused = true
+        AnalyticsService.logGameTimerPaused()
     }
 
     private func resumeTimer() {
         isPaused = false
         startTimer()
+        AnalyticsService.logGameTimerResumed()
     }
 
     private func stopTimer() {

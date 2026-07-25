@@ -9,6 +9,7 @@ struct ImposterGameApp: App {
         AppFontRegistrar.registerAppFonts()
         FirebaseApp.configure()
         AnalyticsService.setInstallWeekIfNeeded()
+        AnalyticsService.setAppLanguage(LocalizationService.shared.currentLocaleCode)
     }
 
     var body: some Scene {
@@ -54,6 +55,8 @@ private struct AppRootView: View {
                         VotingView()
                     case .result:
                         ResultView()
+                    case .customWordPackCreator:
+                        CustomWordPackGeneratorView()
                     }
                 }
         }

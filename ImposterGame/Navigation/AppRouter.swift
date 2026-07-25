@@ -11,6 +11,7 @@ enum AppScreen: String, Hashable {
     case gameTimer
     case voting
     case result
+    case customWordPackCreator
 }
 
 class AppRouter: ObservableObject {

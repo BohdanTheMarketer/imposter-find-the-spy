@@ -275,14 +275,19 @@ struct PaywallPlansSection: View {
     @Binding var selection: PaywallSelection
     let subscriptionManager: SubscriptionManager
     let onSelectionChanged: (PaywallSelection) -> Void
+    /// When `true` (repeat paywall views), the headline price is broken into a per-day figure
+    /// with the real billed price shown as fine print underneath, instead of the billed price up top.
+    var showDailyPricing: Bool = false
 
     var body: some View {
         VStack(spacing: 10) {
             PaywallSubscriptionOptionCard(
                 title: String(localized: "paywall.plan_weekly"),
                 subtitle: weeklySubtitle,
-                primaryPrice: subscriptionManager.weeklyPlanWeeklyPriceText,
-                secondaryPrice: nil,
+                primaryPrice: showDailyPricing
+                    ? subscriptionManager.weeklyPlanDailyPriceText
+                    : subscriptionManager.weeklyPlanWeeklyPriceText,
+                secondaryPrice: showDailyPricing ? billedNote(for: .weekly) : nil,
                 selected: selection == .weekly,
                 badgeText: weeklyBadgeText,
                 action: {
@@ -293,8 +298,10 @@ struct PaywallPlansSection: View {
             PaywallSubscriptionOptionCard(
                 title: String(localized: "paywall.plan_yearly"),
                 subtitle: String(localized: "paywall.cancel_anytime"),
-                primaryPrice: subscriptionManager.yearlyPlanBilledPriceText,
-                secondaryPrice: nil,
+                primaryPrice: showDailyPricing
+                    ? subscriptionManager.yearlyPlanDailyPriceText
+                    : subscriptionManager.yearlyPlanBilledPriceText,
+                secondaryPrice: showDailyPricing ? billedNote(for: .yearly) : nil,
                 selected: selection == .yearly,
                 badgeText: String(localized: "paywall.badge_best_value"),
                 action: {
@@ -312,11 +319,21 @@ struct PaywallPlansSection: View {
     }
 
     private var weeklySubtitle: String {
-        let price = subscriptionManager.weeklyPlanWeeklyPriceText
+        let price = showDailyPricing
+            ? subscriptionManager.weeklyPlanDailyPriceText
+            : subscriptionManager.weeklyPlanWeeklyPriceText
         if subscriptionManager.isEligibleForTrial {
             return LocalizationService.shared.localizedFormat("paywall.weekly_subtitle_trial", price)
         }
         return String(localized: "paywall.cancel_anytime")
+    }
+
+    /// Real recurring billed price shown as fine print under the daily figure (App Store 3.1.2(c) clarity).
+    private func billedNote(for plan: SubscriptionManager.SubscriptionPlan) -> String {
+        LocalizationService.shared.localizedFormat(
+            "paywall.billed_price_format",
+            subscriptionManager.billedPriceText(for: plan)
+        )
     }
 
     private func select(_ newSelection: PaywallSelection) {
@@ -325,6 +342,38 @@ struct PaywallPlansSection: View {
             selection = newSelection
         }
         onSelectionChanged(newSelection)
+    }
+}
+
+// MARK: - Benefits list ("Unlock full access" bullet points)
+
+struct PaywallBenefitsList: View {
+    private let benefitKeys = [
+        "paywall.benefit_all_packs",
+        "paywall.benefit_ai_packs",
+        "paywall.benefit_no_ads"
+    ]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ForEach(benefitKeys, id: \.self) { key in
+                Text(LocalizedStringKey(key))
+                    .font(.antropicSerif(size: 15, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.92))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 14)
+        .background(
+            RoundedRectangle(cornerRadius: 18)
+                .fill(Color.white.opacity(0.08))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 18)
+                .stroke(Color.white.opacity(0.14), lineWidth: 1)
+        )
     }
 }
 

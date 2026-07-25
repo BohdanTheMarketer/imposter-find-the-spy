@@ -33,11 +33,17 @@ struct CategoriesView: View {
     @EnvironmentObject var gameSession: GameSession
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @EnvironmentObject var localization: LocalizationService
+    @ObservedObject private var customPackStore = CustomWordPackStore.shared
     @State private var categories: [Category] = []
     @State private var selectedCategoryID: UUID?
     @State private var showInfoOverlay = false
     @State private var onboardingStep = 0
     @State private var pushPermissionTask: Task<Void, Never>?
+    @State private var pendingDeleteCategory: Category?
+
+    private var allSelectableCategories: [Category] {
+        categories + customPackStore.packs
+    }
 
     private var selectedCategoryCount: Int {
         selectedCategoryID == nil ? 0 : 1
@@ -83,6 +89,8 @@ struct CategoriesView: View {
                     Button(action: {
                         HapticsManager.impact(.light)
                         onboardingStep = 0
+                        AnalyticsService.logCategoryInfoOpened()
+                        AnalyticsService.logCategoryInfoStepViewed(stepIndex: 0)
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.9)) {
                             showInfoOverlay = true
                         }
@@ -102,7 +110,7 @@ struct CategoriesView: View {
                 // Category list
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 10) {
-                        ForEach(categories, id: \.id) { category in
+                        ForEach(Array(categories.enumerated()), id: \.element.id) { index, category in
                             let isLocked = category.isPremium && !subscriptionManager.isPremium
                             CategoryCard(
                                 category: category,
@@ -111,6 +119,7 @@ struct CategoriesView: View {
                                 onTap: {
                                     if isLocked {
                                         HapticsManager.notification(.warning)
+                                        AnalyticsService.logCategoryLockedTapped(categoryName: category.name)
                                         router.navigate(to: .categoryPaywall)
                                         return
                                     }
@@ -119,9 +128,21 @@ struct CategoriesView: View {
                                         selectedCategoryID = category.id
                                     }
                                     gameSession.selectedCategory = category
+                                    AnalyticsService.logCategorySelected(categoryName: category.name, isPremium: category.isPremium)
                                 }
                             )
+
+                            // Promo banner as the 4th list item, nudging non-premium users toward the paywall.
+                            if index == 2 && !subscriptionManager.isPremium {
+                                PremiumPromoBannerCard(action: {
+                                    HapticsManager.impact(.light)
+                                    AnalyticsService.logPremiumBannerTapped()
+                                    router.navigate(to: .categoryPaywall)
+                                })
+                            }
                         }
+
+                        customPacksSection
                     }
                     .padding(.horizontal, 20)
                     .padding(.bottom, 110)
@@ -163,6 +184,10 @@ struct CategoriesView: View {
                             return
                         }
                         HapticsManager.impact(.medium)
+                        AnalyticsService.logCategoriesPlayTapped(
+                            categoryName: gameSession.selectedCategory?.name ?? "unknown",
+                            playerCount: gameSession.players.count
+                        )
                         router.navigate(to: .gameSettings)
                     }) {
                         HStack(spacing: 14) {
@@ -208,6 +233,145 @@ struct CategoriesView: View {
         .onChange(of: subscriptionManager.isPremium) { _ in
             restoreSelection()
         }
+        .alert(
+            String(localized: "custom_pack.delete_confirm_title"),
+            isPresented: Binding(
+                get: { pendingDeleteCategory != nil },
+                set: { if !$0 { pendingDeleteCategory = nil } }
+            ),
+            presenting: pendingDeleteCategory
+        ) { category in
+            Button(String(localized: "custom_pack.delete_confirm_action"), role: .destructive) {
+                deleteCustomPack(category)
+            }
+            Button(String(localized: "custom_pack.cancel"), role: .cancel) {
+                pendingDeleteCategory = nil
+            }
+        } message: { _ in
+            Text("custom_pack.delete_confirm_message")
+        }
+    }
+
+    // MARK: - Custom packs section
+
+    @ViewBuilder
+    private var customPacksSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("categories.custom_packs_section_title")
+                .font(.evolventa(size: 15, weight: .bold))
+                .foregroundColor(.white.opacity(0.55))
+                .textCase(.uppercase)
+                .tracking(0.8)
+                .padding(.top, 6)
+
+            ForEach(customPackStore.packs, id: \.id) { category in
+                let isLocked = !subscriptionManager.isPremium
+                CategoryCard(
+                    category: category,
+                    isSelected: selectedCategoryID == category.id,
+                    isLocked: isLocked,
+                    onTap: {
+                        if isLocked {
+                            HapticsManager.notification(.warning)
+                            AnalyticsService.logCategoryLockedTapped(categoryName: category.name)
+                            router.navigate(to: .categoryPaywall)
+                            return
+                        }
+                        HapticsManager.selection()
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            selectedCategoryID = category.id
+                        }
+                        gameSession.selectedCategory = category
+                        AnalyticsService.logCustomPackSelected(categoryName: category.name)
+                    },
+                    onDelete: {
+                        HapticsManager.impact(.light)
+                        pendingDeleteCategory = category
+                    }
+                )
+            }
+
+            createPackCTA
+        }
+    }
+
+    private var createPackCTA: some View {
+        let isPremiumLocked = !subscriptionManager.isPremium
+        let canCreateMore = customPackStore.canCreateMore
+
+        return Button(action: {
+            HapticsManager.impact(.light)
+            if isPremiumLocked {
+                AnalyticsService.logCategoryLockedTapped(categoryName: "custom_ai_pack_cta")
+                router.navigate(to: .categoryPaywall)
+                return
+            }
+            if canCreateMore {
+                router.navigate(to: .customWordPackCreator)
+            } else {
+                HapticsManager.notification(.warning)
+                AnalyticsService.logCustomPackLimitReached()
+            }
+        }) {
+            HStack(spacing: 12) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(Color.appAccent.opacity(0.15))
+                        .frame(width: 52, height: 52)
+                    Image(systemName: (isPremiumLocked || !canCreateMore) ? "lock.fill" : "wand.and.stars")
+                        .font(.evolventa(size: 20, weight: .bold))
+                        .foregroundColor(.appAccentHigh)
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("categories.custom_pack_create_cta")
+                        .font(.evolventa(size: 16, weight: .bold))
+                        .foregroundColor(.white)
+                    Text(createPackSubtitle(isPremiumLocked: isPremiumLocked, canCreateMore: canCreateMore))
+                        .font(.evolventa(size: 12, weight: .semibold))
+                        .foregroundColor(.white.opacity(0.55))
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.evolventa(size: 14, weight: .bold))
+                    .foregroundColor(.white.opacity(0.35))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.appSurface)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .strokeBorder(style: StrokeStyle(lineWidth: 1.3, dash: [6, 5]))
+                    .foregroundColor(Color.appAccent.opacity(0.4))
+            )
+        }
+        .buttonStyle(.plain)
+        .opacity((isPremiumLocked || canCreateMore) ? 1.0 : 0.6)
+    }
+
+    private func createPackSubtitle(isPremiumLocked: Bool, canCreateMore: Bool) -> String {
+        if isPremiumLocked {
+            return String(localized: "categories.custom_pack_unlock_premium")
+        }
+        if canCreateMore {
+            return String(format: String(localized: "custom_pack.remaining_slots_format"), customPackStore.remainingSlots, CustomWordPackStore.maxPackCount)
+        }
+        return String(localized: "categories.custom_pack_limit_reached")
+    }
+
+    private func deleteCustomPack(_ category: Category) {
+        customPackStore.delete(category)
+        AnalyticsService.logCustomPackDeleted(categoryName: category.name, remainingPackCount: customPackStore.packs.count)
+        pendingDeleteCategory = nil
+        if selectedCategoryID == category.id {
+            selectedCategoryID = nil
+            restoreSelection()
+        }
     }
 
     private func reloadCategories() {
@@ -233,26 +397,27 @@ struct CategoriesView: View {
     }
 
     private func restoreSelection() {
-        guard !categories.isEmpty else {
+        let combined = allSelectableCategories
+        guard !combined.isEmpty else {
             selectedCategoryID = nil
             gameSession.selectedCategory = nil
             return
         }
 
         if let selectedCategoryID,
-           let selectedCategory = categories.first(where: { $0.id == selectedCategoryID }) {
+           let selectedCategory = combined.first(where: { $0.id == selectedCategoryID }) {
             gameSession.selectedCategory = selectedCategory
             return
         }
 
         if let previousCategory = gameSession.selectedCategory,
-           let restoredCategory = categories.first(where: { $0.name == previousCategory.name }) {
+           let restoredCategory = combined.first(where: { $0.id == previousCategory.id || $0.name == previousCategory.name }) {
             selectedCategoryID = restoredCategory.id
             gameSession.selectedCategory = restoredCategory
             return
         }
 
-        if let firstCategory = categories.first(where: { !($0.isPremium && !subscriptionManager.isPremium) }) {
+        if let firstCategory = combined.first(where: { !($0.isPremium && !subscriptionManager.isPremium) }) {
             selectedCategoryID = firstCategory.id
             gameSession.selectedCategory = firstCategory
         } else {
@@ -268,6 +433,7 @@ struct CategoryCard: View {
     let isSelected: Bool
     let isLocked: Bool
     let onTap: () -> Void
+    var onDelete: (() -> Void)? = nil
 
     private let iconSize: CGFloat = 76
 
@@ -285,6 +451,8 @@ struct CategoryCard: View {
                             selectedBadge
                         } else if isLocked {
                             proChip
+                        } else if category.isCustom {
+                            aiChip
                         }
                     }
 
@@ -314,6 +482,41 @@ struct CategoryCard: View {
             .shadow(color: Color.appAccent.opacity(isSelected ? 0.25 : 0.0), radius: 20, x: 0, y: 0)
         }
         .buttonStyle(.plain)
+        .overlay(alignment: .topTrailing) {
+            if let onDelete {
+                Button(action: onDelete) {
+                    Image(systemName: "trash.fill")
+                        .font(.evolventa(size: 12, weight: .bold))
+                        .foregroundColor(.white.opacity(0.85))
+                        .frame(width: 28, height: 28)
+                        .background(Circle().fill(Color.black.opacity(0.45)))
+                        .overlay(Circle().stroke(Color.white.opacity(0.15), lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+                .padding(8)
+            }
+        }
+    }
+
+    /// "AI" pill shown on generated custom packs when not selected/locked (mirrors `proChip` styling).
+    private var aiChip: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "sparkles")
+                .font(.evolventa(size: 10, weight: .bold))
+            Text(verbatim: "AI")
+                .font(.evolventa(size: 11, weight: .bold))
+        }
+        .foregroundColor(.appAccentHigh)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 3)
+        .background(
+            RoundedRectangle(cornerRadius: 9)
+                .fill(Color.appSurface2)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 9)
+                .stroke(Color.white.opacity(0.14), lineWidth: 1)
+        )
     }
 
     /// Pink "selected" checkmark chip (mock 2c).
@@ -379,6 +582,69 @@ struct CategoryCard: View {
         }
     }
 
+}
+
+/// Promo banner inserted as the 4th list item, encouraging non-premium users toward the paywall.
+struct PremiumPromoBannerCard: View {
+    let action: () -> Void
+    @State private var isPulsing = false
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 14) {
+                ZStack {
+                    Circle()
+                        .fill(Color.white.opacity(0.18))
+                        .frame(width: 52, height: 52)
+                    Image(systemName: "crown.fill")
+                        .font(.evolventa(size: 21, weight: .bold))
+                        .foregroundColor(.white)
+                }
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("categories.premium_banner_title")
+                        .font(.evolventa(size: 17, weight: .bold))
+                        .foregroundColor(.white)
+                    Text("categories.premium_banner_subtitle")
+                        .font(.evolventa(size: 13, weight: .medium))
+                        .foregroundColor(.white.opacity(0.85))
+                        .fixedSize(horizontal: false, vertical: true)
+                        .lineLimit(2)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                Image(systemName: "chevron.right")
+                    .font(.evolventa(size: 15, weight: .bold))
+                    .foregroundColor(.white.opacity(0.85))
+            }
+            .padding(.horizontal, 18)
+            .padding(.vertical, 16)
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.appAccent, Color.appAccentHigh],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.white.opacity(isPulsing ? 0.45 : 0.25), lineWidth: 1)
+            )
+            .shadow(color: Color.appAccent.opacity(isPulsing ? 0.65 : 0.35), radius: isPulsing ? 20 : 14, x: 0, y: 6)
+        }
+        .buttonStyle(.plain)
+        .scaleEffect(isPulsing ? 1.015 : 1.0)
+        .animation(
+            .easeInOut(duration: 1.2).repeatForever(autoreverses: true),
+            value: isPulsing
+        )
+        .onAppear {
+            isPulsing = true
+        }
+    }
 }
 
 struct CategoryInfoOverlay: View {
@@ -533,6 +799,7 @@ struct CategoryInfoOverlay: View {
             withAnimation(.easeInOut(duration: 0.2)) {
                 currentStep += 1
             }
+            AnalyticsService.logCategoryInfoStepViewed(stepIndex: currentStep)
         } else {
             onClose()
         }

@@ -274,6 +274,10 @@ struct RoleRevealView: View {
                             if !hasSeenCurrentWord, value.translation.height < -80 {
                                 HapticsManager.impact(.light)
                                 hasSeenCurrentWord = true
+                                AnalyticsService.logRoleRevealWordRevealed(
+                                    playerIndex: currentIndex,
+                                    isImposter: currentPlayer.isImposter
+                                )
                             }
                         }
                     }
@@ -291,6 +295,7 @@ struct RoleRevealView: View {
 
     private func continueTapped() {
         HapticsManager.impact(.medium)
+        AnalyticsService.logRoleRevealContinueTapped(playerIndex: currentIndex, isLastPlayer: isLastPlayer)
         if isLastPlayer {
             gameSession.gamePhase = .playing
             router.navigate(to: .gameTimer)

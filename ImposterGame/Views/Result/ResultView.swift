@@ -86,6 +86,12 @@ struct ResultView: View {
                     result: result.analyticsValue,
                     duration: gameSession.settings.roundDuration
                 )
+                // Cohort-relevant user properties, updated on every completed round.
+                AnalyticsService.incrementTotalGamesPlayed()
+                AnalyticsService.setLastGameResult(result.analyticsValue)
+                if let category = gameSession.selectedCategory {
+                    AnalyticsService.setLastCategoryPlayed(category.name)
+                }
             }
             startIntrigueSequence()
         }
@@ -217,6 +223,7 @@ struct ResultView: View {
                     if showActionButtons {
                         Button(action: {
                             HapticsManager.impact(.medium)
+                            AnalyticsService.logResultPlayAgainTapped()
                             gameSession.resetForNewRound()
                             router.navigateToCategories()
                         }) {

@@ -149,6 +149,7 @@ struct GameSettingsView: View {
                     if imposterCount > 1 {
                         imposterCount -= 1
                         HapticsManager.selection()
+                        AnalyticsService.logGameSettingsImposterCountChanged(value: imposterCount)
                     }
                 }
 
@@ -168,6 +169,7 @@ struct GameSettingsView: View {
                     if imposterCount < maxImposters {
                         imposterCount += 1
                         HapticsManager.selection()
+                        AnalyticsService.logGameSettingsImposterCountChanged(value: imposterCount)
                     }
                 }
             }
@@ -198,6 +200,7 @@ struct GameSettingsView: View {
                     if currentIdx > 0 {
                         roundDuration = GameSettings.durationOptions[currentIdx - 1]
                         HapticsManager.selection()
+                        AnalyticsService.logGameSettingsRoundDurationChanged(valueSeconds: roundDuration)
                     }
                 }
 
@@ -217,6 +220,7 @@ struct GameSettingsView: View {
                     if currentIdx < GameSettings.durationOptions.count - 1 {
                         roundDuration = GameSettings.durationOptions[currentIdx + 1]
                         HapticsManager.selection()
+                        AnalyticsService.logGameSettingsRoundDurationChanged(valueSeconds: roundDuration)
                     }
                 }
             }
@@ -251,6 +255,7 @@ struct GameSettingsView: View {
                 guard hintsEnabled else { return }
                 hintsEnabled = false
                 HapticsManager.selection()
+                AnalyticsService.logGameSettingsHintsToggled(enabled: false)
             } label: {
                 Text("game_settings.hints_disabled")
                     .font(.evolventa(size: 15, weight: .bold))
@@ -268,6 +273,7 @@ struct GameSettingsView: View {
                 guard !hintsEnabled else { return }
                 hintsEnabled = true
                 HapticsManager.selection()
+                AnalyticsService.logGameSettingsHintsToggled(enabled: true)
             } label: {
                 Text("game_settings.hints_enabled")
                     .font(.evolventa(size: 15, weight: .bold))

@@ -147,6 +147,12 @@
 "paywall.restore_alert_title"                 = "Restaurer les achats";
 "paywall.restore_alert_message"               = "Si vous avez un abonnement actif, il sera restauré sous peu.";
 "paywall.auto_renews_suffix"                  = "renouvellement auto";
+"paywall.price_per_day_format"                = "%@/jour";
+"paywall.billed_price_format"                 = "Facturé %@";
+"paywall.price_loading"                       = "Chargement du prix...";
+"paywall.benefit_ai_packs"                    = "🤖 Packs de mots IA personnalisés";
+"paywall.benefit_all_packs"                   = "🔓 Tous les packs premium débloqués";
+"paywall.benefit_no_ads"                      = "🚫 Aucune publicité, jamais";
 "category_paywall.free_access_on"             = "Accès gratuit activé";
 "category_paywall.trial_on_subtitle"          = "Sans engagement, annulez quand vous voulez";
 "category_paywall.cta_trial"                  = "Essayer gratuitement";
@@ -167,6 +173,32 @@
 "categories.info.vote_win"                    = "✅  Bonne réponse — vous gagnez";
 "categories.info.vote_lose"                   = "❌  Raté — l'imposteur gagne";
 "categories.info.instant_win_warning"         = "⚠️ Si l'imposteur devine le mot avant la fin, il gagne immédiatement";
+"categories.custom_packs_section_title"       = "Packs personnalisés";
+"categories.custom_pack_create_cta"           = "Créer un pack IA";
+"categories.custom_pack_limit_reached"        = "Limite de packs atteinte (10/10)";
+"categories.custom_pack_unlock_premium"       = "Débloquer avec Premium";
+"categories.premium_banner_title"             = "Passer à Premium ✨";
+"categories.premium_banner_subtitle"          = "Débloquez tous les packs, les packs IA et plus";
+
+"custom_pack.title"                           = "Pack de mots IA";
+"custom_pack.prompt_label"                    = "De quoi ce pack doit-il parler ?";
+"custom_pack.prompt_placeholder"              = "ex. « Films d'action des années 80 », « Animaux marins »…";
+"custom_pack.generate_button"                 = "Générer le pack";
+"custom_pack.generating"                      = "Génération du pack en cours…";
+"custom_pack.success_title"                   = "Pack créé !";
+"custom_pack.word_count_format"               = "%d mots";
+"custom_pack.remaining_slots_format"          = "%d packs restants sur %d";
+"custom_pack.done_button"                     = "Terminé";
+"custom_pack.cancel"                          = "Annuler";
+"custom_pack.delete_confirm_title"            = "Supprimer ce pack ?";
+"custom_pack.delete_confirm_message"          = "Cette action est irréversible.";
+"custom_pack.delete_confirm_action"           = "Supprimer";
+"custom_pack.error_missing_key"               = "La génération IA n'est pas encore configurée. Réessayez plus tard.";
+"custom_pack.error_invalid_prompt"            = "Décrivez d'abord un thème.";
+"custom_pack.error_network"                   = "Impossible de joindre le serveur. Vérifiez votre connexion et réessayez.";
+"custom_pack.error_unauthorized"              = "La génération IA est mal configurée. Réessayez plus tard.";
+"custom_pack.error_rate_limited"              = "Trop de requêtes pour le moment. Réessayez dans un instant.";
+"custom_pack.error_generation_failed"         = "Impossible de générer un pack à partir de cette description. Essayez de la reformuler.";
 
 /* Loader */
 "loader.tagline"                              = "TROUVEZ  •  ACCUSEZ  •  SURVIVEZ";

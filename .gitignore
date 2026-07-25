@@ -25,3 +25,8 @@ Package.resolved
 
 # Claude
 .claude/
+
+# Secrets (never commit — see Secrets.example.xcconfig for the template)
+ImposterGame/Secrets.xcconfig
+# Auto-regenerated on every build from Secrets.xcconfig (see project.yml preBuildScripts)
+ImposterGame/Generated/
