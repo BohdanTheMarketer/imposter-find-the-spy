@@ -40,6 +40,30 @@ enum AmplitudeManager {
         shared.track(eventType: eventType, eventProperties: properties)
     }
 
+    /// Logs a purchase/renewal through Amplitude's native Revenue API.
+    ///
+    /// Amplitude's built-in Revenue, Revenue LTV, and ARPU reports only read
+    /// the `$revenue`-schema properties this API writes (`$price`,
+    /// `$productId`, `$currency`, ...) — a custom event with a "value"
+    /// property (like `subscription_transaction`) is invisible to them.
+    /// `properties` carries `payment_number` alongside the revenue so it's
+    /// queryable together with the built-in reports, not just the custom event.
+    static func logRevenue(
+        productId: String,
+        price: Double,
+        currency: String,
+        revenueType: String,
+        paymentNumber: Int
+    ) {
+        let revenue = Revenue()
+        revenue.productId = productId
+        revenue.price = price
+        revenue.currency = currency
+        revenue.revenueType = revenueType
+        revenue.properties = ["payment_number": paymentNumber]
+        shared.revenue(revenue: revenue)
+    }
+
     /// Tracks a SwiftUI screen view (screen-view autocapture only works for UIKit).
     static func trackScreen(_ screenName: String) {
         shared.track(eventType: "[Amplitude] Screen Viewed", eventProperties: [
