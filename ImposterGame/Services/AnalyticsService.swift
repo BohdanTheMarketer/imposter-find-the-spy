@@ -203,6 +203,19 @@ enum AnalyticsService {
             params["trial_enabled"] = trialEnabled
         }
         logEvent("subscription_transaction", parameters: params)
+
+        // Trial starts and refunds carry no charge (value is 0/negative) —
+        // only mirror actual charges to Amplitude's native Revenue API so
+        // its built-in Revenue/LTV/ARPU reports reflect real money.
+        if transactionType == .initialPurchase || transactionType == .renewal {
+            AmplitudeManager.logRevenue(
+                productId: productID,
+                price: value,
+                currency: currency,
+                revenueType: transactionType.rawValue,
+                paymentNumber: paymentNumber
+            )
+        }
     }
 
     static func setInstallWeekIfNeeded() {
