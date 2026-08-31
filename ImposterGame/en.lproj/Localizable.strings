@@ -145,7 +145,15 @@
 "paywall.skip"                                = "Skip";
 "paywall.restore"                             = "Restore";
 "paywall.restore_alert_title"                 = "Restore Purchases";
-"paywall.restore_alert_message"               = "If you have an active subscription, it will be restored shortly.";
+"paywall.restore_alert_message"               = "We couldn't find an active subscription for this Apple ID.";
+"paywall.restore_error_message"               = "Restore failed. Please check your connection and try again.";
+"paywall.purchase_issue_alert_title"          = "Purchase";
+"paywall.purchase_pending_message"            = "Your purchase is awaiting approval. We'll unlock premium as soon as it's confirmed.";
+"paywall.purchase_error_message"              = "Something went wrong with your purchase. Please try again.";
+"paywall.postgame.headline"                   = "Enjoyed that round?";
+"paywall.postgame.subheadline"                = "Unlock every category with a free trial.";
+"paywall.postgame.cta_subordinate"            = "Start your 3-day free trial";
+"paywall.postgame.not_now"                    = "Not now";
 "paywall.auto_renews_suffix"                  = "auto-renews";
 "paywall.price_per_day_format"                = "%@/day";
 "paywall.billed_price_format"                 = "Billed %@";

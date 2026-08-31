@@ -563,6 +563,11 @@ struct LoaderView: View {
         after(4.2) {
             if self.subscriptionManager.isPremium {
                 self.router.navigate(to: .playerSetup)
+            } else if self.subscriptionManager.hasCompletedOnboarding {
+                // Returning non-premium user - skip the onboarding intro (already seen) and go
+                // straight to the category-style paywall (daily pricing) instead of re-showing
+                // the one-time-only, full-price OnboardingPaywallView.
+                self.router.navigate(to: .categoryPaywall)
             } else {
                 self.router.navigate(to: .onboarding)
             }

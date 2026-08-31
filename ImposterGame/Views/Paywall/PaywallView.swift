@@ -4,13 +4,16 @@ struct OnboardingPaywallView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @Environment(\.openURL) private var openURL
-    @State private var selection: PaywallSelection = .yearly
+    @State private var selection: PaywallSelection = .weekly
     @State private var appearAnimation = false
     @State private var showRestoreMessage = false
+    @State private var restoreResultMessageKey = "paywall.restore_alert_message"
+    @State private var showPurchaseIssueMessage = false
+    @State private var purchaseIssueMessageKey = "paywall.purchase_pending_message"
     @State private var isCloseButtonVisible = false
     @State private var closeButtonRevealTask: Task<Void, Never>?
     @State private var didClosePaywall = false
-    @State private var showDailyPricing = false
+    @State private var didLogPaywallViewed = false
 
     private enum OnboardingPaywallLinks {
         static let privacyURL = URL(string: "https://www.verte-bro.com/privacy-policy")
@@ -29,46 +32,48 @@ struct OnboardingPaywallView: View {
             GeometryReader { proxy in
                 let isCompactHeight = proxy.size.height < 780
 
-                VStack(spacing: 0) {
-                    topBar
-                        .padding(.top, isCompactHeight ? 2 : 10)
-                        .padding(.horizontal, 6)
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 0) {
+                        topBar
+                            .padding(.top, isCompactHeight ? 2 : 10)
+                            .padding(.horizontal, 6)
 
-                    heroBlock(height: isCompactHeight ? 240 : 285)
-                        .padding(.top, isCompactHeight ? -6 : 6)
-                        .padding(.bottom, isCompactHeight ? 2 : 8)
+                        heroBlock(height: isCompactHeight ? 240 : 285)
+                            .padding(.top, isCompactHeight ? -6 : 6)
+                            .padding(.bottom, isCompactHeight ? 2 : 8)
 
-                    Text("paywall.headline")
-                        .font(.antropicSans(size: isCompactHeight ? 38 : 42, weight: .heavy))
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(-2)
-                        .minimumScaleFactor(0.68)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.top, isCompactHeight ? 0 : 4)
+                        Text("paywall.headline")
+                            .font(.antropicSans(size: isCompactHeight ? 38 : 42, weight: .heavy))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(-2)
+                            .minimumScaleFactor(0.68)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .padding(.top, isCompactHeight ? 0 : 4)
 
-                    PaywallBenefitsList()
-                        .padding(.top, isCompactHeight ? 6 : 10)
+                        PaywallBenefitsList()
+                            .padding(.top, isCompactHeight ? 6 : 10)
 
-                    Spacer(minLength: isCompactHeight ? 8 : 20)
+                        Spacer(minLength: isCompactHeight ? 8 : 20)
 
-                    PaywallPlansSection(
-                        selection: $selection,
-                        subscriptionManager: subscriptionManager,
-                        onSelectionChanged: logPlanSelected,
-                        showDailyPricing: showDailyPricing
-                    )
+                        PaywallPlansSection(
+                            selection: $selection,
+                            subscriptionManager: subscriptionManager,
+                            onSelectionChanged: logPlanSelected
+                        )
 
-                    continueButton
-                        .padding(.top, 12)
-                        .padding(.bottom, 6)
+                        continueButton
+                            .padding(.top, 12)
+                            .padding(.bottom, 6)
 
-                    footerLinks
-                        .padding(.bottom, 12)
+                        footerLinks
+                            .padding(.bottom, 12)
+                    }
+                    .padding(.horizontal, 20)
+                    .scaleEffect(appearAnimation ? 1.0 : 0.97)
+                    .opacity(appearAnimation ? 1.0 : 0.0)
+                    .frame(minHeight: proxy.size.height)
                 }
-                .padding(.horizontal, 20)
-                .scaleEffect(appearAnimation ? 1.0 : 0.97)
-                .opacity(appearAnimation ? 1.0 : 0.0)
             }
         }
         .navigationBarHidden(true)
@@ -79,15 +84,29 @@ struct OnboardingPaywallView: View {
         ) {
             Button(String(localized: "common.ok"), role: .cancel) {}
         } message: {
-            Text("paywall.restore_alert_message")
+            Text(LocalizedStringKey(restoreResultMessageKey))
+        }
+        .alert(
+            String(localized: "paywall.purchase_issue_alert_title"),
+            isPresented: $showPurchaseIssueMessage
+        ) {
+            Button(String(localized: "common.ok"), role: .cancel) {}
+        } message: {
+            Text(LocalizedStringKey(purchaseIssueMessageKey))
         }
         .onAppear {
             if subscriptionManager.isPremium {
                 scheduleClosePaywall(reason: .purchaseSuccess)
                 return
             }
-            showDailyPricing = !subscriptionManager.markPaywallShown()
-            AnalyticsService.logPaywallViewed(context: .onboarding)
+            // Onboarding paywall always shows full price, never the "$X/day" breakdown - it's
+            // the very first paywall a user ever sees, unlike category/post-game which may
+            // reasonably switch to daily framing on a repeat view.
+            subscriptionManager.markPaywallShown()
+            if !didLogPaywallViewed {
+                didLogPaywallViewed = true
+                AnalyticsService.logPaywallViewed(context: .onboarding)
+            }
             Task {
                 await subscriptionManager.refreshStoreProducts(trigger: "onboarding_paywall_appear")
             }
@@ -145,13 +164,19 @@ struct OnboardingPaywallView: View {
         .padding(.horizontal, 2)
     }
 
+    private var isContinueDisabled: Bool {
+        subscriptionManager.isPurchasing
+            || !subscriptionManager.isPriceLoaded(for: PaywallCopy.subscriptionPlan(for: selection))
+    }
+
     private var continueButton: some View {
         PaywallSingleLineCTAButton(
             titleKey: PaywallCopy.ctaTitleKey(
                 selection: selection,
                 isEligibleForTrial: subscriptionManager.isEligibleForTrial
             ),
-            action: handleContinueTapped
+            action: handleContinueTapped,
+            isLoading: isContinueDisabled
         )
     }
 
@@ -160,6 +185,7 @@ struct OnboardingPaywallView: View {
             closePaywall(reason: .purchaseSuccess)
             return
         }
+        guard !isContinueDisabled else { return }
         HapticsManager.impact(.medium)
         let plan = PaywallCopy.subscriptionPlan(for: selection)
         AnalyticsService.logPaywallContinueTapped(
@@ -171,9 +197,17 @@ struct OnboardingPaywallView: View {
             )
         )
         Task {
-            let didPurchase = await subscriptionManager.purchaseSubscription(plan: plan, context: .onboarding)
-            if didPurchase {
+            switch await subscriptionManager.purchaseSubscription(plan: plan, context: .onboarding) {
+            case .success:
                 scheduleClosePaywall(reason: .purchaseSuccess)
+            case .userCancelled:
+                break
+            case .pending:
+                purchaseIssueMessageKey = "paywall.purchase_pending_message"
+                showPurchaseIssueMessage = true
+            case .failed:
+                purchaseIssueMessageKey = "paywall.purchase_error_message"
+                showPurchaseIssueMessage = true
             }
         }
     }
@@ -187,6 +221,22 @@ struct OnboardingPaywallView: View {
                 isEligibleForTrial: subscriptionManager.isEligibleForTrial
             )
         )
+    }
+
+    private func handleRestoreTapped() {
+        AnalyticsService.logPaywallRestoreTapped(context: .onboarding)
+        Task {
+            switch await subscriptionManager.restorePurchases(context: .onboarding) {
+            case .restored:
+                break
+            case .noPurchasesFound:
+                restoreResultMessageKey = "paywall.restore_alert_message"
+                showRestoreMessage = true
+            case .failed:
+                restoreResultMessageKey = "paywall.restore_error_message"
+                showRestoreMessage = true
+            }
+        }
     }
 
     private var footerLinks: some View {
@@ -206,11 +256,15 @@ struct OnboardingPaywallView: View {
             Button(String(localized: "paywall.skip")) {
                 closePaywall(reason: .skip)
             }
-            Button(String(localized: "paywall.restore")) {
-                AnalyticsService.logPaywallRestoreTapped(context: .onboarding)
-                subscriptionManager.restorePurchases(context: .onboarding)
-                showRestoreMessage = true
+            Button(action: handleRestoreTapped) {
+                if subscriptionManager.isRestoring {
+                    ProgressView()
+                        .tint(.white.opacity(0.5))
+                } else {
+                    Text(String(localized: "paywall.restore"))
+                }
             }
+            .disabled(subscriptionManager.isRestoring)
         }
         .font(.antropicSerif(size: 12, weight: .medium))
         .foregroundColor(.white.opacity(0.5))
@@ -226,8 +280,14 @@ struct OnboardingPaywallView: View {
         guard !didClosePaywall else { return }
         didClosePaywall = true
 
+        if reason != .purchaseSuccess {
+            subscriptionManager.hasDeclinedOnboardingPaywall = true
+        }
+
         AnalyticsService.logPaywallClosed(context: .onboarding, reason: reason)
-        router.navigateToCategories()
+        // Paywall now shows before player setup - players haven't been entered yet, so route
+        // there next instead of skipping ahead to categories.
+        router.navigateToPlayerSetup()
     }
 
     private func scheduleCloseButtonReveal() {

@@ -63,12 +63,6 @@ struct PaywallTrialTimelineView: View {
             )
             timelineConnector
             timelineColumn(
-                systemImage: "bell.fill",
-                titleKey: "paywall.timeline.day2.title",
-                subtitleKey: "paywall.timeline.day2.subtitle"
-            )
-            timelineConnector
-            timelineColumn(
                 systemImage: "creditcard.fill",
                 titleKey: "paywall.timeline.day3.title",
                 subtitleText: LocalizationService.shared.localizedFormat(
@@ -129,6 +123,7 @@ struct PaywallSingleLineCTAButton: View {
     let titleKey: String
     let action: () -> Void
     var usesDarkStyle = true
+    var isLoading = false
 
     var body: some View {
         Button(action: action) {
@@ -138,16 +133,24 @@ struct PaywallSingleLineCTAButton: View {
                     .foregroundColor(usesDarkStyle ? .white : .appTextOnAccent)
                     .lineLimit(1)
                 Spacer()
-                Image(systemName: "arrow.right")
-                    .font(.antropicSerif(size: 19, weight: .bold))
-                    .foregroundColor(usesDarkStyle ? .white : .appTextOnAccent)
+                if isLoading {
+                    ProgressView()
+                        .tint(usesDarkStyle ? .white : .appTextOnAccent)
+                } else {
+                    Image(systemName: "arrow.right")
+                        .font(.antropicSerif(size: 19, weight: .bold))
+                        .foregroundColor(usesDarkStyle ? .white : .appTextOnAccent)
+                }
             }
             .padding(.horizontal, 22)
             .frame(height: 60)
             .background(usesDarkStyle ? Color.stitchDeepOnyx : Color.appAccent)
             .clipShape(Capsule())
+            .opacity(isLoading ? 0.7 : 1.0)
         }
         .buttonStyle(.plain)
+        .disabled(isLoading)
+        .animation(.easeInOut(duration: 0.15), value: isLoading)
     }
 }
 
@@ -157,6 +160,7 @@ struct PaywallDualLineCTAButton: View {
     let billedLine: String
     let subordinateLineKey: String
     let action: () -> Void
+    var isLoading = false
 
     var body: some View {
         Button(action: action) {
@@ -174,17 +178,25 @@ struct PaywallDualLineCTAButton: View {
                         .minimumScaleFactor(0.88)
                 }
                 Spacer(minLength: 4)
-                Image(systemName: "arrow.right")
-                    .font(.antropicSerif(size: 17, weight: .bold))
-                    .foregroundColor(.appTextOnAccent)
+                if isLoading {
+                    ProgressView()
+                        .tint(.appTextOnAccent)
+                } else {
+                    Image(systemName: "arrow.right")
+                        .font(.antropicSerif(size: 17, weight: .bold))
+                        .foregroundColor(.appTextOnAccent)
+                }
             }
             .padding(.horizontal, 20)
             .frame(maxWidth: .infinity)
             .frame(height: 60)
             .background(Color.appAccent)
             .clipShape(Capsule())
+            .opacity(isLoading ? 0.7 : 1.0)
         }
         .buttonStyle(.plain)
+        .disabled(isLoading)
+        .animation(.easeInOut(duration: 0.15), value: isLoading)
     }
 }
 

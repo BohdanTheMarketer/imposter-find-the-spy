@@ -79,6 +79,7 @@
 		9B0D6747F1029BF4D8B6A438 /* player_2.png in Resources */ = {isa = PBXBuildFile; fileRef = BED795672AEE4610BC3321F0 /* player_2.png */; };
 		9CBB7F75EDD513A07A07F03A /* category_bag_fill.png in Resources */ = {isa = PBXBuildFile; fileRef = 4BD66F514EFCB5A50DAC0413 /* category_bag_fill.png */; };
 		9E6C49E880BEF67AEF6D2A06 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E4FD5E37DE7F6EC24F1019 /* PaywallView.swift */; };
+		6DB984878CFB213AC416E6D5 /* PostGamePaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73C1AEBABE0B58C3ECB0A9C6 /* PostGamePaywallView.swift */; };
 		A5BAA2BA8431C97984DF78DA /* player_6.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BCF7E76BA12D6882B6FDE2B /* player_6.png */; };
 		AA15A141C41971E4D6E7EF70 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57BC9CB184283EAE65342ACE /* Category.swift */; };
 		ACC4866899B846DF8C050C45 /* FirebaseInstallations in Frameworks */ = {isa = PBXBuildFile; productRef = A2462B968BD5F03BCFEAF2FD /* FirebaseInstallations */; };
@@ -123,14 +124,14 @@
 		063EC48ECFC96F9FB9F4E451 /* player_12.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = player_12.png; sourceTree = "<group>"; };
 		06D32F771616E130D8769C0B /* small_player_11.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_player_11.png; sourceTree = "<group>"; };
 		0D088712A3A096E28E5DFBE3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		0EEE93E0E5E5607EEB9942D6 /* en.lproj */ = {isa = PBXFileReference; path = en.lproj; sourceTree = "<group>"; };
-		0F68109243E61CDE8494B934 /* tr.lproj */ = {isa = PBXFileReference; path = tr.lproj; sourceTree = "<group>"; };
+		0EEE93E0E5E5607EEB9942D6 /* en.lproj */ = {isa = PBXFileReference; lastKnownFileType = folder; path = en.lproj; sourceTree = "<group>"; };
+		0F68109243E61CDE8494B934 /* tr.lproj */ = {isa = PBXFileReference; lastKnownFileType = folder; path = tr.lproj; sourceTree = "<group>"; };
 		10513D64393ED72C491A7A16 /* category_party_popper.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_party_popper.png; sourceTree = "<group>"; };
 		12BF0BF73F70CB46376EA1B7 /* category_star_fill.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_star_fill.png; sourceTree = "<group>"; };
 		13B5C558F99CCFDBA2EFE8E4 /* category_fork_knife.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_fork_knife.png; sourceTree = "<group>"; };
 		1514880D1F4929843D0C5B3A /* small_player_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_player_1.png; sourceTree = "<group>"; };
 		16290548E5CB15614AEC125E /* CategoryPaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryPaywallView.swift; sourceTree = "<group>"; };
-		16EB346595CB035E5801B875 /* pt-BR.lproj */ = {isa = PBXFileReference; path = "pt-BR.lproj"; sourceTree = "<group>"; };
+		16EB346595CB035E5801B875 /* pt-BR.lproj */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "pt-BR.lproj"; sourceTree = "<group>"; };
 		1872172C38AC29DC9A7D75F3 /* small_player_4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_player_4.png; sourceTree = "<group>"; };
 		1D49E6F6D50A2C78B1A3DE8F /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "pt-BR"; path = "pt-BR.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
 		1FD3B1E2BC3F96DBDE54AA2D /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
@@ -164,7 +165,7 @@
 		57C61F1BBC6120C344AE0D25 /* LocalizationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationService.swift; sourceTree = "<group>"; };
 		59D6E6DDD49C2175CD72FDF4 /* category_bolt_fill.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_bolt_fill.png; sourceTree = "<group>"; };
 		5A119C731D260729D61FD1B3 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
-		5A3D39D79EBFEE259F695500 /* ImposterGame.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ImposterGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5A3D39D79EBFEE259F695500 /* ImposterGame.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImposterGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D3215E5DDAD80503605AE3D /* es-MX */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "es-MX"; path = "es-MX.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
 		644E5C57C317FC091BAE626B /* Evolventa-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Evolventa-Regular.ttf"; sourceTree = "<group>"; };
 		6559DC18C856317EFFAD2A1E /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -188,7 +189,7 @@
 		9B8B4755C749B0A1468CA233 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A1B45AA5EC7D3A5D540E227C /* small_player_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_player_2.png; sourceTree = "<group>"; };
 		A377BEB2DDC8A0578C6B2763 /* LibreBaskerville-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "LibreBaskerville-Medium.ttf"; sourceTree = "<group>"; };
-		A4DC534C6EB33EAE4F7246E6 /* fr.lproj */ = {isa = PBXFileReference; path = fr.lproj; sourceTree = "<group>"; };
+		A4DC534C6EB33EAE4F7246E6 /* fr.lproj */ = {isa = PBXFileReference; lastKnownFileType = folder; path = fr.lproj; sourceTree = "<group>"; };
 		A5E6668A898BCA70D1F2E53A /* AppRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouter.swift; sourceTree = "<group>"; };
 		AA27ACED2644C163A72FD40E /* GameEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameEngine.swift; sourceTree = "<group>"; };
 		AA2C6AC8AA9C574611A86F36 /* OnboardingHero.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = OnboardingHero.jpg; sourceTree = "<group>"; };
@@ -200,6 +201,7 @@
 		B58272799A36548E83628AFE /* LocalizedBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizedBundle.swift; sourceTree = "<group>"; };
 		B8793C77BFC56EE9DC3B49FB /* small_player_8.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_player_8.png; sourceTree = "<group>"; };
 		B9E4FD5E37DE7F6EC24F1019 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
+		73C1AEBABE0B58C3ECB0A9C6 /* PostGamePaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostGamePaywallView.swift; sourceTree = "<group>"; };
 		B9FE14D16A4336B40FB70F5E /* PushNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationService.swift; sourceTree = "<group>"; };
 		BC2C8BBE6A3377EDF11C07AC /* CategoryPaywallHeroTop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = CategoryPaywallHeroTop.png; sourceTree = "<group>"; };
 		BE439385A528B4689F8144C1 /* category_house_fill.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_house_fill.png; sourceTree = "<group>"; };
@@ -208,7 +210,7 @@
 		C1B762503015166BBA74FA0F /* LibreBaskerville-SemiBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "LibreBaskerville-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
 		C8CD45AF718629C1648047AA /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		C9A744A8483ED6E92E70BB16 /* player_10.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = player_10.png; sourceTree = "<group>"; };
-		CE6297DEF8149BEB31004522 /* es-MX.lproj */ = {isa = PBXFileReference; path = "es-MX.lproj"; sourceTree = "<group>"; };
+		CE6297DEF8149BEB31004522 /* es-MX.lproj */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "es-MX.lproj"; sourceTree = "<group>"; };
 		CF8DDF4ED263B824675B7838 /* category_film_fill.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_film_fill.png; sourceTree = "<group>"; };
 		D2FEAFC938D219B05704FA71 /* GameSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSettings.swift; sourceTree = "<group>"; };
 		D7F0A1AF5BF3B63242545D1F /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = fr; path = fr.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
@@ -385,6 +387,7 @@
 				16290548E5CB15614AEC125E /* CategoryPaywallView.swift */,
 				B34BB2CA5DEDCEEB2ED103C6 /* PaywallComplianceViews.swift */,
 				B9E4FD5E37DE7F6EC24F1019 /* PaywallView.swift */,
+				73C1AEBABE0B58C3ECB0A9C6 /* PostGamePaywallView.swift */,
 			);
 			path = Paywall;
 			sourceTree = "<group>";
@@ -605,12 +608,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1500;
-				TargetAttributes = {
-					B6913A3367D83BA331917518 = {
-						DevelopmentTeam = Q35PSLMDJH;
-					};
-				};
+				LastUpgradeCheck = 2660;
 			};
 			buildConfigurationList = 97E264728EAC9BC18F364366 /* Build configuration list for PBXProject "ImposterGame" */;
 			developmentRegion = en;
@@ -743,11 +741,13 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(PROJECT_DIR)/ImposterGame/Resources/WordPacks",
 			);
 			name = "Copy WordPacks (preserve directory structure)";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/WordPacks",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -809,6 +809,7 @@
 				0459BAD358674BFF5CD2F1FA /* OpenAIWordPackService.swift in Sources */,
 				B4EC0FB8C581D0EBCD8BB96B /* PaywallComplianceViews.swift in Sources */,
 				9E6C49E880BEF67AEF6D2A06 /* PaywallView.swift in Sources */,
+				6DB984878CFB213AC416E6D5 /* PostGamePaywallView.swift in Sources */,
 				55BE5F5AC83E295982878890 /* Player.swift in Sources */,
 				24AB6D1CF11A6B2DA84440AB /* PlayerSetupView.swift in Sources */,
 				ECD62EA2DD1D5037C3D8B2C1 /* PushNotificationService.swift in Sources */,
@@ -855,6 +856,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -889,6 +891,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -899,21 +902,10 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleIconName = AppIcon;
-				INFOPLIST_KEY_UIAppFonts = (
-					"LibreBaskerville-Regular.ttf",
-					"LibreBaskerville-Medium.ttf",
-					"LibreBaskerville-SemiBold.ttf",
-					"LibreBaskerville-Bold.ttf",
-					"LibreBaskerville-Italic.ttf",
-					"LibreBaskerville-MediumItalic.ttf",
-					"LibreBaskerville-SemiBoldItalic.ttf",
-					"LibreBaskerville-BoldItalic.ttf",
-				);
+				INFOPLIST_KEY_UIAppFonts = "LibreBaskerville-Regular.ttf LibreBaskerville-Medium.ttf LibreBaskerville-SemiBold.ttf LibreBaskerville-Bold.ttf LibreBaskerville-Italic.ttf LibreBaskerville-MediumItalic.ttf LibreBaskerville-SemiBoldItalic.ttf LibreBaskerville-BoldItalic.ttf";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UIBackgroundModes = (
-					"remote-notification",
-				);
+				INFOPLIST_KEY_UIBackgroundModes = "remote-notification";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -923,6 +915,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.9;
@@ -933,6 +926,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -967,6 +961,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -983,21 +978,10 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleIconName = AppIcon;
-				INFOPLIST_KEY_UIAppFonts = (
-					"LibreBaskerville-Regular.ttf",
-					"LibreBaskerville-Medium.ttf",
-					"LibreBaskerville-SemiBold.ttf",
-					"LibreBaskerville-Bold.ttf",
-					"LibreBaskerville-Italic.ttf",
-					"LibreBaskerville-MediumItalic.ttf",
-					"LibreBaskerville-SemiBoldItalic.ttf",
-					"LibreBaskerville-BoldItalic.ttf",
-				);
+				INFOPLIST_KEY_UIAppFonts = "LibreBaskerville-Regular.ttf LibreBaskerville-Medium.ttf LibreBaskerville-SemiBold.ttf LibreBaskerville-Bold.ttf LibreBaskerville-Italic.ttf LibreBaskerville-MediumItalic.ttf LibreBaskerville-SemiBoldItalic.ttf LibreBaskerville-BoldItalic.ttf";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UIBackgroundModes = (
-					"remote-notification",
-				);
+				INFOPLIST_KEY_UIBackgroundModes = "remote-notification";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -1008,6 +992,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.9;
@@ -1028,13 +1013,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = Q35PSLMDJH;
 				INFOPLIST_KEY_CFBundleDisplayName = Imposter;
-				INFOPLIST_KEY_CFBundleLocalizations = (
-					en,
-					"pt-BR",
-					fr,
-					"es-MX",
-					tr,
-				);
+				INFOPLIST_KEY_CFBundleLocalizations = "en pt-BR fr es-MX tr";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1057,15 +1036,9 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = ImposterGame/ImposterGame.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				DEVELOPMENT_TEAM = Q35PSLMDJH;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_KEY_CFBundleDisplayName = Imposter;
-				INFOPLIST_KEY_CFBundleLocalizations = (
-					en,
-					"pt-BR",
-					fr,
-					"es-MX",
-					tr,
-				);
+				INFOPLIST_KEY_CFBundleLocalizations = "en pt-BR fr es-MX tr";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

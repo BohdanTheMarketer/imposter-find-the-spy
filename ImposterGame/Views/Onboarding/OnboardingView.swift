@@ -218,9 +218,13 @@ struct OnboardingView: View {
             currentPage += 1
         } else {
             subscriptionManager.hasCompletedOnboarding = true
-            // The first paywall now shows after player setup (once players are entered), not here.
-            AnalyticsService.logEvent("onboarding_complete", parameters: ["next": "player_setup"])
-            router.navigate(to: .playerSetup)
+            if subscriptionManager.isPremium {
+                AnalyticsService.logOnboardingComplete(next: "player_setup")
+                router.navigate(to: .playerSetup)
+            } else {
+                AnalyticsService.logOnboardingComplete(next: "paywall")
+                router.navigate(to: .paywall)
+            }
         }
     }
 }

@@ -5,6 +5,7 @@ enum AnalyticsService {
     enum PaywallContext: String {
         case onboarding
         case category
+        case postGame = "postgame"
     }
 
     enum PaywallCloseReason: String {
@@ -204,10 +205,10 @@ enum AnalyticsService {
         }
         logEvent("subscription_transaction", parameters: params)
 
-        // Trial starts and refunds carry no charge (value is 0/negative) —
-        // only mirror actual charges to Amplitude's native Revenue API so
-        // its built-in Revenue/LTV/ARPU reports reflect real money.
-        if transactionType == .initialPurchase || transactionType == .renewal {
+        // Trial starts carry no charge (value is 0) - skip those. Refunds carry a NEGATIVE
+        // value so they net revenue back down in Amplitude's Revenue/LTV/ARPU reports instead
+        // of silently vanishing from them.
+        if transactionType == .initialPurchase || transactionType == .renewal || transactionType == .refund {
             AmplitudeManager.logRevenue(
                 productId: productID,
                 price: value,
@@ -216,6 +217,25 @@ enum AnalyticsService {
                 paymentNumber: paymentNumber
             )
         }
+    }
+
+    /// Funnel-friendly convenience events mirroring specific `subscription_transaction` moments -
+    /// lets analysts build a trial funnel directly by event name instead of reconstructing it from
+    /// `subscription_transaction.transaction_type`/`payment_number`, which requires reading source code.
+    static func logTrialStarted(context: PaywallContext?, plan: String) {
+        logEvent("trial_started", parameters: [
+            "paywall_context": context?.rawValue ?? "unknown",
+            "plan": plan
+        ])
+    }
+
+    /// Fired the first time a trial's follow-up bill (payment_number == 1) actually goes through -
+    /// i.e. the trial converted to a real paying subscriber, not just started.
+    static func logTrialConverted(context: PaywallContext?, plan: String) {
+        logEvent("trial_converted", parameters: [
+            "paywall_context": context?.rawValue ?? "unknown",
+            "plan": plan
+        ])
     }
 
     static func setInstallWeekIfNeeded() {
@@ -290,6 +310,10 @@ enum AnalyticsService {
             "page_index": pageIndex,
             "page_id": pageID
         ])
+    }
+
+    static func logOnboardingComplete(next: String) {
+        logEvent("onboarding_complete", parameters: ["next": next])
     }
 
     // MARK: - Player setup
