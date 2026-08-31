@@ -13,7 +13,6 @@ struct PlayerSetupView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var gameSession: GameSession
     @EnvironmentObject var localization: LocalizationService
-    @EnvironmentObject var subscriptionManager: SubscriptionManager
     @State private var players: [PlayerEntry] = []
     @State private var newPlayerName: String = ""
     @State private var showOptionsMenu = false
@@ -98,11 +97,8 @@ struct PlayerSetupView: View {
                     AnalyticsService.logPlayerSetupContinueTapped(playerCount: validPlayerCount)
                     PlayerSetupKeyboard.dismiss()
                     setupPlayers()
-                    if subscriptionManager.isPremium {
-                        router.navigate(to: .categories)
-                    } else {
-                        router.navigate(to: .paywall)
-                    }
+                    // Paywall decision already happened right after onboarding, before this screen.
+                    router.navigate(to: .categories)
                 }) {
                     HStack(spacing: 14) {
                         Text("player_setup.continue")

@@ -14,7 +14,7 @@ enum AppUpdateService {
 
     #if DEBUG
     /// Shows a mock update prompt on every foreground. DEBUG builds only.
-    static var isSimulationEnabled = true
+    static var isSimulationEnabled = false
     #endif
 
     @MainActor

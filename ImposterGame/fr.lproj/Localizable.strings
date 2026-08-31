@@ -145,7 +145,15 @@
 "paywall.skip"                                = "Passer";
 "paywall.restore"                             = "Restaurer";
 "paywall.restore_alert_title"                 = "Restaurer les achats";
-"paywall.restore_alert_message"               = "Si vous avez un abonnement actif, il sera restauré sous peu.";
+"paywall.restore_alert_message"               = "Nous n'avons trouvé aucun abonnement actif pour cet identifiant Apple.";
+"paywall.restore_error_message"               = "Échec de la restauration. Vérifiez votre connexion et réessayez.";
+"paywall.purchase_issue_alert_title"          = "Achat";
+"paywall.purchase_pending_message"            = "Votre achat est en attente d'approbation. Nous débloquerons l'accès premium dès sa confirmation.";
+"paywall.purchase_error_message"              = "Un problème est survenu avec votre achat. Veuillez réessayer.";
+"paywall.postgame.headline"                   = "Cette partie vous a plu ?";
+"paywall.postgame.subheadline"                = "Débloquez toutes les catégories avec un essai gratuit.";
+"paywall.postgame.cta_subordinate"            = "Démarrer votre essai gratuit de 3 jours";
+"paywall.postgame.not_now"                    = "Pas maintenant";
 "paywall.auto_renews_suffix"                  = "renouvellement auto";
 "paywall.price_per_day_format"                = "%@/jour";
 "paywall.billed_price_format"                 = "Facturé %@";

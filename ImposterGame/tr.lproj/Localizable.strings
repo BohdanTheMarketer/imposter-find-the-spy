@@ -145,7 +145,15 @@
 "paywall.skip"                                = "Atla";
 "paywall.restore"                             = "Geri yükle";
 "paywall.restore_alert_title"                 = "Satın alımları geri yükle";
-"paywall.restore_alert_message"               = "Aktif aboneliğin varsa kısa sürede geri yüklenir.";
+"paywall.restore_alert_message"               = "Bu Apple ID için aktif bir abonelik bulamadık.";
+"paywall.restore_error_message"               = "Geri yükleme başarısız oldu. Bağlantını kontrol edip tekrar dene.";
+"paywall.purchase_issue_alert_title"          = "Satın Alma";
+"paywall.purchase_pending_message"            = "Satın alman onay bekliyor. Onaylanır onaylanmaz premium'u açacağız.";
+"paywall.purchase_error_message"              = "Satın alma sırasında bir sorun oluştu. Lütfen tekrar dene.";
+"paywall.postgame.headline"                   = "O turu beğendin mi?";
+"paywall.postgame.subheadline"                = "Ücretsiz deneme ile tüm kategorilerin kilidini aç.";
+"paywall.postgame.cta_subordinate"            = "3 günlük ücretsiz denemeni başlat";
+"paywall.postgame.not_now"                    = "Şimdi değil";
 "paywall.auto_renews_suffix"                  = "otomatik yenilenir";
 "paywall.price_per_day_format"                = "%@/gün";
 "paywall.billed_price_format"                 = "Faturalandırma: %@";

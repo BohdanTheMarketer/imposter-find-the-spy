@@ -3,12 +3,14 @@ import SwiftUI
 struct ResultView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var gameSession: GameSession
+    @EnvironmentObject var subscriptionManager: SubscriptionManager
     @State private var phase: ResultPhase = .intrigue
     @State private var intrigueTextIndex = 0
     @State private var showOutcomeSection = false
     @State private var showActionButtons = false
     @State private var headerReveal = false
     @State private var outcomeCardAppeared = false
+    @State private var showPostGamePaywall = false
 
     enum ResultPhase {
         case intrigue
@@ -74,6 +76,9 @@ struct ResultView: View {
         }
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
+        .sheet(isPresented: $showPostGamePaywall) {
+            PostGamePaywallView()
+        }
         .onAppear {
             phase = .intrigue
             intrigueTextIndex = 0
@@ -378,7 +383,18 @@ struct ResultView: View {
                     showActionButtons = true
                 }
                 HapticsManager.selection()
-                RateUsService.requestReviewAfterFirstGameIfNeeded()
+                if subscriptionManager.isEligibleForPostGamePaywall {
+                    // Skip the native rate-us prompt this time - it's a system-level overlay that
+                    // can render on top of our own .sheet if both fire close together, and the
+                    // paywall is the higher-priority ask for this cohort. RateUsService has its
+                    // own cooldown/eligibility, so it'll simply get another chance later.
+                    Task { @MainActor in
+                        try? await Task.sleep(nanoseconds: 800_000_000)
+                        showPostGamePaywall = true
+                    }
+                } else {
+                    RateUsService.requestReviewAfterFirstGameIfNeeded()
+                }
             }
         }
     }
