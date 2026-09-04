@@ -12,6 +12,9 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         // Initialize Amplitude Analytics + Session Replay once, on-device, at launch.
         AmplitudeManager.start()
 
+        // One-time Apple Search Ads attribution fetch (free, on-device, no MMP).
+        SearchAdsAttributionService.fetchAttributionIfNeeded()
+
         UNUserNotificationCenter.current().delegate = self
         Messaging.messaging().delegate = self
         PushNotificationService.migratePromptVersionIfNeeded()
