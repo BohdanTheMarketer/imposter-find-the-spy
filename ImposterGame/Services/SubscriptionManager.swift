@@ -682,6 +682,10 @@ class SubscriptionManager: ObservableObject {
         trialEnabled: Bool?
     ) {
         guard premiumProductIDs.contains(transaction.productID) else { return }
+        // Sandbox transactions (TestFlight/dev builds, App Store sandbox testers) rebill in
+        // minutes instead of days/weeks and carry no real money - they'd otherwise flood
+        // Amplitude with fake renewal bursts and pollute revenue/geo analytics.
+        guard transaction.environment != .sandbox else { return }
         guard !hasLoggedTransaction(transaction.id) else { return }
         markTransactionLogged(transaction.id)
 
