@@ -100,6 +100,9 @@
 		CF9E7A8BDF5FE91D7734042C /* ResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A85D01792F87215E545F74 /* ResultView.swift */; };
 		D30C38FA2FA41820DC03CF34 /* LocalizationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C61F1BBC6120C344AE0D25 /* LocalizationService.swift */; };
 		D411B5229D8588E498B21961 /* RateUsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6734472499752AFA4872AA9D /* RateUsService.swift */; };
+		5F1A2B3C4D5E6F7081920A32 /* SurveyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F1A2B3C4D5E6F7081920A31 /* SurveyService.swift */; };
+		5F1A2B3C4D5E6F7081920A42 /* AdGateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F1A2B3C4D5E6F7081920A41 /* AdGateService.swift */; };
+		5F1A2B3C4D5E6F7081920A52 /* PostGameSurveyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F1A2B3C4D5E6F7081920A51 /* PostGameSurveyView.swift */; };
 		E073E44FA49C705E2CF762C5 /* Evolventa-BoldOblique.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2430B72FB2A58CD075E91F4D /* Evolventa-BoldOblique.ttf */; };
 		E537C6A60D252CB2788F2691 /* Evolventa-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 84537E46AE774DD1DAEED1EC /* Evolventa-Bold.ttf */; };
 		E78372EEC1931B91E618EDC7 /* GameSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED521C6104609D6FD37E3EC4 /* GameSession.swift */; };
@@ -114,6 +117,7 @@
 		863795F8EAE619A73A6EE545 /* SearchAdsAttributionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 131BFBA3F4A859166060FD0B /* SearchAdsAttributionService.swift */; };
 		FDCCC613281DAB0E1C331525 /* NanumMyeongjo-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2283F75A3920742284B725D3 /* NanumMyeongjo-Regular.ttf */; };
 		FEDD643230CD1B9D84C79192 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = AA18741BEA45BBF37BAB5DD9 /* FirebaseAnalytics */; };
+		1D7E3F9A2B4C5D6E7F809142 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 3E8F1A2B4C5D6E7F80914253 /* FirebaseFirestore */; };
 		FF05AD2D94FF799645C2EF7F /* AmplitudeSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 1AB400EE49BBB7FD40446778 /* AmplitudeSwift */; };
 /* End PBXBuildFile section */
 
@@ -172,6 +176,8 @@
 		644E5C57C317FC091BAE626B /* Evolventa-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Evolventa-Regular.ttf"; sourceTree = "<group>"; };
 		6559DC18C856317EFFAD2A1E /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		6734472499752AFA4872AA9D /* RateUsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateUsService.swift; sourceTree = "<group>"; };
+		5F1A2B3C4D5E6F7081920A31 /* SurveyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyService.swift; sourceTree = "<group>"; };
+		5F1A2B3C4D5E6F7081920A41 /* AdGateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdGateService.swift; sourceTree = "<group>"; };
 		6F01484148D85E5D158779B1 /* AppUpdateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateService.swift; sourceTree = "<group>"; };
 		6FA8E1A829A6103A65B14DC5 /* player_11.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = player_11.png; sourceTree = "<group>"; };
 		7024D9671D1CF3A8C2BB08B9 /* CategoriesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoriesView.swift; sourceTree = "<group>"; };
@@ -204,6 +210,7 @@
 		B8793C77BFC56EE9DC3B49FB /* small_player_8.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_player_8.png; sourceTree = "<group>"; };
 		B9E4FD5E37DE7F6EC24F1019 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		73C1AEBABE0B58C3ECB0A9C6 /* PostGamePaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostGamePaywallView.swift; sourceTree = "<group>"; };
+		5F1A2B3C4D5E6F7081920A51 /* PostGameSurveyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostGameSurveyView.swift; sourceTree = "<group>"; };
 		B9FE14D16A4336B40FB70F5E /* PushNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationService.swift; sourceTree = "<group>"; };
 		BC2C8BBE6A3377EDF11C07AC /* CategoryPaywallHeroTop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = CategoryPaywallHeroTop.png; sourceTree = "<group>"; };
 		BE439385A528B4689F8144C1 /* category_house_fill.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_house_fill.png; sourceTree = "<group>"; };
@@ -245,6 +252,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FEDD643230CD1B9D84C79192 /* FirebaseAnalytics in Frameworks */,
+				1D7E3F9A2B4C5D6E7F809142 /* FirebaseFirestore in Frameworks */,
 				CBDDD1A5D6252BD8501EFF63 /* FirebaseCrashlytics in Frameworks */,
 				ACC4866899B846DF8C050C45 /* FirebaseInstallations in Frameworks */,
 				EEA2764BDA8ED72CAAC24BB0 /* FirebaseMessaging in Frameworks */,
@@ -309,6 +317,8 @@
 				B9FE14D16A4336B40FB70F5E /* PushNotificationService.swift */,
 				6734472499752AFA4872AA9D /* RateUsService.swift */,
 				57B1A59DC496A37029B24E08 /* SubscriptionManager.swift */,
+				5F1A2B3C4D5E6F7081920A31 /* SurveyService.swift */,
+				5F1A2B3C4D5E6F7081920A41 /* AdGateService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -344,6 +354,7 @@
 				C6088D895BE842CBC9DA84E2 /* Result */,
 				F6016207C8CB195B1E359967 /* RoleReveal */,
 				731CAB5E36F09A1BAF486BD5 /* Voting */,
+				5F1A2B3C4D5E6F7081920A61 /* Survey */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -382,6 +393,14 @@
 				3A0840B6E8D6C2FAC494C35B /* VotingView.swift */,
 			);
 			path = Voting;
+			sourceTree = "<group>";
+		};
+		5F1A2B3C4D5E6F7081920A61 /* Survey */ = {
+			isa = PBXGroup;
+			children = (
+				5F1A2B3C4D5E6F7081920A51 /* PostGameSurveyView.swift */,
+			);
+			path = Survey;
 			sourceTree = "<group>";
 		};
 		822705CF4CF51CBA67BC86C7 /* Paywall */ = {
@@ -594,6 +613,7 @@
 			name = ImposterGame;
 			packageProductDependencies = (
 				AA18741BEA45BBF37BAB5DD9 /* FirebaseAnalytics */,
+				3E8F1A2B4C5D6E7F80914253 /* FirebaseFirestore */,
 				A07314160D6C5EA1AAB20FD6 /* FirebaseCrashlytics */,
 				A2462B968BD5F03BCFEAF2FD /* FirebaseInstallations */,
 				706047C26E961DBED30EA12B /* FirebaseMessaging */,
@@ -814,10 +834,13 @@
 				B4EC0FB8C581D0EBCD8BB96B /* PaywallComplianceViews.swift in Sources */,
 				9E6C49E880BEF67AEF6D2A06 /* PaywallView.swift in Sources */,
 				6DB984878CFB213AC416E6D5 /* PostGamePaywallView.swift in Sources */,
+				5F1A2B3C4D5E6F7081920A52 /* PostGameSurveyView.swift in Sources */,
 				55BE5F5AC83E295982878890 /* Player.swift in Sources */,
 				24AB6D1CF11A6B2DA84440AB /* PlayerSetupView.swift in Sources */,
 				ECD62EA2DD1D5037C3D8B2C1 /* PushNotificationService.swift in Sources */,
 				D411B5229D8588E498B21961 /* RateUsService.swift in Sources */,
+				5F1A2B3C4D5E6F7081920A32 /* SurveyService.swift in Sources */,
+				5F1A2B3C4D5E6F7081920A42 /* AdGateService.swift in Sources */,
 				CF9E7A8BDF5FE91D7734042C /* ResultView.swift in Sources */,
 				5BF897FD703C7DDC14F783D2 /* RoleRevealView.swift in Sources */,
 				F6C9306608A448B5BF1E69C8 /* SubscriptionManager.swift in Sources */,
@@ -1134,6 +1157,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2A4396BBF0F911E44E2769CC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalytics;
+		};
+		3E8F1A2B4C5D6E7F80914253 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2A4396BBF0F911E44E2769CC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

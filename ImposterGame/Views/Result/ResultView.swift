@@ -11,6 +11,7 @@ struct ResultView: View {
     @State private var headerReveal = false
     @State private var outcomeCardAppeared = false
     @State private var showPostGamePaywall = false
+    @State private var showPostGameSurvey = false
 
     enum ResultPhase {
         case intrigue
@@ -78,6 +79,9 @@ struct ResultView: View {
         .navigationBarBackButtonHidden(true)
         .sheet(isPresented: $showPostGamePaywall) {
             PostGamePaywallView()
+        }
+        .sheet(isPresented: $showPostGameSurvey) {
+            PostGameSurveyView()
         }
         .onAppear {
             phase = .intrigue
@@ -383,7 +387,14 @@ struct ResultView: View {
                     showActionButtons = true
                 }
                 HapticsManager.selection()
-                if subscriptionManager.isEligibleForPostGamePaywall {
+                if SurveyService.recordCompletedGameAndCheckEligibility() {
+                    // Highest priority for this round: skips both the paywall and the
+                    // rate-us prompt so the survey doesn't compete with another overlay.
+                    Task { @MainActor in
+                        try? await Task.sleep(nanoseconds: 800_000_000)
+                        showPostGameSurvey = true
+                    }
+                } else if subscriptionManager.isEligibleForPostGamePaywall {
                     // Skip the native rate-us prompt this time - it's a system-level overlay that
                     // can render on top of our own .sheet if both fire close together, and the
                     // paywall is the higher-priority ask for this cohort. RateUsService has its

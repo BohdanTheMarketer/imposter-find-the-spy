@@ -501,15 +501,22 @@ enum AnalyticsService {
         setUserProperty(localeCode, for: "app_language")
     }
 
+    private static let totalGamesPlayedKey = "com.imposter.analytics.totalGamesPlayed"
+
     /// Bumps and persists the lifetime completed-game counter, then reflects it
     /// as a user property so cohorts can filter by engagement depth
     /// (e.g. "played >= 5 games").
     static func incrementTotalGamesPlayed() {
-        let key = "com.imposter.analytics.totalGamesPlayed"
-        let newCount = UserDefaults.standard.integer(forKey: key) + 1
-        UserDefaults.standard.set(newCount, forKey: key)
+        let newCount = UserDefaults.standard.integer(forKey: totalGamesPlayedKey) + 1
+        UserDefaults.standard.set(newCount, forKey: totalGamesPlayedKey)
         Analytics.setUserProperty(String(newCount), forName: "total_games_played")
         AmplitudeManager.setUserProperty(newCount, for: "total_games_played")
+    }
+
+    /// Lifetime completed-game count, read for one-time migrations that need to know
+    /// whether a user already had game history before a given feature shipped.
+    static var totalGamesPlayed: Int {
+        UserDefaults.standard.integer(forKey: totalGamesPlayedKey)
     }
 
     /// Last category played — lets cohorts segment by content preference.
