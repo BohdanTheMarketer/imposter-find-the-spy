@@ -134,6 +134,7 @@
 "paywall.cta.then_price_cancel"               = "Then %@ · Cancel anytime";
 "paywall.weekly_trial_subtitle"               = "3-day free trial, then %@";
 "paywall.terms.trial_format"                  = "Free for %@, then %@. Auto-renews until canceled.";
+"paywall.terms.intro_discount_format"         = "%@ for %@, then %@. Auto-renews until canceled.";
 "paywall.terms.standard_format"               = "%@. Auto-renews until canceled.";
 "paywall.terms.fallback"                      = "Auto-renews until canceled.";
 "paywall.timeline.today.title"                = "Today";
@@ -154,6 +155,7 @@
 "paywall.postgame.subheadline"                = "Débloquez toutes les catégories avec un essai gratuit.";
 "paywall.postgame.cta_subordinate"            = "Démarrer votre essai gratuit de 3 jours";
 "paywall.postgame.not_now"                    = "Pas maintenant";
+"paywall.superoffer.cta"                      = "Profiter de mon cadeau";
 "paywall.auto_renews_suffix"                  = "renouvellement auto";
 "paywall.price_per_day_format"                = "%@/jour";
 "paywall.billed_price_format"                 = "Facturé %@";
@@ -207,6 +209,7 @@
 "custom_pack.error_unauthorized"              = "La génération IA est mal configurée. Réessayez plus tard.";
 "custom_pack.error_rate_limited"              = "Trop de requêtes pour le moment. Réessayez dans un instant.";
 "custom_pack.error_generation_failed"         = "Impossible de générer un pack à partir de cette description. Essayez de la reformuler.";
+"custom_pack.policy_notice"                   = "Le contenu généré doit respecter les règles de l'App Store — les demandes inappropriées seront filtrées.";
 
 /* Loader */
 "loader.tagline"                              = "TROUVEZ  •  ACCUSEZ  •  SURVIVEZ";

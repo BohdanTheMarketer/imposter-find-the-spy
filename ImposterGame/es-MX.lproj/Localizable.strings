@@ -134,6 +134,7 @@
 "paywall.cta.then_price_cancel"               = "Then %@ · Cancel anytime";
 "paywall.weekly_trial_subtitle"               = "3-day free trial, then %@";
 "paywall.terms.trial_format"                  = "Free for %@, then %@. Auto-renews until canceled.";
+"paywall.terms.intro_discount_format"         = "%@ for %@, then %@. Auto-renews until canceled.";
 "paywall.terms.standard_format"               = "%@. Auto-renews until canceled.";
 "paywall.terms.fallback"                      = "Auto-renews until canceled.";
 "paywall.timeline.today.title"                = "Today";
@@ -154,6 +155,7 @@
 "paywall.postgame.subheadline"                = "Desbloquea todas las categorías con una prueba gratis.";
 "paywall.postgame.cta_subordinate"            = "Inicia tu prueba gratis de 3 días";
 "paywall.postgame.not_now"                    = "Ahora no";
+"paywall.superoffer.cta"                      = "Reclamar mi regalo";
 "paywall.auto_renews_suffix"                  = "se renueva solo";
 "paywall.price_per_day_format"                = "%@/día";
 "paywall.billed_price_format"                 = "Se factura %@";
@@ -207,6 +209,7 @@
 "custom_pack.error_unauthorized"              = "La generación con IA no está configurada correctamente. Inténtalo más tarde.";
 "custom_pack.error_rate_limited"              = "Demasiadas solicitudes por ahora. Inténtalo de nuevo en un momento.";
 "custom_pack.error_generation_failed"         = "No se pudo generar un paquete con esa descripción. Intenta reformularla.";
+"custom_pack.policy_notice"                   = "El contenido generado debe cumplir con las normas de la App Store; las solicitudes inapropiadas serán filtradas.";
 
 /* Loader */
 "loader.tagline"                              = "ENCUENTRA  •  ACUSA  •  SOBREVIVE";

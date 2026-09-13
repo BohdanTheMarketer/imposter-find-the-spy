@@ -9,6 +9,9 @@ packages:
   AmplitudeSessionReplay:
     url: https://github.com/amplitude/AmplitudeSessionReplay-iOS
     from: 0.12.0
+  GoogleMobileAds:
+    url: https://github.com/googleads/swift-package-manager-google-mobile-ads.git
+    from: 12.0.0
 options:
   bundleIdPrefix: com.imposter
   deploymentTarget:
@@ -35,8 +38,8 @@ schemes:
 settings:
   base:
     SWIFT_VERSION: "5.9"
-    MARKETING_VERSION: "1.1.0"
-    CURRENT_PROJECT_VERSION: "4"
+    MARKETING_VERSION: "2.0.2"
+    CURRENT_PROJECT_VERSION: "1"
     GENERATE_INFOPLIST_FILE: YES
     INFOPLIST_KEY_UIAppFonts:
       - LibreBaskerville-Regular.ttf
@@ -86,6 +89,8 @@ targets:
         product: AmplitudeSwift
       - package: AmplitudeSessionReplay
         product: AmplitudeSwiftSessionReplayPlugin
+      - package: GoogleMobileAds
+        product: GoogleMobileAds
     preBuildScripts:
       - name: Generate Secrets
         basedOnDependencyAnalysis: false

@@ -11,6 +11,11 @@ struct ResultView: View {
     @State private var headerReveal = false
     @State private var outcomeCardAppeared = false
     @State private var showPostGamePaywall = false
+    /// Guards against a spurious repeat `.onAppear` (observed after presenting the AdMob
+    /// interstitial) re-running the reset + intrigue sequence mid-flow, which briefly flashed the
+    /// purple "moment of truth" screen again right before the post-game offer appeared. Only a
+    /// genuinely new `ResultView` instance (next game) should ever run this once more.
+    @State private var hasInitializedForThisGame = false
 
     enum ResultPhase {
         case intrigue
@@ -76,10 +81,12 @@ struct ResultView: View {
         }
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
-        .sheet(isPresented: $showPostGamePaywall) {
+        .fullScreenCover(isPresented: $showPostGamePaywall, onDismiss: proceedToNextRound) {
             PostGamePaywallView()
         }
         .onAppear {
+            guard !hasInitializedForThisGame else { return }
+            hasInitializedForThisGame = true
             phase = .intrigue
             intrigueTextIndex = 0
             showOutcomeSection = false
@@ -100,6 +107,33 @@ struct ResultView: View {
             }
             startIntrigueSequence()
         }
+    }
+
+    /// "Play Again" flow: ad first (non-premium only), then - the very first time a user is
+    /// eligible - the special offer once, then actually start the next round. Both the ad and the
+    /// offer are awaited/dismissal-driven rather than fired on an automatic timer, so neither can
+    /// re-trigger this same sequence while the previous one is still settling.
+    private func handlePlayAgainTapped() {
+        Task { @MainActor in
+            if !subscriptionManager.isPremium {
+                await AdMobService.shared.showInterstitial()
+                // Small buffer so the ad's own dismissal transition fully finishes before we
+                // potentially present another full-screen cover on top of it.
+                try? await Task.sleep(nanoseconds: 300_000_000)
+            }
+            if subscriptionManager.isEligibleForPostGamePaywall {
+                showPostGamePaywall = true
+            } else {
+                proceedToNextRound()
+            }
+        }
+    }
+
+    /// Called directly when no offer is shown, or via the offer's `.fullScreenCover` `onDismiss`
+    /// when one was.
+    private func proceedToNextRound() {
+        gameSession.resetForNewRound()
+        router.navigateToCategories()
     }
 
     // MARK: - Intrigue View
@@ -229,8 +263,7 @@ struct ResultView: View {
                         Button(action: {
                             HapticsManager.impact(.medium)
                             AnalyticsService.logResultPlayAgainTapped()
-                            gameSession.resetForNewRound()
-                            router.navigateToCategories()
+                            handlePlayAgainTapped()
                         }) {
                             HStack(spacing: 10) {
                                 Text("result.play_again")
@@ -383,18 +416,12 @@ struct ResultView: View {
                     showActionButtons = true
                 }
                 HapticsManager.selection()
-                if subscriptionManager.isEligibleForPostGamePaywall {
-                    // Skip the native rate-us prompt this time - it's a system-level overlay that
-                    // can render on top of our own .sheet if both fire close together, and the
-                    // paywall is the higher-priority ask for this cohort. RateUsService has its
-                    // own cooldown/eligibility, so it'll simply get another chance later.
-                    Task { @MainActor in
-                        try? await Task.sleep(nanoseconds: 800_000_000)
-                        showPostGamePaywall = true
-                    }
-                } else {
-                    RateUsService.requestReviewAfterFirstGameIfNeeded()
-                }
+                // Ad and post-game offer no longer fire automatically here - see
+                // `handlePlayAgainTapped()`, triggered by the button itself instead. Showing them
+                // on an automatic timer while this reveal sequence was still settling was
+                // triggering a presentation loop (ad closes, something re-kicks this same
+                // sequence, ad shows again).
+                RateUsService.requestReviewAfterFirstGameIfNeeded()
             }
         }
     }

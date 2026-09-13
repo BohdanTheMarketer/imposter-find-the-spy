@@ -53,7 +53,6 @@ enum CategoryLoader {
         "hobbies",
         "family",
         "school",
-        "spicy",
         "sports",
         "travel",
         "work_life",

@@ -134,6 +134,7 @@
 "paywall.cta.then_price_cancel"               = "Then %@ · Cancel anytime";
 "paywall.weekly_trial_subtitle"               = "3-day free trial, then %@";
 "paywall.terms.trial_format"                  = "Free for %@, then %@. Auto-renews until canceled.";
+"paywall.terms.intro_discount_format"         = "%@ for %@, then %@. Auto-renews until canceled.";
 "paywall.terms.standard_format"               = "%@. Auto-renews until canceled.";
 "paywall.terms.fallback"                      = "Auto-renews until canceled.";
 "paywall.timeline.today.title"                = "Today";
@@ -154,6 +155,7 @@
 "paywall.postgame.subheadline"                = "Unlock every category with a free trial.";
 "paywall.postgame.cta_subordinate"            = "Start your 3-day free trial";
 "paywall.postgame.not_now"                    = "Not now";
+"paywall.superoffer.cta"                      = "Claim My Gift";
 "paywall.auto_renews_suffix"                  = "auto-renews";
 "paywall.price_per_day_format"                = "%@/day";
 "paywall.billed_price_format"                 = "Billed %@";
@@ -207,6 +209,7 @@
 "custom_pack.error_unauthorized"              = "AI generation isn't configured correctly. Please try again later.";
 "custom_pack.error_rate_limited"              = "Too many requests right now. Please try again in a moment.";
 "custom_pack.error_generation_failed"         = "Couldn't generate a pack from that prompt. Try rephrasing it.";
+"custom_pack.policy_notice"                   = "Generated content must follow Apple's App Store guidelines — inappropriate prompts will be filtered.";
 
 /* Loader */
 "loader.tagline"                              = "FIND  •  ACCUSE  •  SURVIVE";

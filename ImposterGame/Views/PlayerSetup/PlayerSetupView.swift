@@ -478,6 +478,7 @@ private enum PlayerOptionsLinks {
 }
 
 struct PlayerOptionsSheet: View {
+    @EnvironmentObject var subscriptionManager: SubscriptionManager
     @Binding var isPresented: Bool
     @State private var installationId: String = ""
     @State private var isLoadingInstallationId = true
@@ -485,6 +486,9 @@ struct PlayerOptionsSheet: View {
     @State private var toastMessage = ""
     @State private var showToast = false
     @State private var showLanguagePicker = false
+    @State private var adminCommandText: String = ""
+    @State private var showDebugStatusAlert = false
+    @State private var debugStatusMessage = ""
 
     var body: some View {
         ZStack {
@@ -525,6 +529,7 @@ struct PlayerOptionsSheet: View {
                 .padding(.horizontal, 20)
 
                 installationIdRow
+                adminCommandRow
 
                 Spacer(minLength: 12)
 
@@ -566,6 +571,11 @@ struct PlayerOptionsSheet: View {
         }
         .presentationDetents([.fraction(0.62), .large])
         .presentationDragIndicator(.visible)
+        .alert("QA Status", isPresented: $showDebugStatusAlert) {
+            Button("OK") {}
+        } message: {
+            Text(verbatim: debugStatusMessage)
+        }
     }
 
     private var installationIdRow: some View {
@@ -600,6 +610,77 @@ struct PlayerOptionsSheet: View {
         .buttonStyle(OptionsRowButtonStyle())
         .padding(.horizontal, 20)
         .padding(.top, 16)
+    }
+
+    /// Hidden QA entry point: typing `admin_premium_on`/`admin_premium_off` here forces the
+    /// premium state without a real purchase, or forces it off on a device with a genuine active
+    /// subscription so testers can preview the free-user paywall/ad flows - without fighting
+    /// Apple's sandbox subscription-management UI. Works in TestFlight/Release builds too.
+    private var adminCommandRow: some View {
+        TextField("", text: $adminCommandText)
+            .textInputAutocapitalization(.never)
+            .autocorrectionDisabled(true)
+            .font(.evolventa(size: 12, weight: .regular))
+            .foregroundColor(.white.opacity(0.85))
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.white.opacity(0.06))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .padding(.horizontal, 20)
+            .padding(.top, 10)
+            .onSubmit(handleAdminCommand)
+    }
+
+    private func handleAdminCommand() {
+        let command = adminCommandText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        adminCommandText = ""
+        switch command {
+        case "admin_premium_on":
+            subscriptionManager.setQAPremiumOverride(true)
+            HapticsManager.notification(.success)
+            showToast(message: "Premium: ON")
+        case "admin_premium_off":
+            subscriptionManager.setQAPremiumOverride(false)
+            HapticsManager.notification(.warning)
+            showToast(message: "Premium: OFF")
+        case "admin_reset_offer":
+            // Forces EVERY condition `isEligibleForPostGamePaywall` checks, not just the "shown
+            // once" flag - guarantees the offer will actually appear on the next completed game
+            // regardless of onboarding/category-paywall/premium state on this device.
+            subscriptionManager.hasShownPostGamePaywall = false
+            subscriptionManager.hasDeclinedOnboardingPaywall = true
+            subscriptionManager.hasSeenCategoryPaywallThisSession = false
+            subscriptionManager.setQAPremiumOverride(false)
+            HapticsManager.notification(.success)
+            showToast(message: "Post-game offer: reset")
+        case "admin_offer_on":
+            // Repeatable version of admin_reset_offer - forces the offer eligible on every single
+            // "Play Again" for this whole test session, immune to incidental gameplay (e.g.
+            // tapping a locked category) re-blocking it afterward. Turn off with admin_offer_off.
+            subscriptionManager.qaForceOfferEligible = true
+            HapticsManager.notification(.success)
+            showToast(message: "Post-game offer: FORCED ON")
+        case "admin_offer_off":
+            subscriptionManager.qaForceOfferEligible = false
+            HapticsManager.notification(.warning)
+            showToast(message: "Post-game offer: forced mode OFF")
+        case "admin_reset_review":
+            // Resets our own "first game"/cooldown bookkeeping - iOS itself still caps the actual
+            // system review dialog to ~3x/year per Apple ID, so it may still not visibly appear.
+            RateUsService.resetForQACommand()
+            HapticsManager.notification(.success)
+            showToast(message: "Rate-us: reset")
+        case "admin_debug_status":
+            debugStatusMessage = subscriptionManager.qaDiagnosticSummary
+                + "\n\n"
+                + RateUsService.qaDiagnosticSummary
+                + "\n\n"
+                + AdMobService.shared.qaDiagnosticSummary
+            showDebugStatusAlert = true
+        default:
+            break
+        }
     }
 
     private func loadInstallationId() {

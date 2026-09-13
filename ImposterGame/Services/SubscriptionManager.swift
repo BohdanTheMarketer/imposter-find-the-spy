@@ -24,11 +24,16 @@ class SubscriptionManager: ObservableObject {
     enum SubscriptionPlan {
         case weekly
         case yearly
+        /// Dedicated real product for the post-game "super special offer" screen - its own SKU
+        /// (not an introductory offer on the regular weekly product) so its price is configured
+        /// directly in App Store Connect.
+        case weeklySpecialOffer
 
         var analyticsValue: String {
             switch self {
             case .weekly: return "weekly"
             case .yearly: return "yearly"
+            case .weeklySpecialOffer: return "weekly_special_offer"
             }
         }
 
@@ -38,6 +43,8 @@ class SubscriptionManager: ObservableObject {
                 return "com.vertebro.imposter.weekly"
             case .yearly:
                 return "com.vertebro.imposter.yearly"
+            case .weeklySpecialOffer:
+                return "com.vertebro.imposter.weeklySO"
             }
         }
     }
@@ -53,15 +60,55 @@ class SubscriptionManager: ObservableObject {
     private let purchaseAttributionKey = "com.imposter.analytics.purchaseAttribution"
     private let premiumProductIDs = [
         "com.vertebro.imposter.weekly",
-        "com.vertebro.imposter.yearly"
+        "com.vertebro.imposter.yearly",
+        "com.vertebro.imposter.weeklySO"
     ]
+
+    /// Analytics plan label for a raw StoreKit product ID - used wherever a `Transaction` (rather
+    /// than a `SubscriptionPlan`) is all that's on hand. Defaults to "weekly" for anything that
+    /// isn't the yearly or special-offer product, matching the old weekly/yearly-only behavior.
+    private func planLabel(forProductID productID: String) -> String {
+        if productID == SubscriptionPlan.yearly.productID { return "yearly" }
+        if productID == SubscriptionPlan.weeklySpecialOffer.productID { return "weekly_special_offer" }
+        return "weekly"
+    }
     private var transactionUpdatesTask: Task<Void, Never>?
     private var lastEntitlementState: AnalyticsService.SubscriptionEntitlementState?
     private var lastPurchaseContext: AnalyticsService.PaywallContext?
     private var lastPurchaseTrialEnabled = false
 
-    @Published var isPremium: Bool {
-        didSet { keychainWrite(key: isPremiumKey, value: isPremium) }
+    @Published private var storedIsPremium: Bool {
+        didSet { keychainWrite(key: isPremiumKey, value: storedIsPremium) }
+    }
+
+    /// QA-only override that makes `isPremium` report a fixed value regardless of the real
+    /// entitlement - lets a tester force premium on (without buying) or force it off (on a device
+    /// with a genuine active subscription, to preview the free-user paywall/ad flows) without
+    /// touching Apple's sandbox account state. Set via the `admin_premium_on`/`admin_premium_off`
+    /// commands in `PlayerOptionsSheet` (works in TestFlight/Release builds too, since fighting
+    /// Apple's sandbox subscription-management UI isn't always possible there). Empty string means
+    /// no override - `@AppStorage` doesn't support optional/enum values directly.
+    @AppStorage("qaPremiumOverride") var qaPremiumOverrideRaw: String = ""
+
+    var isPremium: Bool {
+        get {
+            switch qaPremiumOverrideRaw {
+            case "on": return true
+            case "off": return false
+            default: return storedIsPremium
+            }
+        }
+        set { storedIsPremium = newValue }
+    }
+
+    /// `true`/`false` force the QA override on/off; `nil` clears it, reverting `isPremium` to the
+    /// real entitlement.
+    func setQAPremiumOverride(_ forcedValue: Bool?) {
+        switch forcedValue {
+        case .some(true): qaPremiumOverrideRaw = "on"
+        case .some(false): qaPremiumOverrideRaw = "off"
+        case .none: qaPremiumOverrideRaw = ""
+        }
     }
     @Published var productsByID: [String: Product] = [:]
     @Published var isStoreLoading = false
@@ -92,23 +139,51 @@ class SubscriptionManager: ObservableObject {
     @AppStorage("hasDeclinedOnboardingPaywall") var hasDeclinedOnboardingPaywall: Bool = false
     @AppStorage("hasShownPostGamePaywall") var hasShownPostGamePaywall: Bool = false
 
+    /// QA-only override: while `true`, `isEligibleForPostGamePaywall` reports `true` unconditionally
+    /// and `markPostGamePaywallShown()` doesn't consume the real "shown once" flag - so a tester
+    /// sees the offer on every single "Play Again" without it getting silently re-blocked by
+    /// incidental gameplay (e.g. tapping into a locked category resets `hasSeenCategoryPaywallThisSession`
+    /// right back to `true` after a one-time `admin_reset_offer`). Set via `admin_offer_on`/
+    /// `admin_offer_off` in `PlayerOptionsSheet`.
+    @AppStorage("qaForceOfferEligible") var qaForceOfferEligible: Bool = false
+
     /// Post-game soft paywall targets only users who saw and declined the onboarding paywall,
     /// haven't purchased, have never been shown this specific paywall before, and haven't ALSO
     /// seen the category paywall in this same sitting - avoids stacking a third pitch on someone
     /// who just declined the category paywall (which converts better than onboarding in practice).
     var isEligibleForPostGamePaywall: Bool {
-        hasDeclinedOnboardingPaywall && !isPremium && !hasShownPostGamePaywall && !hasSeenCategoryPaywallThisSession
+        if qaForceOfferEligible { return true }
+        return hasDeclinedOnboardingPaywall && !isPremium && !hasShownPostGamePaywall && !hasSeenCategoryPaywallThisSession
+    }
+
+    /// Human-readable dump of every flag `isEligibleForPostGamePaywall` depends on - surfaced via
+    /// the `admin_debug_status` QA command so a tester can see WHY the offer isn't showing instead
+    /// of guessing blind.
+    var qaDiagnosticSummary: String {
+        """
+        isPremium (effective) = \(isPremium)
+        premium override = \(qaPremiumOverrideRaw.isEmpty ? "none" : qaPremiumOverrideRaw)
+        raw entitlement = \(storedIsPremium)
+        hasDeclinedOnboardingPaywall = \(hasDeclinedOnboardingPaywall)
+        hasShownPostGamePaywall = \(hasShownPostGamePaywall)
+        hasSeenCategoryPaywallThisSession = \(hasSeenCategoryPaywallThisSession)
+        qaForceOfferEligible = \(qaForceOfferEligible)
+        isEligibleForPostGamePaywall = \(isEligibleForPostGamePaywall)
+        """
     }
 
     @discardableResult
     func markPostGamePaywallShown() -> Bool {
         guard isEligibleForPostGamePaywall else { return false }
+        // Don't consume the real one-time flag while QA is forcing eligibility - keeps the offer
+        // repeatable across every "Play Again" during a test session.
+        guard !qaForceOfferEligible else { return true }
         hasShownPostGamePaywall = true
         return true
     }
 
     init() {
-        self.isPremium = Self.keychainReadStatic(key: "com.imposter.isPremium")
+        self.storedIsPremium = Self.keychainReadStatic(key: "com.imposter.isPremium")
         // lastEntitlementState intentionally left nil - guessing a specific plan here (it used to
         // hardcode .activeYearly) meant weekly subscribers got a spurious "yearly -> weekly"
         // entitlement_state_changed logged on every single cold launch. Leaving it unresolved lets
@@ -203,7 +278,7 @@ class SubscriptionManager: ObservableObject {
     }
 
     func purchaseSubscription(
-        plan: SubscriptionPlan = .yearly,
+        plan: SubscriptionPlan = .weekly,
         context: AnalyticsService.PaywallContext? = nil
     ) async -> PurchaseOutcome {
         await purchase(plan: plan, context: context)
@@ -236,6 +311,13 @@ class SubscriptionManager: ObservableObject {
         return "\(product.displayPrice)/week"
     }
 
+    var weeklySpecialOfferPriceText: String {
+        guard let product = productsByID[SubscriptionPlan.weeklySpecialOffer.productID] else {
+            return isStoreLoading ? "Loading price..." : "--/week"
+        }
+        return "\(product.displayPrice)/week"
+    }
+
     func hasIntroOffer(for plan: SubscriptionPlan) -> Bool {
         guard let product = productsByID[plan.productID] else { return false }
         return product.subscription?.introductoryOffer != nil
@@ -258,6 +340,8 @@ class SubscriptionManager: ObservableObject {
             return weeklyPlanWeeklyPriceText
         case .yearly:
             return yearlyPlanBilledPriceText
+        case .weeklySpecialOffer:
+            return weeklySpecialOfferPriceText
         }
     }
 
@@ -269,7 +353,7 @@ class SubscriptionManager: ObservableObject {
         }
         let daysInPeriod: Decimal
         switch plan {
-        case .weekly: daysInPeriod = 7
+        case .weekly, .weeklySpecialOffer: daysInPeriod = 7
         case .yearly: daysInPeriod = 365
         }
         let dailyPrice = product.price / daysInPeriod
@@ -295,10 +379,21 @@ class SubscriptionManager: ObservableObject {
         }
 
         let billedPrice = billedPriceText(for: plan)
-        if plan == .weekly,
+        if plan == .weekly || plan == .weeklySpecialOffer,
            isEligibleForTrial,
            let introOffer = product.subscription?.introductoryOffer {
             let introDuration = subscriptionPeriodText(for: introOffer.period)
+            // A pay-up-front/pay-as-you-go introductory offer (e.g. "$1.99 for your first week")
+            // is a real charge, not a free trial - stating it as "Free for X" would misdisclose
+            // what the user is actually billed today.
+            if introOffer.paymentMode != .freeTrial {
+                return LocalizationService.shared.localizedFormat(
+                    "paywall.terms.intro_discount_format",
+                    introOffer.displayPrice,
+                    introDuration,
+                    billedPrice
+                )
+            }
             return LocalizationService.shared.localizedFormat(
                 "paywall.terms.trial_format",
                 introDuration,
@@ -532,12 +627,13 @@ class SubscriptionManager: ObservableObject {
 
             hasActiveSubscription = true
             activeProductID = transaction.productID
-            activePlan = transaction.productID == SubscriptionPlan.weekly.productID ? "weekly" : "yearly"
+            activePlan = planLabel(forProductID: transaction.productID)
             isOnTrial = {
                 if #available(iOS 17.0, *) {
                     return transaction.offerType == .introductory
                 }
-                return transaction.productID == SubscriptionPlan.weekly.productID
+                return [SubscriptionPlan.weekly.productID, SubscriptionPlan.weeklySpecialOffer.productID]
+                    .contains(transaction.productID)
                     && trialEligibilityState == .activeSubscriber
             }()
             break
@@ -545,7 +641,7 @@ class SubscriptionManager: ObservableObject {
 
         let newState: AnalyticsService.SubscriptionEntitlementState
         if hasActiveSubscription {
-            newState = activePlan == "weekly" ? .activeWeekly : .activeYearly
+            newState = activePlan == "yearly" ? .activeYearly : .activeWeekly
         } else if hasRevokedSubscription {
             newState = .revoked
         } else {
@@ -687,7 +783,7 @@ class SubscriptionManager: ObservableObject {
 
         let transactionType = subscriptionTransactionType(for: transaction)
         let offerType = offerTypeAnalytics(for: transaction)
-        let plan = transaction.productID == SubscriptionPlan.weekly.productID ? "weekly" : "yearly"
+        let plan = planLabel(forProductID: transaction.productID)
         let paymentNumber = paymentNumber(for: transaction, transactionType: transactionType)
         let (value, currency) = priceInfo(for: transaction, transactionType: transactionType)
 
@@ -733,7 +829,8 @@ class SubscriptionManager: ObservableObject {
         if (counters[counterKey] ?? 0) > 0 {
             return .renewal
         }
-        if transaction.productID == SubscriptionPlan.weekly.productID, lastPurchaseTrialEnabled {
+        if [SubscriptionPlan.weekly.productID, SubscriptionPlan.weeklySpecialOffer.productID].contains(transaction.productID),
+           lastPurchaseTrialEnabled {
             return .trialStart
         }
         return .initialPurchase

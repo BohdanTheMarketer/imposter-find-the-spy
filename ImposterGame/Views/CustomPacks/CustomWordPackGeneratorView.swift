@@ -129,6 +129,16 @@ struct CustomWordPackGeneratorView: View {
                 .font(.evolventa(size: 12, weight: .semibold))
                 .foregroundColor(.white.opacity(0.5))
 
+            HStack(alignment: .top, spacing: 6) {
+                Image(systemName: "checkmark.shield.fill")
+                    .font(.evolventa(size: 12, weight: .semibold))
+                    .foregroundColor(.white.opacity(0.4))
+                Text("custom_pack.policy_notice")
+                    .font(.evolventa(size: 11, weight: .medium))
+                    .foregroundColor(.white.opacity(0.45))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
             Button(action: startGeneration) {
                 HStack(spacing: 10) {
                     Image(systemName: "wand.and.stars")

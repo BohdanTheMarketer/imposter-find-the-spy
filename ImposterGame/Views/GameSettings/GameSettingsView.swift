@@ -25,16 +25,19 @@ struct GameSettingsView: View {
 
             VStack(spacing: 0) {
                 topHeader
-                VStack(spacing: 14) {
-                    impostersCard
-                    roundDurationCard
-                    hintsCard
+                // Scrollable so the hints card (and its toggle) is always reachable on
+                // smaller screens or larger Dynamic Type sizes, instead of being clipped
+                // below the fixed "Play" button at the bottom.
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: 14) {
+                        impostersCard
+                        roundDurationCard
+                        hintsCard
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
+                    .padding(.bottom, 8)
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 20)
-                .padding(.bottom, 8)
-
-                Spacer(minLength: 0)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }

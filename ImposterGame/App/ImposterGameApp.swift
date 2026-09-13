@@ -10,6 +10,7 @@ struct ImposterGameApp: App {
         FirebaseApp.configure()
         AnalyticsService.setInstallWeekIfNeeded()
         AnalyticsService.setAppLanguage(LocalizationService.shared.currentLocaleCode)
+        AdMobService.shared.start()
     }
 
     var body: some Scene {

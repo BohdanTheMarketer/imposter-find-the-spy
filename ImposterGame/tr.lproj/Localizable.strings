@@ -134,6 +134,7 @@
 "paywall.cta.then_price_cancel"               = "Then %@ · Cancel anytime";
 "paywall.weekly_trial_subtitle"               = "3-day free trial, then %@";
 "paywall.terms.trial_format"                  = "Free for %@, then %@. Auto-renews until canceled.";
+"paywall.terms.intro_discount_format"         = "%@ for %@, then %@. Auto-renews until canceled.";
 "paywall.terms.standard_format"               = "%@. Auto-renews until canceled.";
 "paywall.terms.fallback"                      = "Auto-renews until canceled.";
 "paywall.timeline.today.title"                = "Today";
@@ -154,6 +155,7 @@
 "paywall.postgame.subheadline"                = "Ücretsiz deneme ile tüm kategorilerin kilidini aç.";
 "paywall.postgame.cta_subordinate"            = "3 günlük ücretsiz denemeni başlat";
 "paywall.postgame.not_now"                    = "Şimdi değil";
+"paywall.superoffer.cta"                      = "Hediyemi Al";
 "paywall.auto_renews_suffix"                  = "otomatik yenilenir";
 "paywall.price_per_day_format"                = "%@/gün";
 "paywall.billed_price_format"                 = "Faturalandırma: %@";
@@ -207,6 +209,7 @@
 "custom_pack.error_unauthorized"              = "Yapay zeka oluşturma doğru yapılandırılmadı. Lütfen daha sonra tekrar deneyin.";
 "custom_pack.error_rate_limited"              = "Şu anda çok fazla istek var. Lütfen biraz sonra tekrar deneyin.";
 "custom_pack.error_generation_failed"         = "Bu açıklamadan paket oluşturulamadı. Farklı bir ifade deneyin.";
+"custom_pack.policy_notice"                   = "Oluşturulan içerik App Store kurallarına uygun olmalıdır — uygunsuz istekler filtrelenecektir.";
 
 /* Loader */
 "loader.tagline"                              = "BUL  •  SUÇLA  •  HAYATTA KAL";
