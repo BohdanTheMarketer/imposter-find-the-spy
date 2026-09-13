@@ -85,7 +85,14 @@ struct CategoryPaywallView: View {
                 scheduleClosePaywall(reason: .purchaseSuccess)
                 return
             }
-            subscriptionManager.hasSeenCategoryPaywallThisSession = true
+            // Only count this as "saw the category paywall" for the post-game fatigue exclusion
+            // when it's a genuine in-app trigger (tapped a locked category, pushed on top of
+            // [.playerSetup, .categories]). When reached directly from the loader (returning user,
+            // path.count <= 1) it's functionally this session's FIRST-touch paywall, not a repeat
+            // ask - it must not poison the same-session flag and block the post-game offer.
+            if router.path.count > 1 {
+                subscriptionManager.hasSeenCategoryPaywallThisSession = true
+            }
             showDailyPricing = !subscriptionManager.markPaywallShown()
             if !didLogPaywallViewed {
                 didLogPaywallViewed = true
@@ -259,10 +266,18 @@ struct CategoryPaywallView: View {
 
         AnalyticsService.logPaywallClosed(context: .category, reason: reason)
         // count <= 1 means this paywall itself is the only thing on the stack - reached directly
-        // from the loader (returning non-premium user), not pushed from CategoriesView on top of
-        // [.playerSetup, .categories]. `path.isEmpty` would never be true here since this screen
-        // is always on the path while it's being shown.
+        // from the loader (returning non-premium user who already completed onboarding earlier),
+        // not pushed from CategoriesView on top of [.playerSetup, .categories]. `path.isEmpty`
+        // would never be true here since this screen is always on the path while it's shown.
         if router.path.count <= 1 {
+            // This IS that user's first-touch paywall pitch this app-lifetime (onboarding itself
+            // was skipped for them) - declining it should make them eligible for the post-game
+            // offer just like declining OnboardingPaywallView does, not just declining a locked
+            // category later (which must NOT set this, or the post-game paywall would fire for
+            // ordinary category-paywall bounces too).
+            if reason != .purchaseSuccess {
+                subscriptionManager.hasDeclinedOnboardingPaywall = true
+            }
             router.navigateToPlayerSetup()
             return
         }
