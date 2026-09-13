@@ -97,6 +97,16 @@
 "result.play_again"                           = "PLAY AGAIN";
 "result.no_imposter"                          = "No imposter found";
 
+"survey.question_title"                       = "How did that go with your group?";
+"survey.option_everyone"                      = "Everyone was into it";
+"survey.option_some"                          = "Some people were into it";
+"survey.option_fell_flat"                     = "It kind of fell flat";
+"survey.prompt_everyone"                      = "What made it work?";
+"survey.prompt_negative"                      = "What killed the vibe?";
+"survey.email_placeholder"                    = "Want to help us improve? Leave your email if you're open to a quick chat.";
+"survey.submit"                               = "Submit";
+"survey.skip"                                 = "Skip";
+
 /* Onboarding */
 "onboarding.page2_title"                      = "Instant Fun\nAnywhere!";
 "onboarding.page2_subtitle"                   = "Game night, road trip, or\neven an awkward first meeting —\nFakeit breaks the ice and\nbrings the fun";
