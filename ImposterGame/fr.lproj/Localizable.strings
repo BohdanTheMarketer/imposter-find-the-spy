@@ -17,7 +17,6 @@
 /* Legal */
 "legal.privacy_policy"                = "Politique de confidentialité";
 "legal.terms"                         = "Conditions générales";
-"legal.terms_short"                   = "CGU";
 "legal.privacy_short"                 = "Confidentialité";
 
 /* GameSettings */
@@ -116,54 +115,6 @@
 "game_timer.vote_now"                         = "Voter maintenant";
 "game_timer.pause"                            = "Pause";
 "game_timer.continue"                         = "Continuer";
-
-/* Paywall */
-"paywall.headline"                            = "Débloquez\nl'accès complet";
-"paywall.plan_yearly"                         = "Annuel";
-"paywall.plan_weekly"                         = "Hebdomadaire";
-"paywall.cancel_anytime"                      = "Annulez à tout moment";
-"paywall.badge_best_value"                    = "MEILLEUR RAPPORT";
-"paywall.badge_most_popular"                  = "Le plus populaire";
-"paywall.badge_free_trial"                    = "3 JOURS GRATUITS";
-"paywall.weekly_subtitle_trial"               = "3 jours gratuits, puis %@";
-"paywall.trial_prompt_title"                  = "Pas encore sûr ?";
-"paywall.trial_prompt_subtitle"               = "Activez l'accès gratuit";
-"paywall.trial_legal_line"                    = "0 USD aujourd'hui • 3 jours GRATUITS";
-"paywall.continue"                            = "Continuer";
-"paywall.cta.start_trial"                     = "Start 3-Day Free Trial";
-"paywall.cta.then_price_cancel"               = "Then %@ · Cancel anytime";
-"paywall.weekly_trial_subtitle"               = "3-day free trial, then %@";
-"paywall.terms.trial_format"                  = "Free for %@, then %@. Auto-renews until canceled.";
-"paywall.terms.standard_format"               = "%@. Auto-renews until canceled.";
-"paywall.terms.fallback"                      = "Auto-renews until canceled.";
-"paywall.timeline.today.title"                = "Today";
-"paywall.timeline.today.subtitle"             = "Full access, no charge";
-"paywall.timeline.day2.title"                 = "Day 2";
-"paywall.timeline.day2.subtitle"              = "Reminder before trial ends";
-"paywall.timeline.day3.title"                 = "Day 3";
-"paywall.timeline.day3.subtitle"              = "%@, cancel anytime";
-"paywall.skip"                                = "Passer";
-"paywall.restore"                             = "Restaurer";
-"paywall.restore_alert_title"                 = "Restaurer les achats";
-"paywall.restore_alert_message"               = "Nous n'avons trouvé aucun abonnement actif pour cet identifiant Apple.";
-"paywall.restore_error_message"               = "Échec de la restauration. Vérifiez votre connexion et réessayez.";
-"paywall.purchase_issue_alert_title"          = "Achat";
-"paywall.purchase_pending_message"            = "Votre achat est en attente d'approbation. Nous débloquerons l'accès premium dès sa confirmation.";
-"paywall.purchase_error_message"              = "Un problème est survenu avec votre achat. Veuillez réessayer.";
-"paywall.postgame.headline"                   = "Cette partie vous a plu ?";
-"paywall.postgame.subheadline"                = "Débloquez toutes les catégories avec un essai gratuit.";
-"paywall.postgame.cta_subordinate"            = "Démarrer votre essai gratuit de 3 jours";
-"paywall.postgame.not_now"                    = "Pas maintenant";
-"paywall.auto_renews_suffix"                  = "renouvellement auto";
-"paywall.price_per_day_format"                = "%@/jour";
-"paywall.billed_price_format"                 = "Facturé %@";
-"paywall.price_loading"                       = "Chargement du prix...";
-"paywall.benefit_ai_packs"                    = "🤖 Packs de mots IA personnalisés";
-"paywall.benefit_all_packs"                   = "🔓 Tous les packs premium débloqués";
-"paywall.benefit_no_ads"                      = "🚫 Aucune publicité, jamais";
-"category_paywall.free_access_on"             = "Accès gratuit activé";
-"category_paywall.trial_on_subtitle"          = "Sans engagement, annulez quand vous voulez";
-"category_paywall.cta_trial"                  = "Essayer gratuitement";
 
 /* Categories */
 "categories.title"                            = "Catégories";

@@ -17,7 +17,6 @@
 /* Legal */
 "legal.privacy_policy"                = "Gizlilik Politikası";
 "legal.terms"                         = "Şartlar ve Koşullar";
-"legal.terms_short"                   = "Şartlar";
 "legal.privacy_short"                 = "Gizlilik";
 
 /* GameSettings */
@@ -116,54 +115,6 @@
 "game_timer.vote_now"                         = "Şimdi oyla";
 "game_timer.pause"                            = "Duraklat";
 "game_timer.continue"                         = "Devam";
-
-/* Paywall */
-"paywall.headline"                            = "Tam erişimin\nkilidini aç";
-"paywall.plan_yearly"                         = "Yıllık";
-"paywall.plan_weekly"                         = "Haftalık";
-"paywall.cancel_anytime"                      = "İstediğin zaman iptal";
-"paywall.badge_best_value"                    = "EN İYİ DEĞER";
-"paywall.badge_most_popular"                  = "En popüler";
-"paywall.badge_free_trial"                    = "3 GÜN ÜCRETSİZ";
-"paywall.weekly_subtitle_trial"               = "3 gün ücretsiz, ardından %@";
-"paywall.trial_prompt_title"                  = "Henüz emin değil misin?";
-"paywall.trial_prompt_subtitle"               = "Ücretsiz erişimi aç";
-"paywall.trial_legal_line"                    = "Bugün 0 USD • 3 gün ÜCRETSİZ";
-"paywall.continue"                            = "Devam";
-"paywall.cta.start_trial"                     = "Start 3-Day Free Trial";
-"paywall.cta.then_price_cancel"               = "Then %@ · Cancel anytime";
-"paywall.weekly_trial_subtitle"               = "3-day free trial, then %@";
-"paywall.terms.trial_format"                  = "Free for %@, then %@. Auto-renews until canceled.";
-"paywall.terms.standard_format"               = "%@. Auto-renews until canceled.";
-"paywall.terms.fallback"                      = "Auto-renews until canceled.";
-"paywall.timeline.today.title"                = "Today";
-"paywall.timeline.today.subtitle"             = "Full access, no charge";
-"paywall.timeline.day2.title"                 = "Day 2";
-"paywall.timeline.day2.subtitle"              = "Reminder before trial ends";
-"paywall.timeline.day3.title"                 = "Day 3";
-"paywall.timeline.day3.subtitle"              = "%@, cancel anytime";
-"paywall.skip"                                = "Atla";
-"paywall.restore"                             = "Geri yükle";
-"paywall.restore_alert_title"                 = "Satın alımları geri yükle";
-"paywall.restore_alert_message"               = "Bu Apple ID için aktif bir abonelik bulamadık.";
-"paywall.restore_error_message"               = "Geri yükleme başarısız oldu. Bağlantını kontrol edip tekrar dene.";
-"paywall.purchase_issue_alert_title"          = "Satın Alma";
-"paywall.purchase_pending_message"            = "Satın alman onay bekliyor. Onaylanır onaylanmaz premium'u açacağız.";
-"paywall.purchase_error_message"              = "Satın alma sırasında bir sorun oluştu. Lütfen tekrar dene.";
-"paywall.postgame.headline"                   = "O turu beğendin mi?";
-"paywall.postgame.subheadline"                = "Ücretsiz deneme ile tüm kategorilerin kilidini aç.";
-"paywall.postgame.cta_subordinate"            = "3 günlük ücretsiz denemeni başlat";
-"paywall.postgame.not_now"                    = "Şimdi değil";
-"paywall.auto_renews_suffix"                  = "otomatik yenilenir";
-"paywall.price_per_day_format"                = "%@/gün";
-"paywall.billed_price_format"                 = "Faturalandırma: %@";
-"paywall.price_loading"                       = "Fiyat yükleniyor...";
-"paywall.benefit_ai_packs"                    = "🤖 Özel yapay zeka kelime paketleri";
-"paywall.benefit_all_packs"                   = "🔓 Tüm premium paketlerin kilidi açık";
-"paywall.benefit_no_ads"                      = "🚫 Reklamsız, hiç";
-"category_paywall.free_access_on"             = "Ücretsiz erişim açık";
-"category_paywall.trial_on_subtitle"          = "Taahhüt yok, istediğin zaman iptal";
-"category_paywall.cta_trial"                  = "Ücretsiz dene";
 
 /* Categories */
 "categories.title"                            = "Kategoriler";

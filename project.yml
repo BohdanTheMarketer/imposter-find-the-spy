@@ -9,6 +9,9 @@ packages:
   AmplitudeSessionReplay:
     url: https://github.com/amplitude/AmplitudeSessionReplay-iOS
     from: 0.12.0
+  Adapty:
+    url: https://github.com/adaptyteam/AdaptySDK-iOS.git
+    from: 4.1.0
 options:
   bundleIdPrefix: com.imposter
   deploymentTarget:
@@ -35,6 +38,12 @@ schemes:
 settings:
   base:
     SWIFT_VERSION: "5.9"
+    # Both build phases write outside the sandbox: "Generate Secrets" writes GeneratedSecrets.swift
+    # into $SRCROOT, "Copy WordPacks" rsyncs into the built product. Sandboxing denies both.
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+    # Catches user-facing strings that were never localized - this app ships 5 languages.
+    CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED: YES
+    STRING_CATALOG_GENERATE_SYMBOLS: YES
     MARKETING_VERSION: "1.1.0"
     CURRENT_PROJECT_VERSION: "4"
     GENERATE_INFOPLIST_FILE: YES
@@ -82,10 +91,16 @@ targets:
         product: FirebaseInstallations
       - package: Firebase
         product: FirebaseMessaging
+      - package: Firebase
+        product: FirebaseFirestore
       - package: Amplitude
         product: AmplitudeSwift
       - package: AmplitudeSessionReplay
         product: AmplitudeSwiftSessionReplayPlugin
+      - package: Adapty
+        product: Adapty
+      - package: Adapty
+        product: AdaptyUI
     preBuildScripts:
       - name: Generate Secrets
         basedOnDependencyAnalysis: false

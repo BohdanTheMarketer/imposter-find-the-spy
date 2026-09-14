@@ -1,9 +1,14 @@
+import Adapty
+import AdaptyUI
+import FirebaseAnalytics
 import FirebaseCore
+import FirebaseInstallations
 import SwiftUI
 
 @main
 struct ImposterGameApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @StateObject private var adaptyService = AdaptyService.shared
 
     init() {
         AppFontRegistrar.registerAppFonts()
@@ -11,11 +16,36 @@ struct ImposterGameApp: App {
         AnalyticsService.setInstallWeekIfNeeded()
         AnalyticsService.setAppLanguage(LocalizationService.shared.currentLocaleCode)
         SurveyService.migrateExistingUsersIfNeeded()
+
+        let config = AdaptyConfiguration
+            .builder(withAPIKey: AppConstants.adaptyPublicKey)
+            .with(logLevel: .info)
+            .build()
+        Adapty.delegate = AdaptyService.shared
+        Task {
+            try await Adapty.activate(with: config)
+            try await AdaptyUI.activate()
+            if let installationId = try? await Installations.installations().installationID() {
+                try? await Adapty.identify(installationId)
+            }
+
+            // Amplitude + Firebase/GA integrations (Adapty Dashboard -> Integrations) need these
+            // IDs to attach subscription events to the right user — without them Adapty has
+            // nothing to forward events against.
+            if let amplitudeDeviceId = AmplitudeManager.shared.getDeviceId() {
+                try? await Adapty.setIntegrationIdentifier(.amplitudeDeviceId(amplitudeDeviceId))
+            }
+            if let firebaseAppInstanceId = Analytics.appInstanceID() {
+                try? await Adapty.setIntegrationIdentifier(.firebaseAppInstanceId(firebaseAppInstanceId))
+            }
+        }
     }
 
     var body: some Scene {
         WindowGroup {
             AppRootView()
+                .environmentObject(adaptyService)
+                .task { await adaptyService.reloadProfile() }
         }
     }
 }
@@ -73,8 +103,7 @@ private struct AppRootView: View {
         .onChange(of: scenePhase) { phase in
             guard phase == .active else { return }
             Task {
-                await subscriptionManager.refreshStoreProducts(trigger: "scene_active")
-                await subscriptionManager.refreshSubscriptionStatus()
+                await subscriptionManager.refreshSubscriptionStatus(trigger: "scene_active")
             }
             scheduleAppUpdateCheck()
         }

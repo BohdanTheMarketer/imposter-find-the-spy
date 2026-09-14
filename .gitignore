@@ -26,6 +26,10 @@ Package.resolved
 # Claude
 .claude/
 
+# Agent skill tooling installed by `npx skills add` (Adapty skills) — local dev aid, not app code
+.agents/
+skills-lock.json
+
 # Secrets (never commit — see Secrets.example.xcconfig for the template)
 ImposterGame/Secrets.xcconfig
 # Auto-regenerated on every build from Secrets.xcconfig (see project.yml preBuildScripts)

@@ -1,3 +1,5 @@
+import Adapty
+import Combine
 import Foundation
 import Security
 import StoreKit
@@ -5,43 +7,6 @@ import SwiftUI
 
 @MainActor
 class SubscriptionManager: ObservableObject {
-    enum TrialEligibilityState {
-        case unknown
-        case new
-        case trialUsedOrExpired
-        case activeSubscriber
-
-        var analyticsValue: String {
-            switch self {
-            case .unknown: return "unknown"
-            case .new: return "new"
-            case .trialUsedOrExpired: return "trial_used"
-            case .activeSubscriber: return "active_subscriber"
-            }
-        }
-    }
-
-    enum SubscriptionPlan {
-        case weekly
-        case yearly
-
-        var analyticsValue: String {
-            switch self {
-            case .weekly: return "weekly"
-            case .yearly: return "yearly"
-            }
-        }
-
-        var productID: String {
-            switch self {
-            case .weekly:
-                return "com.vertebro.imposter.weekly"
-            case .yearly:
-                return "com.vertebro.imposter.yearly"
-            }
-        }
-    }
-
     enum AnalyticsSource: String {
         case inApp = "in_app"
         case restore = "restore"
@@ -56,16 +21,12 @@ class SubscriptionManager: ObservableObject {
         "com.vertebro.imposter.yearly"
     ]
     private var transactionUpdatesTask: Task<Void, Never>?
+    private var profileCancellable: AnyCancellable?
     private var lastEntitlementState: AnalyticsService.SubscriptionEntitlementState?
-    private var lastPurchaseContext: AnalyticsService.PaywallContext?
-    private var lastPurchaseTrialEnabled = false
 
     @Published var isPremium: Bool {
         didSet { keychainWrite(key: isPremiumKey, value: isPremium) }
     }
-    @Published var productsByID: [String: Product] = [:]
-    @Published var isStoreLoading = false
-    @Published var trialEligibilityState: TrialEligibilityState = .unknown
     @Published var isPurchasing = false
     @Published var isRestoring = false
     /// In-memory (not persisted) - resets every app launch, unlike the AppStorage flags below.
@@ -115,8 +76,20 @@ class SubscriptionManager: ObservableObject {
         // the first real refreshEntitlements() call establish the true baseline silently; only
         // genuine transitions after that get logged.
         transactionUpdatesTask = observeTransactionUpdates()
+        // React in real time whenever Adapty pushes a fresh profile - e.g. a server-side
+        // entitlement change, or the Flow UI completing a purchase/restore internally and
+        // updating AdaptyService.profile out-of-band from any explicit refresh call here.
+        //
+        // The emitted value is used directly (not re-read off AdaptyService) because `@Published`
+        // publishes in `willSet`. `compactMap` drops the `nil` that the publisher replays
+        // synchronously on subscribe, which would otherwise run a full sync - wiping the Keychain
+        // cache and burning the entitlement-change baseline - before Adapty has even activated.
+        profileCancellable = AdaptyService.shared.$profile
+            .compactMap { $0 }
+            .sink { [weak self] profile in
+                self?.syncPremiumStatus(profile: profile, trigger: "adapty_profile_update")
+            }
         Task {
-            await loadProducts(trigger: "init")
             await refreshSubscriptionStatus(trigger: "init")
         }
     }
@@ -202,84 +175,6 @@ class SubscriptionManager: ObservableObject {
         keychainWriteData(key: key, data: data)
     }
 
-    func purchaseSubscription(
-        plan: SubscriptionPlan = .yearly,
-        context: AnalyticsService.PaywallContext? = nil
-    ) async -> PurchaseOutcome {
-        await purchase(plan: plan, context: context)
-    }
-
-    @discardableResult
-    func restorePurchases(context: AnalyticsService.PaywallContext? = nil) async -> RestoreOutcome {
-        await restore(context: context)
-    }
-
-    func refreshSubscriptionStatus(trigger: String = "manual_refresh") async {
-        await refreshEntitlements(trigger: trigger)
-    }
-
-    func refreshStoreProducts(trigger: String = "manual_refresh") async {
-        await loadProducts(trigger: trigger)
-    }
-
-    var yearlyPlanBilledPriceText: String {
-        guard let product = productsByID[SubscriptionPlan.yearly.productID] else {
-            return isStoreLoading ? "Loading price..." : "--/year"
-        }
-        return "\(product.displayPrice)/year"
-    }
-
-    var weeklyPlanWeeklyPriceText: String {
-        guard let product = productsByID[SubscriptionPlan.weekly.productID] else {
-            return isStoreLoading ? "Loading price..." : "--/week"
-        }
-        return "\(product.displayPrice)/week"
-    }
-
-    func hasIntroOffer(for plan: SubscriptionPlan) -> Bool {
-        guard let product = productsByID[plan.productID] else { return false }
-        return product.subscription?.introductoryOffer != nil
-    }
-
-    /// Whether a real price is available for this plan yet - `false` while the placeholder
-    /// ("Loading price...", "--/year") is what's actually on screen.
-    func isPriceLoaded(for plan: SubscriptionPlan) -> Bool {
-        productsByID[plan.productID] != nil
-    }
-
-    var isEligibleForTrial: Bool {
-        trialEligibilityState == .new
-    }
-
-    /// Billed recurring price for legal copy and CTA — always `/week` or `/year`, never intro-offer period units.
-    func billedPriceText(for plan: SubscriptionPlan) -> String {
-        switch plan {
-        case .weekly:
-            return weeklyPlanWeeklyPriceText
-        case .yearly:
-            return yearlyPlanBilledPriceText
-        }
-    }
-
-    /// Marketing "price broken into days" text (e.g. "$1.43/day"), shown on repeat paywall views.
-    /// Actual billing terms remain weekly/yearly — see `billedPriceText`/`displayTerms`.
-    func dailyPriceText(for plan: SubscriptionPlan) -> String {
-        guard let product = productsByID[plan.productID] else {
-            return isStoreLoading ? LocalizationService.shared.localized("paywall.price_loading") : "--/day"
-        }
-        let daysInPeriod: Decimal
-        switch plan {
-        case .weekly: daysInPeriod = 7
-        case .yearly: daysInPeriod = 365
-        }
-        let dailyPrice = product.price / daysInPeriod
-        let formatted = product.priceFormatStyle.format(dailyPrice)
-        return LocalizationService.shared.localizedFormat("paywall.price_per_day_format", formatted)
-    }
-
-    var weeklyPlanDailyPriceText: String { dailyPriceText(for: .weekly) }
-    var yearlyPlanDailyPriceText: String { dailyPriceText(for: .yearly) }
-
     /// Call when a paywall screen actually appears (and isn't auto-closing for an existing subscriber).
     /// Returns `true` if this is the very first time any paywall has been shown to this user.
     @discardableResult
@@ -289,259 +184,42 @@ class SubscriptionManager: ObservableObject {
         return isFirstShow
     }
 
-    func displayTerms(for plan: SubscriptionPlan) -> String {
-        guard let product = productsByID[plan.productID] else {
-            return LocalizationService.shared.localized("paywall.terms.fallback")
-        }
-
-        let billedPrice = billedPriceText(for: plan)
-        if plan == .weekly,
-           isEligibleForTrial,
-           let introOffer = product.subscription?.introductoryOffer {
-            let introDuration = subscriptionPeriodText(for: introOffer.period)
-            return LocalizationService.shared.localizedFormat(
-                "paywall.terms.trial_format",
-                introDuration,
-                billedPrice
-            )
-        }
-
-        return LocalizationService.shared.localizedFormat(
-            "paywall.terms.standard_format",
-            billedPrice
-        )
-    }
-
-    private func subscriptionPeriodText(for period: Product.SubscriptionPeriod) -> String {
-        let unit = subscriptionUnitText(for: period.unit)
-        if period.value == 1 {
-            return "1 \(unit)"
-        }
-        return "\(period.value) \(unit)s"
-    }
-
-    private func subscriptionUnitText(for unit: Product.SubscriptionPeriod.Unit) -> String {
-        switch unit {
-        case .day:
-            return "day"
-        case .week:
-            return "week"
-        case .month:
-            return "month"
-        case .year:
-            return "year"
-        @unknown default:
-            return "period"
-        }
-    }
-
-    private func loadProducts(trigger: String = "load_products") async {
-        isStoreLoading = true
-        defer { isStoreLoading = false }
-        do {
-            let products = try await Product.products(for: premiumProductIDs)
-            productsByID = Dictionary(uniqueKeysWithValues: products.map { ($0.id, $0) })
-            logLoadedProductPricing(trigger: trigger, products: products)
-            await refreshTrialEligibilityState(trigger: "products_\(trigger)")
-        } catch {
-            print("SubscriptionManager: failed loading products - \(error)")
-            if !isPremium {
-                // Failed to load products at all (e.g. no network) - don't stomp an eligibility
-                // answer we already resolved on an earlier paywall appearance with this failure.
-                downgradeToUnknownIfUnresolved()
-            }
-        }
-    }
-
-    private func purchase(plan: SubscriptionPlan, context: AnalyticsService.PaywallContext?) async -> PurchaseOutcome {
-        guard !isPurchasing else { return .failed }
-        isPurchasing = true
-        defer { isPurchasing = false }
-
-        let trialEnabled = plan == .weekly && isEligibleForTrial
-        lastPurchaseContext = context
-        lastPurchaseTrialEnabled = trialEnabled
-
-        AnalyticsService.logSubscriptionAttempt(source: AnalyticsSource.inApp.rawValue)
-        AnalyticsService.logPurchaseStarted(
-            source: AnalyticsSource.inApp.rawValue,
-            context: context,
-            plan: plan.analyticsValue,
-            productID: plan.productID,
-            trialEnabled: trialEnabled,
-            trialEligibility: trialEligibilityState.analyticsValue
-        )
-        do {
-            if productsByID[plan.productID] == nil {
-                await loadProducts(trigger: "purchase_missing_product")
-            }
-            guard let product = productsByID[plan.productID] else {
-                print("SubscriptionManager: product not found for \(plan.productID)")
-                AnalyticsService.logPurchaseResult(
-                    source: AnalyticsSource.inApp.rawValue,
-                    context: context,
-                    plan: plan.analyticsValue,
-                    productID: plan.productID,
-                    result: "product_not_found",
-                    trialEnabled: trialEnabled,
-                    trialEligibility: trialEligibilityState.analyticsValue
-                )
-                return .failed
-            }
-
-            let result = try await product.purchase()
-            switch result {
-            case let .success(verification):
-                guard case let .verified(transaction) = verification else {
-                    print("SubscriptionManager: unverified transaction")
-                    AnalyticsService.logPurchaseResult(
-                        source: AnalyticsSource.inApp.rawValue,
-                        context: context,
-                        plan: plan.analyticsValue,
-                        productID: plan.productID,
-                        result: "success_unverified",
-                        trialEnabled: trialEnabled,
-                        trialEligibility: trialEligibilityState.analyticsValue
-                    )
-                    return .failed
-                }
-                // Persist attribution keyed by the transaction's stable originalID, not just the
-                // in-memory "last purchase" - a later renewal for THIS transaction arrives via the
-                // separate Transaction.updates listener, potentially long after the user has attempted
-                // (or merely opened) a different paywall, which would otherwise overwrite/mis-tag it.
-                persistPurchaseAttribution(originalID: transaction.originalID, context: context, trialEnabled: trialEnabled)
-                logSubscriptionTransactionIfNeeded(
-                    transaction,
-                    trigger: "purchase_success",
-                    paywallContext: context,
-                    trialEnabled: trialEnabled
-                )
-                await transaction.finish()
-                await refreshSubscriptionStatus(trigger: "purchase_success")
-                if isPremium {
-                    hasCompletedOnboarding = true
-                }
-                AnalyticsService.logPurchaseResult(
-                    source: AnalyticsSource.inApp.rawValue,
-                    context: context,
-                    plan: plan.analyticsValue,
-                    productID: plan.productID,
-                    result: isPremium ? "success_verified" : "success_no_entitlement",
-                    trialEnabled: trialEnabled,
-                    trialEligibility: trialEligibilityState.analyticsValue
-                )
-                return isPremium ? .success : .failed
-            case .userCancelled:
-                AnalyticsService.logPurchaseResult(
-                    source: AnalyticsSource.inApp.rawValue,
-                    context: context,
-                    plan: plan.analyticsValue,
-                    productID: plan.productID,
-                    result: "user_cancelled",
-                    trialEnabled: trialEnabled,
-                    trialEligibility: trialEligibilityState.analyticsValue
-                )
-                return .userCancelled
-            case .pending:
-                AnalyticsService.logPurchaseResult(
-                    source: AnalyticsSource.inApp.rawValue,
-                    context: context,
-                    plan: plan.analyticsValue,
-                    productID: plan.productID,
-                    result: "pending",
-                    trialEnabled: trialEnabled,
-                    trialEligibility: trialEligibilityState.analyticsValue
-                )
-                return .pending
-            @unknown default:
-                AnalyticsService.logPurchaseResult(
-                    source: AnalyticsSource.inApp.rawValue,
-                    context: context,
-                    plan: plan.analyticsValue,
-                    productID: plan.productID,
-                    result: "unknown",
-                    trialEnabled: trialEnabled,
-                    trialEligibility: trialEligibilityState.analyticsValue
-                )
-                return .failed
-            }
-        } catch {
-            print("SubscriptionManager: purchase failed - \(error)")
-            AnalyticsService.logPurchaseResult(
-                source: AnalyticsSource.inApp.rawValue,
-                context: context,
-                plan: plan.analyticsValue,
-                productID: plan.productID,
-                result: "error",
-                trialEnabled: trialEnabled,
-                trialEligibility: trialEligibilityState.analyticsValue,
-                errorCode: String(describing: error)
-            )
-            return .failed
-        }
-    }
-
-    private func restore(context: AnalyticsService.PaywallContext?) async -> RestoreOutcome {
-        guard !isRestoring else { return .noPurchasesFound }
-        isRestoring = true
-        defer { isRestoring = false }
-
-        AnalyticsService.logSubscriptionAttempt(source: AnalyticsSource.restore.rawValue)
-        AnalyticsService.logRestoreStarted(source: AnalyticsSource.restore.rawValue, context: context)
-        do {
-            try await AppStore.sync()
-            await refreshSubscriptionStatus(trigger: "restore_success")
-            let outcome: RestoreOutcome = isPremium ? .restored : .noPurchasesFound
-            AnalyticsService.logRestoreResult(
-                source: AnalyticsSource.restore.rawValue,
-                context: context,
-                result: isPremium ? "success" : "no_purchases_found"
-            )
-            return outcome
-        } catch {
-            print("SubscriptionManager: restore failed - \(error)")
-            AnalyticsService.logRestoreResult(
-                source: AnalyticsSource.restore.rawValue,
-                context: context,
-                result: "error",
-                errorCode: String(describing: error)
-            )
-            return .failed
-        }
+    func refreshSubscriptionStatus(trigger: String = "manual_refresh") async {
+        await refreshEntitlements(trigger: trigger)
     }
 
     private func refreshEntitlements(trigger: String) async {
-        var hasActiveSubscription = false
-        var activeProductID: String?
-        var activePlan: String?
-        var hasRevokedSubscription = false
-        var isOnTrial = false
+        await AdaptyService.shared.reloadProfile()
+        syncPremiumStatus(profile: AdaptyService.shared.profile, trigger: trigger)
+    }
 
-        for await result in Transaction.currentEntitlements {
-            guard case let .verified(transaction) = result else { continue }
-            guard premiumProductIDs.contains(transaction.productID) else { continue }
+    /// Maps a store product id to the plan name used throughout analytics. Falls back to "yearly"
+    /// for any id that isn't the weekly product, mirroring the previous `SubscriptionPlan` mapping.
+    private func planName(for productID: String) -> String {
+        productID == premiumProductIDs[0] ? "weekly" : "yearly"
+    }
 
-            if transaction.revocationDate != nil {
-                hasRevokedSubscription = true
-                continue
-            }
+    /// Recomputes `isPremium` (and the associated analytics side effects) from Adapty's profile -
+    /// the single source of truth for entitlement now, instead of a StoreKit
+    /// `Transaction.currentEntitlements` scan.
+    ///
+    /// The profile is passed in rather than read back off `AdaptyService`: `@Published` fires its
+    /// publisher in `willSet`, so a subscriber that re-reads the property sees the PREVIOUS value
+    /// and every server-pushed update would be processed one step stale.
+    ///
+    /// A `nil` profile means "not resolved yet" (SDK still activating, offline, request failed) -
+    /// never "no subscription". Treating it as the latter downgrades a paying subscriber and, via
+    /// `isPremium`'s `didSet`, poisons the Keychain cache that exists precisely to carry their
+    /// access across launches with no network.
+    private func syncPremiumStatus(profile: AdaptyProfile?, trigger: String) {
+        guard let profile else { return }
 
-            if let expirationDate = transaction.expirationDate, expirationDate <= Date() {
-                continue
-            }
-
-            hasActiveSubscription = true
-            activeProductID = transaction.productID
-            activePlan = transaction.productID == SubscriptionPlan.weekly.productID ? "weekly" : "yearly"
-            isOnTrial = {
-                if #available(iOS 17.0, *) {
-                    return transaction.offerType == .introductory
-                }
-                return transaction.productID == SubscriptionPlan.weekly.productID
-                    && trialEligibilityState == .activeSubscriber
-            }()
-            break
-        }
+        let accessLevel = profile.accessLevels[AppConstants.adaptyAccessLevelId]
+        let hasActiveSubscription = accessLevel?.isActive ?? false
+        let activeProductID = hasActiveSubscription ? accessLevel?.vendorProductId : nil
+        let activePlan = activeProductID.map(planName(for:))
+        let isOnTrial = hasActiveSubscription && accessLevel?.activeIntroductoryOfferType != nil
+        let hasRevokedSubscription = !hasActiveSubscription && (accessLevel?.isRefund ?? false)
 
         let newState: AnalyticsService.SubscriptionEntitlementState
         if hasActiveSubscription {
@@ -568,49 +246,232 @@ class SubscriptionManager: ObservableObject {
 
         isPremium = hasActiveSubscription
         syncSubscriptionUserProperties(plan: activePlan, isOnTrial: isOnTrial, hasRevokedSubscription: hasRevokedSubscription)
-        await refreshTrialEligibilityState(trigger: "entitlements_\(trigger)")
     }
 
-    private func refreshTrialEligibilityState(trigger: String) async {
+    // MARK: - Adapty Flow purchase/restore analytics wrappers
+    //
+    // The Adapty Flow's own CTA / restore link performs the actual purchase/restore call itself
+    // (via Adapty.makePurchase()/Adapty.restorePurchases() internally) - these methods don't call
+    // into StoreKit or Adapty themselves. They're invoked from each paywall view's Flow event
+    // callbacks and just run the same analytics + state-flag side effects the old app-initiated
+    // purchase/restore flow used to run inline around its own `product.purchase()` call.
+
+    /// The user switched plan cards inside the Flow. Keeps the mid-funnel plan-mix visible, which
+    /// the pre-migration paywalls logged from their own plan pickers.
+    func handleFlowProductSelected(product: AdaptyPaywallProduct, context: AnalyticsService.PaywallContext) {
+        AnalyticsService.logPaywallPlanSelected(
+            context: context,
+            plan: planName(for: product.vendorProductId),
+            trialEnabled: isTrialOffer(product)
+        )
+    }
+
+    /// A tap on one of the Flow's links (terms, privacy). The Flow reports a URL rather than a
+    /// semantic type, so the type is recovered from the URL itself.
+    func handleFlowLinkTapped(url: URL, context: AnalyticsService.PaywallContext) {
+        let haystack = url.absoluteString.lowercased()
+        let linkType: String
+        if haystack.contains("privacy") {
+            linkType = "privacy"
+        } else if haystack.contains("terms") || haystack.contains("eula") {
+            linkType = "terms"
+        } else {
+            linkType = "other"
+        }
+        AnalyticsService.logPaywallLinkTapped(context: context, linkType: linkType)
+    }
+
+    func handleFlowPurchaseStarted(product: AdaptyPaywallProduct, context: AnalyticsService.PaywallContext?) {
+        isPurchasing = true
+        let trialEnabled = isTrialOffer(product)
+        let plan = planName(for: product.vendorProductId)
+        if let context {
+            AnalyticsService.logPaywallContinueTapped(context: context, plan: plan, trialEnabled: trialEnabled)
+        }
+        AnalyticsService.logSubscriptionAttempt(source: AnalyticsSource.inApp.rawValue)
+        AnalyticsService.logPurchaseStarted(
+            source: AnalyticsSource.inApp.rawValue,
+            context: context,
+            plan: plan,
+            productID: product.vendorProductId,
+            trialEnabled: trialEnabled,
+            trialEligibility: trialEligibilityValue(for: product)
+        )
+    }
+
+    /// Returns `true` only when the purchase actually resulted in active paid access. A `.success`
+    /// whose profile does not yet carry the access level is NOT success as far as the UI is
+    /// concerned - closing the paywall on it leaves a user who just paid looking at locked content.
+    @discardableResult
+    func handleFlowPurchaseFinished(
+        product: AdaptyPaywallProduct,
+        result: AdaptyPurchaseResult,
+        context: AnalyticsService.PaywallContext?
+    ) -> Bool {
+        isPurchasing = false
+        let plan = planName(for: product.vendorProductId)
+        let trialEnabled = isTrialOffer(product)
+        let trialEligibility = trialEligibilityValue(for: product)
+
+        switch result {
+        case .userCancelled:
+            AnalyticsService.logPurchaseResult(
+                source: AnalyticsSource.inApp.rawValue,
+                context: context,
+                plan: plan,
+                productID: product.vendorProductId,
+                result: "user_cancelled",
+                trialEnabled: trialEnabled,
+                trialEligibility: trialEligibility
+            )
+        case .pending:
+            AnalyticsService.logPurchaseResult(
+                source: AnalyticsSource.inApp.rawValue,
+                context: context,
+                plan: plan,
+                productID: product.vendorProductId,
+                result: "pending",
+                trialEnabled: trialEnabled,
+                trialEligibility: trialEligibility
+            )
+        case let .success(profile, transaction):
+            // Sync first so the entitlement-change event carries the "purchase_success" trigger,
+            // then publish the profile - the subscription then sees no further change and stays
+            // quiet, instead of claiming the transition as a generic profile update.
+            syncPremiumStatus(profile: profile, trigger: "purchase_success")
+            AdaptyService.shared.profile = profile
+            // Persist attribution + log the underlying StoreKit transaction the same way a
+            // directly app-initiated purchase used to - keyed by originalID so a later renewal
+            // arriving via `Transaction.updates` (observeTransactionUpdates below) can still find
+            // it. `logSubscriptionTransactionIfNeeded` dedupes by transaction id, so if the
+            // Transaction.updates listener also sees this same transaction it won't double-log.
+            if case let .verified(skTransaction) = transaction {
+                persistPurchaseAttribution(originalID: skTransaction.originalID, context: context, trialEnabled: trialEnabled)
+                logSubscriptionTransactionIfNeeded(
+                    skTransaction,
+                    trigger: "purchase_success",
+                    paywallContext: context,
+                    trialEnabled: trialEnabled
+                )
+            }
+            if isPremium {
+                hasCompletedOnboarding = true
+            }
+            AnalyticsService.logPurchaseResult(
+                source: AnalyticsSource.inApp.rawValue,
+                context: context,
+                plan: plan,
+                productID: product.vendorProductId,
+                result: isPremium ? "success_verified" : "success_no_entitlement",
+                trialEnabled: trialEnabled,
+                trialEligibility: trialEligibility
+            )
+            return isPremium
+        @unknown default:
+            AnalyticsService.logPurchaseResult(
+                source: AnalyticsSource.inApp.rawValue,
+                context: context,
+                plan: plan,
+                productID: product.vendorProductId,
+                result: "unknown",
+                trialEnabled: trialEnabled,
+                trialEligibility: trialEligibility
+            )
+        }
+        return false
+    }
+
+    func handleFlowPurchaseFailed(
+        product: AdaptyPaywallProduct,
+        error: AdaptyError,
+        context: AnalyticsService.PaywallContext?
+    ) {
+        isPurchasing = false
+        AnalyticsService.logPurchaseResult(
+            source: AnalyticsSource.inApp.rawValue,
+            context: context,
+            plan: planName(for: product.vendorProductId),
+            productID: product.vendorProductId,
+            result: "error",
+            trialEnabled: isTrialOffer(product),
+            trialEligibility: trialEligibilityValue(for: product),
+            errorCode: String(describing: error)
+        )
+    }
+
+    func handleFlowRestoreStarted(context: AnalyticsService.PaywallContext?) {
+        isRestoring = true
+        if let context {
+            AnalyticsService.logPaywallRestoreTapped(context: context)
+        }
+        AnalyticsService.logSubscriptionAttempt(source: AnalyticsSource.restore.rawValue)
+        AnalyticsService.logRestoreStarted(source: AnalyticsSource.restore.rawValue, context: context)
+    }
+
+    @discardableResult
+    func handleFlowRestoreFinished(profile: AdaptyProfile, context: AnalyticsService.PaywallContext?) -> RestoreOutcome {
+        isRestoring = false
+        syncPremiumStatus(profile: profile, trigger: "restore_success")
+        AdaptyService.shared.profile = profile
+        let outcome: RestoreOutcome = isPremium ? .restored : .noPurchasesFound
+        AnalyticsService.logRestoreResult(
+            source: AnalyticsSource.restore.rawValue,
+            context: context,
+            result: isPremium ? "success" : "no_purchases_found"
+        )
+        return outcome
+    }
+
+    func handleFlowRestoreFailed(error: AdaptyError, context: AnalyticsService.PaywallContext?) {
+        isRestoring = false
+        AnalyticsService.logRestoreResult(
+            source: AnalyticsSource.restore.rawValue,
+            context: context,
+            result: "error",
+            errorCode: String(describing: error)
+        )
+    }
+
+    /// Whether the offer Adapty attached to this product is a free trial specifically.
+    ///
+    /// Mere presence of a `subscriptionOffer` is NOT a trial signal: the same field carries
+    /// promotional and win-back offers, so a trial-exhausted user shown a win-back deal would
+    /// otherwise report as a trial start. Only `.introductory` is the intro/trial offer whose
+    /// eligibility Apple determines per subscription group.
+    private func isTrialOffer(_ product: AdaptyPaywallProduct) -> Bool {
+        product.subscriptionOffer?.offerType == .introductory
+    }
+
+    /// Approximates the old `trialEligibilityState` for analytics: Adapty attaches an introductory
+    /// offer only when this device/account is actually eligible for it, so its presence on the
+    /// weekly product stands in for "new" vs "trial used" without a separate StoreKit check.
+    private func trialEligibilityValue(for product: AdaptyPaywallProduct) -> String {
+        guard product.vendorProductId == premiumProductIDs[0] else { return "n/a" }
+        return isTrialOffer(product) ? "new" : "trial_used"
+    }
+
+    private func syncSubscriptionUserProperties(plan: String?, isOnTrial: Bool, hasRevokedSubscription: Bool) {
+        AnalyticsService.setUserProperty(isPremium ? "true" : "false", for: "is_premium")
+        AnalyticsService.setUserProperty(plan ?? "none", for: "active_plan")
+        AnalyticsService.setUserProperty(hasCompletedOnboarding ? "true" : "false", for: "onboarding_completed")
+
+        let status: AnalyticsService.SubscriptionStatus
         if isPremium {
-            trialEligibilityState = .activeSubscriber
-            return
+            status = isOnTrial ? .trial : .paid
+        } else if hasRevokedSubscription {
+            status = .expired
+        } else {
+            status = .free
         }
-
-        // Product catalog not loaded yet (or failed to load) - eligibility is genuinely unknown here,
-        // not "not eligible". Every paywall appearance re-runs this check from scratch, so a transient
-        // miss on a LATER screen must not erase an already-resolved answer from an earlier one -
-        // only downgrade to "unknown" if we don't already have a real answer.
-        guard let weeklyProduct = productsByID[SubscriptionPlan.weekly.productID] else {
-            downgradeToUnknownIfUnresolved()
-            return
-        }
-
-        // Product loaded successfully and there's genuinely no introductory offer configured for it -
-        // this is a real, confirmed answer, not a transient failure.
-        guard let subscription = weeklyProduct.subscription, subscription.introductoryOffer != nil else {
-            trialEligibilityState = .trialUsedOrExpired
-            return
-        }
-
-        do {
-            let eligible = try await Product.SubscriptionInfo.isEligibleForIntroOffer(for: subscription.subscriptionGroupID)
-            trialEligibilityState = eligible ? .new : .trialUsedOrExpired
-        } catch {
-            print("SubscriptionManager: trial eligibility check failed [\(trigger)] - \(error)")
-            // Network/StoreKit hiccup, not a confirmed "trial used" answer - don't stomp a
-            // previously-resolved good answer (e.g. from an earlier paywall) with this failure.
-            downgradeToUnknownIfUnresolved()
-        }
+        AnalyticsService.setSubscriptionStatus(status)
     }
 
-    /// Only moves eligibility to `.unknown` when we don't already have a confirmed answer -
-    /// prevents a later, flaky re-check (every paywall appearance triggers one) from silently
-    /// erasing a trial offer that was already successfully resolved earlier in the session.
-    private func downgradeToUnknownIfUnresolved() {
-        guard trialEligibilityState != .new, trialEligibilityState != .trialUsedOrExpired else { return }
-        trialEligibilityState = .unknown
-    }
+    // MARK: - Raw StoreKit transaction analytics pipeline
+    //
+    // Kept alive purely for analytics (transaction type/payment number/price/currency/sandbox
+    // filtering/attribution) - this reads StoreKit's own transaction stream directly, which does
+    // not conflict with Adapty also processing the same stream. `isPremium` is no longer derived
+    // from this; see `syncPremiumStatus` above.
 
     private func observeTransactionUpdates() -> Task<Void, Never> {
         Task.detached(priority: .background) { [weak self] in
@@ -623,7 +484,10 @@ class SubscriptionManager: ObservableObject {
                     paywallContext: attribution?.context,
                     trialEnabled: attribution?.trialEnabled
                 )
-                await transaction.finish()
+                // Deliberately NOT calling transaction.finish() here. Adapty owns the purchase
+                // now and finishes transactions itself, after reporting them to its backend.
+                // Finishing first would let StoreKit stop redelivering a transaction Adapty has
+                // not yet validated (e.g. the report failed offline), silently losing the renewal.
                 await self?.refreshSubscriptionStatus(trigger: "transaction_update")
             }
         }
@@ -659,22 +523,6 @@ class SubscriptionManager: ObservableObject {
         return (context, entry.trialEnabled)
     }
 
-    private func syncSubscriptionUserProperties(plan: String?, isOnTrial: Bool, hasRevokedSubscription: Bool) {
-        AnalyticsService.setUserProperty(isPremium ? "true" : "false", for: "is_premium")
-        AnalyticsService.setUserProperty(plan ?? "none", for: "active_plan")
-        AnalyticsService.setUserProperty(hasCompletedOnboarding ? "true" : "false", for: "onboarding_completed")
-
-        let status: AnalyticsService.SubscriptionStatus
-        if isPremium {
-            status = isOnTrial ? .trial : .paid
-        } else if hasRevokedSubscription {
-            status = .expired
-        } else {
-            status = .free
-        }
-        AnalyticsService.setSubscriptionStatus(status)
-    }
-
     private func logSubscriptionTransactionIfNeeded(
         _ transaction: StoreKit.Transaction,
         trigger: String,
@@ -691,7 +539,7 @@ class SubscriptionManager: ObservableObject {
 
         let transactionType = subscriptionTransactionType(for: transaction)
         let offerType = offerTypeAnalytics(for: transaction)
-        let plan = transaction.productID == SubscriptionPlan.weekly.productID ? "weekly" : "yearly"
+        let plan = planName(for: transaction.productID)
         let paymentNumber = paymentNumber(for: transaction, transactionType: transactionType)
         let (value, currency) = priceInfo(for: transaction, transactionType: transactionType)
 
@@ -704,6 +552,7 @@ class SubscriptionManager: ObservableObject {
             value: value,
             currency: currency,
             paymentNumber: paymentNumber,
+            purchaseDate: transaction.purchaseDate,
             paywallContext: paywallContext,
             trialEnabled: trialEnabled
         )
@@ -737,7 +586,7 @@ class SubscriptionManager: ObservableObject {
         if (counters[counterKey] ?? 0) > 0 {
             return .renewal
         }
-        if transaction.productID == SubscriptionPlan.weekly.productID, lastPurchaseTrialEnabled {
+        if transaction.productID == premiumProductIDs[0] {
             return .trialStart
         }
         return .initialPurchase
@@ -781,10 +630,10 @@ class SubscriptionManager: ObservableObject {
         if transactionType == .trialStart {
             return (0, currency)
         }
-        guard let product = productsByID[transaction.productID] else {
+        guard let price = transaction.price else {
             return (0, currency)
         }
-        let amount = NSDecimalNumber(decimal: product.price).doubleValue
+        let amount = NSDecimalNumber(decimal: price).doubleValue
         // Refunds should net revenue DOWN in rollups, not just vanish from them.
         return (transactionType == .refund ? -amount : amount, currency)
     }
@@ -794,9 +643,6 @@ class SubscriptionManager: ObservableObject {
     private func transactionCurrencyCode(for transaction: StoreKit.Transaction) -> String {
         if #available(iOS 17.0, *), let currency = transaction.currency {
             return currency.identifier
-        }
-        if let product = productsByID[transaction.productID] {
-            return product.priceFormatStyle.currencyCode
         }
         return Locale.current.currency?.identifier ?? "USD"
     }
@@ -813,14 +659,5 @@ class SubscriptionManager: ObservableObject {
             loggedIDs = Array(loggedIDs.suffix(200))
         }
         keychainWriteCodable(loggedIDs, key: loggedTransactionIDsKey)
-    }
-
-    private func logLoadedProductPricing(trigger: String, products: [Product]) {
-#if DEBUG
-        for product in products {
-            let value = NSDecimalNumber(decimal: product.price).stringValue
-            print("SubscriptionManager: product loaded [\(trigger)] id=\(product.id) displayPrice=\(product.displayPrice) value=\(value)")
-        }
-#endif
     }
 }

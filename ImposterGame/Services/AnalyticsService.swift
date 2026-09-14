@@ -184,9 +184,13 @@ enum AnalyticsService {
         value: Double,
         currency: String,
         paymentNumber: Int,
+        purchaseDate: Date,
         paywallContext: PaywallContext? = nil,
         trialEnabled: Bool? = nil
     ) {
+        // StoreKit's own transaction timestamp - the real Apple billing time, as opposed to
+        // this event's own logging time, which can lag it by days when `Transaction.updates`
+        // only delivers the update on the user's next app open (see SubscriptionManager).
         var params: [String: Any] = [
             "transaction_type": transactionType.rawValue,
             "offer_type": offerType.rawValue,
@@ -195,7 +199,8 @@ enum AnalyticsService {
             "trigger": trigger,
             AnalyticsParameterValue: value,
             AnalyticsParameterCurrency: currency,
-            "payment_number": paymentNumber
+            "payment_number": paymentNumber,
+            "purchase_date": ISO8601DateFormatter().string(from: purchaseDate)
         ]
         if let paywallContext {
             params["paywall_context"] = paywallContext.rawValue
@@ -205,18 +210,13 @@ enum AnalyticsService {
         }
         logEvent("subscription_transaction", parameters: params)
 
-        // Trial starts carry no charge (value is 0) - skip those. Refunds carry a NEGATIVE
-        // value so they net revenue back down in Amplitude's Revenue/LTV/ARPU reports instead
-        // of silently vanishing from them.
-        if transactionType == .initialPurchase || transactionType == .renewal || transactionType == .refund {
-            AmplitudeManager.logRevenue(
-                productId: productID,
-                price: value,
-                currency: currency,
-                revenueType: transactionType.rawValue,
-                paymentNumber: paymentNumber
-            )
-        }
+        // Revenue itself is NOT booked from the client any more. Adapty's server-side Amplitude
+        // integration writes the $revenue schema for the same purchases, and reporting both
+        // double-counted every sale in Amplitude's Revenue/LTV/ARPU reports. Adapty is the source
+        // of truth because it also catches renewals and refunds that happen while the app is
+        // closed, which a client-side listener can never see. The custom event above stays: it is
+        // a plain event, invisible to the revenue reports, and carries the granular dimensions
+        // (payment_number, trial_enabled, paywall_context) Adapty's events don't.
     }
 
     /// Funnel-friendly convenience events mirroring specific `subscription_transaction` moments -
