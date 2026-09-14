@@ -387,22 +387,24 @@ struct ResultView: View {
                     showActionButtons = true
                 }
                 HapticsManager.selection()
+                // Decided in the same tick as `showActionButtons = true` above: the "Play Again"
+                // button becomes tappable at that exact moment, and it replaces the whole nav path
+                // (see AppRouter.navigateToCategories), tearing this view down instantly. An earlier
+                // version deferred this decision behind an extra 800ms sleep purely for presentation
+                // polish, which left a real window where a fast tap on the button popped this view
+                // before the sheet flag was ever set - silently and permanently losing that round's
+                // survey/paywall (the game-count increment already happened, so it wasn't a retry,
+                // it was a loss for that eligible round).
                 if SurveyService.recordCompletedGameAndCheckEligibility() {
                     // Highest priority for this round: skips both the paywall and the
                     // rate-us prompt so the survey doesn't compete with another overlay.
-                    Task { @MainActor in
-                        try? await Task.sleep(nanoseconds: 800_000_000)
-                        showPostGameSurvey = true
-                    }
+                    showPostGameSurvey = true
                 } else if subscriptionManager.isEligibleForPostGamePaywall {
                     // Skip the native rate-us prompt this time - it's a system-level overlay that
                     // can render on top of our own .sheet if both fire close together, and the
                     // paywall is the higher-priority ask for this cohort. RateUsService has its
                     // own cooldown/eligibility, so it'll simply get another chance later.
-                    Task { @MainActor in
-                        try? await Task.sleep(nanoseconds: 800_000_000)
-                        showPostGamePaywall = true
-                    }
+                    showPostGamePaywall = true
                 } else {
                     RateUsService.requestReviewAfterFirstGameIfNeeded()
                 }
