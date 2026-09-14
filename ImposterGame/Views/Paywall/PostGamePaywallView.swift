@@ -1,109 +1,63 @@
+import Adapty
+import AdaptyUI
 import SwiftUI
 
 /// Soft, dismissible paywall shown once, right after a user's first completed game -
 /// only to users who saw and declined the onboarding paywall and haven't purchased.
 /// Presented as a `.sheet`, not a router push, so it never blocks the game flow.
+///
+/// Thin wrapper around the Adapty Flow for the `post_game` placement - see
+/// `OnboardingPaywallView` for the general shape.
 struct PostGamePaywallView: View {
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
 
+    @State private var flowConfiguration: AdaptyUI.FlowConfiguration?
     @State private var didFinish = false
     @State private var didLogPaywallViewed = false
-    @State private var showRestoreMessage = false
-    @State private var restoreResultMessageKey = "paywall.restore_alert_message"
-    @State private var showPurchaseIssueMessage = false
-    @State private var purchaseIssueMessageKey = "paywall.purchase_pending_message"
-
-    private enum PostGamePaywallLinks {
-        static let privacyURL = URL(string: "https://www.verte-bro.com/privacy-policy")
-        static let termsURL = URL(string: "https://www.verte-bro.com/terms-and-conditions")
-    }
-
-    private var isContinueDisabled: Bool {
-        subscriptionManager.isPurchasing || !subscriptionManager.isPriceLoaded(for: .weekly)
-    }
+    @State private var loadFailed = false
 
     var body: some View {
         ZStack {
             LinearGradient.appPurpleGradient
                 .ignoresSafeArea()
-                .overlay(
-                    GridPatternView(lineColor: .white.opacity(0.14))
-                        .opacity(0.5)
+
+            if let flowConfiguration {
+                AdaptyFlowView(
+                    flowConfiguration: flowConfiguration,
+                    didPerformAction: handleAction,
+                    didSelectProduct: { product in
+                        subscriptionManager.handleFlowProductSelected(product: product, context: .postGame)
+                    },
+                    didStartPurchase: { product in
+                        subscriptionManager.handleFlowPurchaseStarted(product: product, context: .postGame)
+                    },
+                    didFinishPurchase: handlePurchaseFinished,
+                    didFailPurchase: handlePurchaseFailed,
+                    didStartRestore: {
+                        subscriptionManager.handleFlowRestoreStarted(context: .postGame)
+                    },
+                    didFinishRestore: handleRestoreFinished,
+                    didFailRestore: handleRestoreFailed,
+                    didReceiveError: { _ in finish(reason: .skip) }
                 )
-
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 18) {
-                    VStack(spacing: 6) {
-                        Text("paywall.postgame.headline")
-                            .font(.antropicSans(size: 28, weight: .heavy))
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-
-                        Text("paywall.postgame.subheadline")
-                            .font(.antropicSerif(size: 14, weight: .medium))
-                            .foregroundColor(.white.opacity(0.75))
-                            .multilineTextAlignment(.center)
-                    }
-                    .padding(.top, 8)
-
-                    PaywallTrialTimelineView(
-                        billedWeeklyPrice: subscriptionManager.weeklyPlanWeeklyPriceText
-                    )
-                    .padding(.vertical, 6)
-
-                    PaywallSingleLineCTAButton(
-                        titleKey: "paywall.postgame.cta_subordinate",
-                        action: handleContinueTapped,
-                        isLoading: isContinueDisabled
-                    )
-
-                    footerLinks
-
-                    Text(verbatim: subscriptionManager.displayTerms(for: .weekly))
-                        .font(.antropicSerif(size: 11, weight: .medium))
-                        .foregroundColor(.white.opacity(0.55))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 12)
-                        .padding(.bottom, 8)
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 8)
-                .padding(.bottom, 24)
+            } else if loadFailed {
+                Color.clear.onAppear { finish(reason: .skip) }
+            } else {
+                ProgressView()
+                    .tint(.white)
             }
-        }
-        .alert(
-            String(localized: "paywall.restore_alert_title"),
-            isPresented: $showRestoreMessage
-        ) {
-            Button(String(localized: "common.ok"), role: .cancel) {}
-        } message: {
-            Text(LocalizedStringKey(restoreResultMessageKey))
-        }
-        .alert(
-            String(localized: "paywall.purchase_issue_alert_title"),
-            isPresented: $showPurchaseIssueMessage
-        ) {
-            Button(String(localized: "common.ok"), role: .cancel) {}
-        } message: {
-            Text(LocalizedStringKey(purchaseIssueMessageKey))
         }
         .presentationDetents([.fraction(0.45), .large])
         .presentationDragIndicator(.visible)
         .onAppear {
-            subscriptionManager.markPostGamePaywallShown()
-            if !didLogPaywallViewed {
-                didLogPaywallViewed = true
-                AnalyticsService.logPaywallViewed(context: .postGame)
-            }
-            Task {
-                await subscriptionManager.refreshStoreProducts(trigger: "postgame_paywall_appear")
-            }
+            Task { await loadFlow() }
         }
         .onDisappear {
             guard !didFinish else { return }
             didFinish = true
+            guard didLogPaywallViewed else { return }
             AnalyticsService.logPaywallClosed(context: .postGame, reason: .skip)
         }
         .onChange(of: subscriptionManager.isPremium) { isPremium in
@@ -112,81 +66,85 @@ struct PostGamePaywallView: View {
         }
     }
 
-    private func handleContinueTapped() {
-        guard !isContinueDisabled else { return }
-        HapticsManager.impact(.medium)
-        AnalyticsService.logPaywallContinueTapped(
-            context: .postGame,
-            plan: PaywallCopy.analyticsPlanName(for: .weekly),
-            trialEnabled: subscriptionManager.isEligibleForTrial
-        )
-        Task {
-            switch await subscriptionManager.purchaseSubscription(plan: .weekly, context: .postGame) {
-            case .success:
-                finish(reason: .purchaseSuccess)
-            case .userCancelled:
-                break
-            case .pending:
-                purchaseIssueMessageKey = "paywall.purchase_pending_message"
-                showPurchaseIssueMessage = true
-            case .failed:
-                purchaseIssueMessageKey = "paywall.purchase_error_message"
-                showPurchaseIssueMessage = true
+    /// The "shown" bookkeeping lives here, not in `onAppear`: this paywall is once-per-lifetime,
+    /// and marking it shown before the flow actually loads would burn it permanently for a user
+    /// who was offline and never saw anything. Same reason `paywall_viewed` is logged here - it
+    /// would otherwise count spinners that got dismissed, deflating every conversion rate.
+    private func loadFlow() async {
+        do {
+            let flow = try await Adapty.getFlow(placementId: AppConstants.AdaptyPlacement.postGame)
+            try? await Adapty.logShowFlow(flow)
+            flowConfiguration = try await AdaptyUI.getFlowConfiguration(forFlow: flow)
+
+            subscriptionManager.markPostGamePaywallShown()
+            if !didLogPaywallViewed {
+                didLogPaywallViewed = true
+                AnalyticsService.logPaywallViewed(context: .postGame)
+            }
+        } catch {
+            print("PostGamePaywallView: failed loading flow - \(error)")
+            loadFailed = true
+        }
+    }
+
+    private static let dismissingCustomActionIDs = [
+        "close", "skip", "dismiss", "cancel", "later", "not_now", "notnow"
+    ]
+
+    private func handleAction(_ action: AdaptyUI.Action) {
+        switch action {
+        case .close:
+            finish(reason: .closeButton)
+        case .openURL(let url, _):
+            subscriptionManager.handleFlowLinkTapped(url: url, context: .postGame)
+            openURL(url)
+        case .custom(let id):
+            // The Flow is authored in a dashboard this build has no control over. If a
+            // dismissal control there is ever wired as a custom action instead of the
+            // built-in Close, honouring it is the difference between an exit and a trap -
+            // the nav bar is hidden, so Close is otherwise the only way out.
+            if Self.dismissingCustomActionIDs.contains(where: id.lowercased().contains) {
+                finish(reason: .closeButton)
             }
         }
     }
 
-    private func handleRestoreTapped() {
-        AnalyticsService.logPaywallRestoreTapped(context: .postGame)
-        Task {
-            switch await subscriptionManager.restorePurchases(context: .postGame) {
-            case .restored:
-                break
-            case .noPurchasesFound:
-                restoreResultMessageKey = "paywall.restore_alert_message"
-                showRestoreMessage = true
-            case .failed:
-                restoreResultMessageKey = "paywall.restore_error_message"
-                showRestoreMessage = true
-            }
+    private func handlePurchaseFinished(product: AdaptyPaywallProduct, result: AdaptyPurchaseResult) {
+        // Close only when paid access is actually active - a `.success` whose profile has no
+        // access level yet would otherwise dismiss the paywall onto locked content.
+        let didGrantAccess = subscriptionManager.handleFlowPurchaseFinished(
+            product: product,
+            result: result,
+            context: .postGame
+        )
+        if didGrantAccess {
+            finish(reason: .purchaseSuccess)
         }
+    }
+
+    private func handlePurchaseFailed(product: AdaptyPaywallProduct, error: AdaptyError) {
+        subscriptionManager.handleFlowPurchaseFailed(product: product, error: error, context: .postGame)
+    }
+
+    private func handleRestoreFinished(profile: AdaptyProfile) {
+        let outcome = subscriptionManager.handleFlowRestoreFinished(profile: profile, context: .postGame)
+        if outcome == .restored {
+            finish(reason: .purchaseSuccess)
+        }
+    }
+
+    private func handleRestoreFailed(error: AdaptyError) {
+        subscriptionManager.handleFlowRestoreFailed(error: error, context: .postGame)
     }
 
     private func finish(reason: AnalyticsService.PaywallCloseReason) {
         guard !didFinish else { return }
         didFinish = true
-        AnalyticsService.logPaywallClosed(context: .postGame, reason: reason)
-        dismiss()
-    }
-
-    private var footerLinks: some View {
-        HStack(spacing: 26) {
-            Button(String(localized: "legal.terms_short")) {
-                AnalyticsService.logPaywallLinkTapped(context: .postGame, linkType: "terms")
-                if let url = PostGamePaywallLinks.termsURL {
-                    openURL(url)
-                }
-            }
-            Button(String(localized: "legal.privacy_short")) {
-                AnalyticsService.logPaywallLinkTapped(context: .postGame, linkType: "privacy")
-                if let url = PostGamePaywallLinks.privacyURL {
-                    openURL(url)
-                }
-            }
-            Button(action: handleRestoreTapped) {
-                if subscriptionManager.isRestoring {
-                    ProgressView()
-                        .tint(.white.opacity(0.5))
-                } else {
-                    Text(String(localized: "paywall.restore"))
-                }
-            }
-            .disabled(subscriptionManager.isRestoring)
-            Button(String(localized: "paywall.postgame.not_now")) {
-                finish(reason: .skip)
-            }
+        // No "closed" without a matching "viewed" - a flow that never rendered was never a paywall
+        // impression, and pairing the two keeps close-rate denominators honest.
+        if didLogPaywallViewed {
+            AnalyticsService.logPaywallClosed(context: .postGame, reason: reason)
         }
-        .font(.antropicSerif(size: 12, weight: .medium))
-        .foregroundColor(.white.opacity(0.5))
+        dismiss()
     }
 }

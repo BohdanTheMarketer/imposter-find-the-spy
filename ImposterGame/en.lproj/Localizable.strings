@@ -17,7 +17,6 @@
 /* Legal */
 "legal.privacy_policy"                = "Privacy Policy";
 "legal.terms"                         = "Terms & Conditions";
-"legal.terms_short"                   = "Terms";
 "legal.privacy_short"                 = "Privacy";
 
 /* GameSettings */
@@ -126,54 +125,6 @@
 "game_timer.vote_now"                         = "Vote Now";
 "game_timer.pause"                            = "Pause";
 "game_timer.continue"                         = "Continue";
-
-/* Paywall */
-"paywall.headline"                            = "Unlock\nfull access";
-"paywall.plan_yearly"                         = "Yearly";
-"paywall.plan_weekly"                         = "Weekly";
-"paywall.cancel_anytime"                      = "Cancel anytime";
-"paywall.badge_best_value"                    = "BEST VALUE";
-"paywall.badge_most_popular"                  = "Most popular";
-"paywall.badge_free_trial"                    = "3-DAY FREE TRIAL";
-"paywall.weekly_subtitle_trial"               = "3 days free, then %@";
-"paywall.trial_prompt_title"                  = "Not sure yet?";
-"paywall.trial_prompt_subtitle"               = "Enable free access";
-"paywall.trial_legal_line"                    = "0 USD due today • 3 days FREE";
-"paywall.continue"                            = "Continue";
-"paywall.cta.start_trial"                     = "Start 3-Day Free Trial";
-"paywall.cta.then_price_cancel"               = "Then %@ · Cancel anytime";
-"paywall.weekly_trial_subtitle"               = "3-day free trial, then %@";
-"paywall.terms.trial_format"                  = "Free for %@, then %@. Auto-renews until canceled.";
-"paywall.terms.standard_format"               = "%@. Auto-renews until canceled.";
-"paywall.terms.fallback"                      = "Auto-renews until canceled.";
-"paywall.timeline.today.title"                = "Today";
-"paywall.timeline.today.subtitle"             = "Full access, no charge";
-"paywall.timeline.day2.title"                 = "Day 2";
-"paywall.timeline.day2.subtitle"              = "Reminder before trial ends";
-"paywall.timeline.day3.title"                 = "Day 3";
-"paywall.timeline.day3.subtitle"              = "%@, cancel anytime";
-"paywall.skip"                                = "Skip";
-"paywall.restore"                             = "Restore";
-"paywall.restore_alert_title"                 = "Restore Purchases";
-"paywall.restore_alert_message"               = "We couldn't find an active subscription for this Apple ID.";
-"paywall.restore_error_message"               = "Restore failed. Please check your connection and try again.";
-"paywall.purchase_issue_alert_title"          = "Purchase";
-"paywall.purchase_pending_message"            = "Your purchase is awaiting approval. We'll unlock premium as soon as it's confirmed.";
-"paywall.purchase_error_message"              = "Something went wrong with your purchase. Please try again.";
-"paywall.postgame.headline"                   = "Enjoyed that round?";
-"paywall.postgame.subheadline"                = "Unlock every category with a free trial.";
-"paywall.postgame.cta_subordinate"            = "Start your 3-day free trial";
-"paywall.postgame.not_now"                    = "Not now";
-"paywall.auto_renews_suffix"                  = "auto-renews";
-"paywall.price_per_day_format"                = "%@/day";
-"paywall.billed_price_format"                 = "Billed %@";
-"paywall.price_loading"                       = "Loading price...";
-"paywall.benefit_ai_packs"                    = "🤖 Custom AI word packs";
-"paywall.benefit_all_packs"                   = "🔓 All premium packs unlocked";
-"paywall.benefit_no_ads"                      = "🚫 No ads, ever";
-"category_paywall.free_access_on"             = "Free access enabled";
-"category_paywall.trial_on_subtitle"          = "No commitment, cancel anytime";
-"category_paywall.cta_trial"                  = "Try it for Free";
 
 /* Categories */
 "categories.title"                            = "Categories";

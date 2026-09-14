@@ -1,90 +1,74 @@
+import Adapty
+import AdaptyUI
 import SwiftUI
 
+/// Thin wrapper that presents the Adapty Flow ("Premium Paywall") for the `category_paywall`
+/// placement. See `OnboardingPaywallView` for the general shape - the Flow renders its own UI,
+/// this view fetches+presents it and wires its events into existing analytics/navigation.
 struct CategoryPaywallView: View {
     @EnvironmentObject var router: AppRouter
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @Environment(\.openURL) private var openURL
 
-    @State private var selection: PaywallSelection = .weekly
-    @State private var showRestoreMessage = false
-    @State private var restoreResultMessageKey = "paywall.restore_alert_message"
-    @State private var showPurchaseIssueMessage = false
-    @State private var purchaseIssueMessageKey = "paywall.purchase_pending_message"
+    @State private var flowConfiguration: AdaptyUI.FlowConfiguration?
     @State private var didClosePaywall = false
     @State private var didLogPaywallViewed = false
-    @State private var showDailyPricing = false
-
-    private enum CategoryPaywallLinks {
-        static let privacyURL = URL(string: "https://www.verte-bro.com/privacy-policy")
-        static let termsURL = URL(string: "https://www.verte-bro.com/terms-and-conditions")
-    }
+    @State private var loadFailed = false
 
     var body: some View {
         ZStack {
             LinearGradient.appPurpleGradient
                 .ignoresSafeArea()
-                .overlay(
-                    GridPatternView()
-                        .opacity(0.1)
+
+            if let flowConfiguration {
+                AdaptyFlowView(
+                    flowConfiguration: flowConfiguration,
+                    didPerformAction: handleAction,
+                    didSelectProduct: { product in
+                        subscriptionManager.handleFlowProductSelected(product: product, context: .category)
+                    },
+                    didStartPurchase: { product in
+                        subscriptionManager.handleFlowPurchaseStarted(product: product, context: .category)
+                    },
+                    didFinishPurchase: handlePurchaseFinished,
+                    didFailPurchase: handlePurchaseFailed,
+                    didStartRestore: {
+                        subscriptionManager.handleFlowRestoreStarted(context: .category)
+                    },
+                    didFinishRestore: handleRestoreFinished,
+                    didFailRestore: handleRestoreFailed,
+                    didReceiveError: { _ in closePaywall(reason: .skip) }
                 )
-
-            GeometryReader { proxy in
-                let isCompactHeight = proxy.size.height < 780
-
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 0) {
-                        topBar(topPadding: isCompactHeight ? 2 : 10)
-                        heroBlock(height: isCompactHeight ? 240 : 285, topPadding: isCompactHeight ? -6 : 4, bottomPadding: isCompactHeight ? 2 : 10)
-                        titleBlock(isCompactHeight: isCompactHeight)
-
-                        PaywallBenefitsList()
-                            .padding(.top, isCompactHeight ? 6 : 10)
-
-                        Spacer(minLength: isCompactHeight ? 8 : 20)
-
-                        PaywallPlansSection(
-                            selection: $selection,
-                            subscriptionManager: subscriptionManager,
-                            onSelectionChanged: logPlanSelected,
-                            showDailyPricing: showDailyPricing
-                        )
-                        .padding(.top, 12)
-
-                        ctaButton
-                            .padding(.top, 16)
-
-                        footerLinks
-                            .padding(.top, 8)
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 10)
-                    .frame(minHeight: proxy.size.height)
-                }
+            } else if loadFailed {
+                Color.clear.onAppear { closePaywall(reason: .skip) }
+            } else {
+                ProgressView()
+                    .tint(.white)
             }
         }
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
-        .alert(
-            String(localized: "paywall.restore_alert_title"),
-            isPresented: $showRestoreMessage
-        ) {
-            Button(String(localized: "common.ok"), role: .cancel) { }
-        } message: {
-            Text(LocalizedStringKey(restoreResultMessageKey))
-        }
-        .alert(
-            String(localized: "paywall.purchase_issue_alert_title"),
-            isPresented: $showPurchaseIssueMessage
-        ) {
-            Button(String(localized: "common.ok"), role: .cancel) { }
-        } message: {
-            Text(LocalizedStringKey(purchaseIssueMessageKey))
-        }
         .onAppear {
             if subscriptionManager.isPremium {
-                scheduleClosePaywall(reason: .purchaseSuccess)
+                closePaywall(reason: .purchaseSuccess)
                 return
             }
+            Task { await loadFlow() }
+        }
+        .onChange(of: subscriptionManager.isPremium) { isPremium in
+            guard isPremium else { return }
+            closePaywall(reason: .purchaseSuccess)
+        }
+    }
+
+    /// The "shown" bookkeeping lives here, not in `onAppear`: none of these flags are true until
+    /// the flow has actually rendered, and on a failed load the user only ever saw a spinner.
+    private func loadFlow() async {
+        do {
+            let flow = try await Adapty.getFlow(placementId: AppConstants.AdaptyPlacement.categoryPaywall)
+            try? await Adapty.logShowFlow(flow)
+            flowConfiguration = try await AdaptyUI.getFlowConfiguration(forFlow: flow)
+
             // Only count this as "saw the category paywall" for the post-game fatigue exclusion
             // when it's a genuine in-app trigger (tapped a locked category, pushed on top of
             // [.playerSetup, .categories]). When reached directly from the loader (returning user,
@@ -93,178 +77,74 @@ struct CategoryPaywallView: View {
             if router.path.count > 1 {
                 subscriptionManager.hasSeenCategoryPaywallThisSession = true
             }
-            showDailyPricing = !subscriptionManager.markPaywallShown()
+            subscriptionManager.markPaywallShown()
             if !didLogPaywallViewed {
                 didLogPaywallViewed = true
                 AnalyticsService.logPaywallViewed(context: .category)
             }
-            Task {
-                await subscriptionManager.refreshStoreProducts(trigger: "category_paywall_appear")
+        } catch {
+            print("CategoryPaywallView: failed loading flow - \(error)")
+            loadFailed = true
+        }
+    }
+
+    private static let dismissingCustomActionIDs = [
+        "close", "skip", "dismiss", "cancel", "later", "not_now", "notnow"
+    ]
+
+    private func handleAction(_ action: AdaptyUI.Action) {
+        switch action {
+        case .close:
+            closePaywall(reason: .closeButton)
+        case .openURL(let url, _):
+            subscriptionManager.handleFlowLinkTapped(url: url, context: .category)
+            openURL(url)
+        case .custom(let id):
+            // The Flow is authored in a dashboard this build has no control over. If a
+            // dismissal control there is ever wired as a custom action instead of the
+            // built-in Close, honouring it is the difference between an exit and a trap -
+            // the nav bar is hidden, so Close is otherwise the only way out.
+            if Self.dismissingCustomActionIDs.contains(where: id.lowercased().contains) {
+                closePaywall(reason: .closeButton)
             }
         }
-        .onChange(of: subscriptionManager.isPremium) { isPremium in
-            guard isPremium else { return }
-            scheduleClosePaywall(reason: .purchaseSuccess)
-        }
     }
 
-    private func topBar(topPadding: CGFloat) -> some View {
-        HStack {
-            Spacer()
-            Button(action: { closePaywall(reason: .closeButton) }) {
-                Image(systemName: "xmark")
-                    .font(.antropicSerif(size: 16, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.7))
-                    .frame(width: 32, height: 32)
-            }
-        }
-        .padding(.top, topPadding)
-    }
-
-    private func heroBlock(height: CGFloat, topPadding: CGFloat, bottomPadding: CGFloat) -> some View {
-        Group {
-            if let heroImage =
-                PlayerProfiles.loadBundledImage(named: "CategoryPaywallHeroTop")
-                ?? PlayerProfiles.loadBundledImage(named: "PaywallHeroTop") {
-                Image(uiImage: heroImage)
-                    .resizable()
-                    .scaledToFit()
-            } else {
-                RoundedRectangle(cornerRadius: 22)
-                    .fill(Color.white.opacity(0.08))
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .frame(height: height)
-        .padding(.top, topPadding)
-        .padding(.bottom, bottomPadding)
-    }
-
-    private func titleBlock(isCompactHeight: Bool) -> some View {
-        Text("paywall.headline")
-            .font(.antropicSans(size: isCompactHeight ? 38 : 42, weight: .bold))
-            .minimumScaleFactor(0.6)
-            .multilineTextAlignment(.center)
-            .foregroundColor(.white)
-            .lineSpacing(-2)
-            .fixedSize(horizontal: false, vertical: true)
-    }
-
-    private var isContinueDisabled: Bool {
-        subscriptionManager.isPurchasing
-            || !subscriptionManager.isPriceLoaded(for: PaywallCopy.subscriptionPlan(for: selection))
-    }
-
-    private var ctaButton: some View {
-        PaywallSingleLineCTAButton(
-            titleKey: PaywallCopy.ctaTitleKey(
-                selection: selection,
-                isEligibleForTrial: subscriptionManager.isEligibleForTrial
-            ),
-            action: handleContinueTapped,
-            isLoading: isContinueDisabled
+    private func handlePurchaseFinished(product: AdaptyPaywallProduct, result: AdaptyPurchaseResult) {
+        // Close only when paid access is actually active - a `.success` whose profile has no
+        // access level yet would otherwise dismiss the paywall onto locked content.
+        let didGrantAccess = subscriptionManager.handleFlowPurchaseFinished(
+            product: product,
+            result: result,
+            context: .category
         )
-    }
-
-    private func handleContinueTapped() {
-        if subscriptionManager.isPremium {
+        if didGrantAccess {
             closePaywall(reason: .purchaseSuccess)
-            return
-        }
-        guard !isContinueDisabled else { return }
-        HapticsManager.impact(.medium)
-        let plan = PaywallCopy.subscriptionPlan(for: selection)
-        AnalyticsService.logPaywallContinueTapped(
-            context: .category,
-            plan: PaywallCopy.analyticsPlanName(for: selection),
-            trialEnabled: PaywallCopy.trialEnabled(
-                selection: selection,
-                isEligibleForTrial: subscriptionManager.isEligibleForTrial
-            )
-        )
-        Task {
-            switch await subscriptionManager.purchaseSubscription(plan: plan, context: .category) {
-            case .success:
-                scheduleClosePaywall(reason: .purchaseSuccess)
-            case .userCancelled:
-                break
-            case .pending:
-                purchaseIssueMessageKey = "paywall.purchase_pending_message"
-                showPurchaseIssueMessage = true
-            case .failed:
-                purchaseIssueMessageKey = "paywall.purchase_error_message"
-                showPurchaseIssueMessage = true
-            }
         }
     }
 
-    private func logPlanSelected(_ newSelection: PaywallSelection) {
-        AnalyticsService.logPaywallPlanSelected(
-            context: .category,
-            plan: PaywallCopy.analyticsPlanName(for: newSelection),
-            trialEnabled: PaywallCopy.trialEnabled(
-                selection: newSelection,
-                isEligibleForTrial: subscriptionManager.isEligibleForTrial
-            )
-        )
+    private func handlePurchaseFailed(product: AdaptyPaywallProduct, error: AdaptyError) {
+        subscriptionManager.handleFlowPurchaseFailed(product: product, error: error, context: .category)
     }
 
-    private func handleRestoreTapped() {
-        AnalyticsService.logPaywallRestoreTapped(context: .category)
-        Task {
-            switch await subscriptionManager.restorePurchases(context: .category) {
-            case .restored:
-                break
-            case .noPurchasesFound:
-                restoreResultMessageKey = "paywall.restore_alert_message"
-                showRestoreMessage = true
-            case .failed:
-                restoreResultMessageKey = "paywall.restore_error_message"
-                showRestoreMessage = true
-            }
+    private func handleRestoreFinished(profile: AdaptyProfile) {
+        let outcome = subscriptionManager.handleFlowRestoreFinished(profile: profile, context: .category)
+        if outcome == .restored {
+            closePaywall(reason: .purchaseSuccess)
         }
     }
 
-    private var footerLinks: some View {
-        HStack(spacing: 26) {
-            Button(String(localized: "legal.terms_short")) {
-                AnalyticsService.logPaywallLinkTapped(context: .category, linkType: "terms")
-                if let url = CategoryPaywallLinks.termsURL {
-                    openURL(url)
-                }
-            }
-            Button(String(localized: "legal.privacy_short")) {
-                AnalyticsService.logPaywallLinkTapped(context: .category, linkType: "privacy")
-                if let url = CategoryPaywallLinks.privacyURL {
-                    openURL(url)
-                }
-            }
-            Button(action: handleRestoreTapped) {
-                if subscriptionManager.isRestoring {
-                    ProgressView()
-                        .tint(.white.opacity(0.45))
-                } else {
-                    Text(String(localized: "paywall.restore"))
-                }
-            }
-            .disabled(subscriptionManager.isRestoring)
-        }
-        .font(.antropicSerif(size: 12, weight: .medium))
-        .foregroundColor(.white.opacity(0.45))
-        .padding(.bottom, 6)
-    }
-
-    private func scheduleClosePaywall(reason: AnalyticsService.PaywallCloseReason) {
-        Task { @MainActor in
-            closePaywall(reason: reason)
-        }
+    private func handleRestoreFailed(error: AdaptyError) {
+        subscriptionManager.handleFlowRestoreFailed(error: error, context: .category)
     }
 
     private func closePaywall(reason: AnalyticsService.PaywallCloseReason) {
         guard !didClosePaywall else { return }
         didClosePaywall = true
 
-        AnalyticsService.logPaywallClosed(context: .category, reason: reason)
+        if didLogPaywallViewed {
+            AnalyticsService.logPaywallClosed(context: .category, reason: reason)
+        }
         // count <= 1 means this paywall itself is the only thing on the stack - reached directly
         // from the loader (returning non-premium user who already completed onboarding earlier),
         // not pushed from CategoriesView on top of [.playerSetup, .categories]. `path.isEmpty`
@@ -274,8 +154,8 @@ struct CategoryPaywallView: View {
             // was skipped for them) - declining it should make them eligible for the post-game
             // offer just like declining OnboardingPaywallView does, not just declining a locked
             // category later (which must NOT set this, or the post-game paywall would fire for
-            // ordinary category-paywall bounces too).
-            if reason != .purchaseSuccess {
+            // ordinary category-paywall bounces too). A flow that never rendered is not a decline.
+            if reason != .purchaseSuccess, didLogPaywallViewed {
                 subscriptionManager.hasDeclinedOnboardingPaywall = true
             }
             router.navigateToPlayerSetup()

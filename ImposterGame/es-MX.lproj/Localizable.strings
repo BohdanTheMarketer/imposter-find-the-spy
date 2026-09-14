@@ -17,7 +17,6 @@
 /* Legal */
 "legal.privacy_policy"                = "Política de privacidad";
 "legal.terms"                         = "Términos y condiciones";
-"legal.terms_short"                   = "Términos";
 "legal.privacy_short"                 = "Privacidad";
 
 /* GameSettings */
@@ -116,54 +115,6 @@
 "game_timer.vote_now"                         = "Votar ahora";
 "game_timer.pause"                            = "Pausa";
 "game_timer.continue"                         = "Continuar";
-
-/* Paywall */
-"paywall.headline"                            = "Desbloquea\nacceso completo";
-"paywall.plan_yearly"                         = "Anual";
-"paywall.plan_weekly"                         = "Semanal";
-"paywall.cancel_anytime"                      = "Cancela cuando quieras";
-"paywall.badge_best_value"                    = "MEJOR VALOR";
-"paywall.badge_most_popular"                  = "Más popular";
-"paywall.badge_free_trial"                    = "3 DÍAS GRATIS";
-"paywall.weekly_subtitle_trial"               = "3 días gratis, luego %@";
-"paywall.trial_prompt_title"                  = "¿Aún no estás seguro?";
-"paywall.trial_prompt_subtitle"               = "Activa acceso gratis";
-"paywall.trial_legal_line"                    = "0 USD hoy • 3 días GRATIS";
-"paywall.continue"                            = "Continuar";
-"paywall.cta.start_trial"                     = "Start 3-Day Free Trial";
-"paywall.cta.then_price_cancel"               = "Then %@ · Cancel anytime";
-"paywall.weekly_trial_subtitle"               = "3-day free trial, then %@";
-"paywall.terms.trial_format"                  = "Free for %@, then %@. Auto-renews until canceled.";
-"paywall.terms.standard_format"               = "%@. Auto-renews until canceled.";
-"paywall.terms.fallback"                      = "Auto-renews until canceled.";
-"paywall.timeline.today.title"                = "Today";
-"paywall.timeline.today.subtitle"             = "Full access, no charge";
-"paywall.timeline.day2.title"                 = "Day 2";
-"paywall.timeline.day2.subtitle"              = "Reminder before trial ends";
-"paywall.timeline.day3.title"                 = "Day 3";
-"paywall.timeline.day3.subtitle"              = "%@, cancel anytime";
-"paywall.skip"                                = "Omitir";
-"paywall.restore"                             = "Restaurar";
-"paywall.restore_alert_title"                 = "Restaurar compras";
-"paywall.restore_alert_message"               = "No encontramos una suscripción activa para este Apple ID.";
-"paywall.restore_error_message"               = "No se pudo restaurar. Verifica tu conexión e inténtalo de nuevo.";
-"paywall.purchase_issue_alert_title"          = "Compra";
-"paywall.purchase_pending_message"            = "Tu compra está pendiente de aprobación. Activaremos premium en cuanto se confirme.";
-"paywall.purchase_error_message"              = "Ocurrió un problema con tu compra. Inténtalo de nuevo.";
-"paywall.postgame.headline"                   = "¿Te gustó esa ronda?";
-"paywall.postgame.subheadline"                = "Desbloquea todas las categorías con una prueba gratis.";
-"paywall.postgame.cta_subordinate"            = "Inicia tu prueba gratis de 3 días";
-"paywall.postgame.not_now"                    = "Ahora no";
-"paywall.auto_renews_suffix"                  = "se renueva solo";
-"paywall.price_per_day_format"                = "%@/día";
-"paywall.billed_price_format"                 = "Se factura %@";
-"paywall.price_loading"                       = "Cargando precio...";
-"paywall.benefit_ai_packs"                    = "🤖 Paquetes de palabras con IA personalizados";
-"paywall.benefit_all_packs"                   = "🔓 Todos los paquetes premium desbloqueados";
-"paywall.benefit_no_ads"                      = "🚫 Sin anuncios, nunca";
-"category_paywall.free_access_on"             = "Acceso gratis activado";
-"category_paywall.trial_on_subtitle"          = "Sin compromiso, cancela cuando quieras";
-"category_paywall.cta_trial"                  = "Pruébalo gratis";
 
 /* Categories */
 "categories.title"                            = "Categorías";
