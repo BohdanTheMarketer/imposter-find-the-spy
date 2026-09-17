@@ -51,6 +51,7 @@
 		5F33DFE4F0D9022BC662381C /* small_player_8.png in Resources */ = {isa = PBXBuildFile; fileRef = B8793C77BFC56EE9DC3B49FB /* small_player_8.png */; };
 		604248ED03BAFF39FD3C95FC /* player_10.png in Resources */ = {isa = PBXBuildFile; fileRef = C9A744A8483ED6E92E70BB16 /* player_10.png */; };
 		665AD4645A57733FA7B2FEFF /* category_book_fill.png in Resources */ = {isa = PBXBuildFile; fileRef = 7A4F33A7BF549965058F632E /* category_book_fill.png */; };
+		67B5A4A34C418EDE3A4768E3 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 352B998F1BFAC4A95E3B7026 /* GoogleMobileAds */; };
 		6901BAE5B9FB092E0E5DA36A /* player_7.png in Resources */ = {isa = PBXBuildFile; fileRef = D9B5272A64719CDF0D1B8E27 /* player_7.png */; };
 		6A1DE64792DD332173B240B6 /* small_player_4.png in Resources */ = {isa = PBXBuildFile; fileRef = 1872172C38AC29DC9A7D75F3 /* small_player_4.png */; };
 		6AB968DB2BE0667EE7D49DEE /* category_party_popper.png in Resources */ = {isa = PBXBuildFile; fileRef = 10513D64393ED72C491A7A16 /* category_party_popper.png */; };
@@ -110,6 +111,7 @@
 		E78372EEC1931B91E618EDC7 /* GameSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED521C6104609D6FD37E3EC4 /* GameSession.swift */; };
 		E89B457C4BBDD0C8F45C9F5C /* player_11.png in Resources */ = {isa = PBXBuildFile; fileRef = 6FA8E1A829A6103A65B14DC5 /* player_11.png */; };
 		ECD62EA2DD1D5037C3D8B2C1 /* PushNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9FE14D16A4336B40FB70F5E /* PushNotificationService.swift */; };
+		EE1C8F46D42DB76BF6F2A96C /* AdMobService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F1984A30E17C8D6F4C4A606 /* AdMobService.swift */; };
 		EEA2764BDA8ED72CAAC24BB0 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 706047C26E961DBED30EA12B /* FirebaseMessaging */; };
 		F03E2A10879EAA51AB682848 /* AmplitudeSwiftSessionReplayPlugin in Frameworks */ = {isa = PBXBuildFile; productRef = 6770E762F427D6F85FA0E4CD /* AmplitudeSwiftSessionReplayPlugin */; };
 		F04E1A30174677770894670B /* HapticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FD3B1E2BC3F96DBDE54AA2D /* HapticsManager.swift */; };
@@ -158,6 +160,7 @@
 		3A00F28C07BE24603E2E8DD8 /* category_map_fill.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_map_fill.png; sourceTree = "<group>"; };
 		3A0840B6E8D6C2FAC494C35B /* VotingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingView.swift; sourceTree = "<group>"; };
 		3BFD2329ECB01023B95A324A /* category_music_note.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_music_note.png; sourceTree = "<group>"; };
+		3F1984A30E17C8D6F4C4A606 /* AdMobService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdMobService.swift; sourceTree = "<group>"; };
 		3F1B2F734BDF9341EDBBF170 /* Evolventa-Oblique.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Evolventa-Oblique.ttf"; sourceTree = "<group>"; };
 		403B857D35559CE5EB17557C /* CustomWordPackGeneratorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomWordPackGeneratorView.swift; sourceTree = "<group>"; };
 		465400B09F1789F21938AB8C /* category_flame_fill.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_flame_fill.png; sourceTree = "<group>"; };
@@ -212,6 +215,7 @@
 		B8793C77BFC56EE9DC3B49FB /* small_player_8.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_player_8.png; sourceTree = "<group>"; };
 		B9E4FD5E37DE7F6EC24F1019 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		B9FE14D16A4336B40FB70F5E /* PushNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationService.swift; sourceTree = "<group>"; };
+		BDFCAC51DD12E7ABF55BA01F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		BE439385A528B4689F8144C1 /* category_house_fill.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_house_fill.png; sourceTree = "<group>"; };
 		BED795672AEE4610BC3321F0 /* player_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = player_2.png; sourceTree = "<group>"; };
 		C1629DDD252F2EAB8FEE0744 /* LibreBaskerville-MediumItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "LibreBaskerville-MediumItalic.ttf"; sourceTree = "<group>"; };
@@ -260,6 +264,7 @@
 				F03E2A10879EAA51AB682848 /* AmplitudeSwiftSessionReplayPlugin in Frameworks */,
 				5B0F228CDC4C8183A05A7E95 /* Adapty in Frameworks */,
 				0685E15E6968C1DB2932DFA9 /* AdaptyUI in Frameworks */,
+				67B5A4A34C418EDE3A4768E3 /* GoogleMobileAds in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -307,6 +312,7 @@
 			children = (
 				6E982BD8B79157C2D64AB0C0 /* AdaptyService.swift */,
 				B74D7EA675721C0151A734D6 /* AdGateService.swift */,
+				3F1984A30E17C8D6F4C4A606 /* AdMobService.swift */,
 				3901AC40D929E9DE8590DC3B /* AmplitudeManager.swift */,
 				FB41651CAAFA80CFD091161B /* AnalyticsService.swift */,
 				7039B0D8EA9077D1B5D08C8B /* AppConstants.swift */,
@@ -536,6 +542,7 @@
 				A4DC534C6EB33EAE4F7246E6 /* fr.lproj */,
 				8BE02C67520C3F41F354FFC4 /* GoogleService-Info.plist */,
 				741F3D6035F91ABB99253748 /* ImposterGame.entitlements */,
+				BDFCAC51DD12E7ABF55BA01F /* Info.plist */,
 				16EB346595CB035E5801B875 /* pt-BR.lproj */,
 				364CC131D6AE89542A8EF638 /* Secrets.example.xcconfig */,
 				DBE64024BB1BC9283FFE1012 /* Secrets.xcconfig */,
@@ -622,6 +629,7 @@
 				6770E762F427D6F85FA0E4CD /* AmplitudeSwiftSessionReplayPlugin */,
 				9C84549999AE5C304F569060 /* Adapty */,
 				C15F6E19FC2BD7AD39759C52 /* AdaptyUI */,
+				352B998F1BFAC4A95E3B7026 /* GoogleMobileAds */,
 			);
 			productName = ImposterGame;
 			productReference = 5A3D39D79EBFEE259F695500 /* ImposterGame.app */;
@@ -659,6 +667,7 @@
 				DEC5583B9C7546DE81E3FA11 /* XCRemoteSwiftPackageReference "Amplitude-Swift" */,
 				9CC73A844AD1E0DD09F7D1D8 /* XCRemoteSwiftPackageReference "AmplitudeSessionReplay-iOS" */,
 				2A4396BBF0F911E44E2769CC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				298BEA8887DCF921786814A0 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1C713422ED53F1EAFCABCC00 /* Products */;
@@ -810,6 +819,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E103B982E80B66B46FA553E5 /* AdGateService.swift in Sources */,
+				EE1C8F46D42DB76BF6F2A96C /* AdMobService.swift in Sources */,
 				B9DEE1A7F1ED958F09374762 /* AdaptyService.swift in Sources */,
 				F700EB403532FE6566B6B083 /* AmplitudeManager.swift in Sources */,
 				93D558B5712E107B8A798489 /* AnalyticsService.swift in Sources */,
@@ -1067,6 +1077,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = Q35PSLMDJH;
+				INFOPLIST_FILE = ImposterGame/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Imposter;
 				INFOPLIST_KEY_CFBundleLocalizations = (
 					en,
@@ -1098,6 +1109,7 @@
 				CODE_SIGN_ENTITLEMENTS = ImposterGame/ImposterGame.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				DEVELOPMENT_TEAM = Q35PSLMDJH;
+				INFOPLIST_FILE = ImposterGame/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Imposter;
 				INFOPLIST_KEY_CFBundleLocalizations = (
 					en,
@@ -1141,6 +1153,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		298BEA8887DCF921786814A0 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.0.0;
+			};
+		};
 		2A4396BBF0F911E44E2769CC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -1180,6 +1200,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DEC5583B9C7546DE81E3FA11 /* XCRemoteSwiftPackageReference "Amplitude-Swift" */;
 			productName = AmplitudeSwift;
+		};
+		352B998F1BFAC4A95E3B7026 /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 298BEA8887DCF921786814A0 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
 		};
 		6770E762F427D6F85FA0E4CD /* AmplitudeSwiftSessionReplayPlugin */ = {
 			isa = XCSwiftPackageProductDependency;

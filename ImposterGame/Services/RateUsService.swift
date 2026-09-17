@@ -57,6 +57,19 @@ enum RateUsService {
         UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: lastRatePromptDateKey)
     }
 
+    /// Surfaced via the `admin_debug_status` QA command. Note `isEligibleForPrompt` passing here
+    /// is necessary but not sufficient - iOS itself caps the actual system dialog to ~3x/year per
+    /// Apple ID, independent of anything this app tracks.
+    static var qaDiagnosticSummary: String {
+        let games = UserDefaults.standard.integer(forKey: completedGamesCountKey)
+        let lastPrompt = lastRatePromptDate.map { "\($0)" } ?? "never"
+        return """
+        completedGamesCount = \(games)
+        lastRatePromptDate = \(lastPrompt)
+        isEligibleForPrompt (our cooldown) = \(isEligibleForPrompt)
+        """
+    }
+
     private static func recordCompletedGame() -> Int {
         let defaults = UserDefaults.standard
         let count = defaults.integer(forKey: completedGamesCountKey) + 1
@@ -70,6 +83,17 @@ enum RateUsService {
         guard defaults.object(forKey: lastRatePromptDateKey) == nil else { return }
         guard defaults.bool(forKey: legacyOnboardingPromptKey) else { return }
         recordPromptAttempt()
+    }
+
+    /// QA-only reset (not gated behind `#if DEBUG`, unlike the two below) so it also works from
+    /// the hidden `admin_reset_review` command in `PlayerOptionsSheet`, which ships in
+    /// TestFlight/Release builds too. Only clears our own eligibility bookkeeping - note that iOS
+    /// itself still caps the actual system review dialog to ~3 times/year per Apple ID, so
+    /// resetting this doesn't guarantee the dialog will visibly appear again.
+    static func resetForQACommand() {
+        UserDefaults.standard.removeObject(forKey: lastRatePromptDateKey)
+        UserDefaults.standard.removeObject(forKey: legacyOnboardingPromptKey)
+        UserDefaults.standard.removeObject(forKey: completedGamesCountKey)
     }
 
     #if DEBUG

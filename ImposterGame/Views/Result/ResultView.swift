@@ -12,6 +12,17 @@ struct ResultView: View {
     @State private var outcomeCardAppeared = false
     @State private var showPostGamePaywall = false
     @State private var showPostGameSurvey = false
+    /// Guards against a spurious repeat `.onAppear` (observed after presenting the AdMob
+    /// interstitial) re-running the reset + intrigue sequence mid-flow, which briefly flashed the
+    /// purple "moment of truth" screen again right before the post-game overlay appeared. Only a
+    /// genuinely new `ResultView` instance (next game) should ever run this once more.
+    @State private var hasInitializedForThisGame = false
+    /// True while the ad-then-overlay decision for this round is in flight. "Play Again" is
+    /// disabled during this window - otherwise a fast tap races the async ad await and reaches
+    /// `navigateToCategories()` (tearing this view down) before the survey/paywall/rate-us
+    /// decision below ever runs, silently losing that round's eligibility the same way the
+    /// nav-race bug this sequence used to have did.
+    @State private var isResolvingPostRoundOverlay = false
 
     enum ResultPhase {
         case intrigue
@@ -84,6 +95,8 @@ struct ResultView: View {
             PostGameSurveyView()
         }
         .onAppear {
+            guard !hasInitializedForThisGame else { return }
+            hasInitializedForThisGame = true
             phase = .intrigue
             intrigueTextIndex = 0
             showOutcomeSection = false
@@ -231,6 +244,7 @@ struct ResultView: View {
                 Group {
                     if showActionButtons {
                         Button(action: {
+                            guard !isResolvingPostRoundOverlay else { return }
                             HapticsManager.impact(.medium)
                             AnalyticsService.logResultPlayAgainTapped()
                             gameSession.resetForNewRound()
@@ -387,28 +401,44 @@ struct ResultView: View {
                     showActionButtons = true
                 }
                 HapticsManager.selection()
-                // Decided in the same tick as `showActionButtons = true` above: the "Play Again"
-                // button becomes tappable at that exact moment, and it replaces the whole nav path
-                // (see AppRouter.navigateToCategories), tearing this view down instantly. An earlier
-                // version deferred this decision behind an extra 800ms sleep purely for presentation
-                // polish, which left a real window where a fast tap on the button popped this view
-                // before the sheet flag was ever set - silently and permanently losing that round's
-                // survey/paywall (the game-count increment already happened, so it wasn't a retry,
-                // it was a loss for that eligible round).
-                if SurveyService.recordCompletedGameAndCheckEligibility() {
-                    // Highest priority for this round: skips both the paywall and the
-                    // rate-us prompt so the survey doesn't compete with another overlay.
-                    showPostGameSurvey = true
-                } else if subscriptionManager.isEligibleForPostGamePaywall {
-                    // Skip the native rate-us prompt this time - it's a system-level overlay that
-                    // can render on top of our own .sheet if both fire close together, and the
-                    // paywall is the higher-priority ask for this cohort. RateUsService has its
-                    // own cooldown/eligibility, so it'll simply get another chance later.
-                    showPostGamePaywall = true
-                } else {
-                    RateUsService.requestReviewAfterFirstGameIfNeeded()
+                // Disabled in the same tick as `showActionButtons = true` above (see
+                // `isResolvingPostRoundOverlay`'s own doc comment for why): the "Play Again"
+                // button becomes visible at that exact moment, and a fast tap on it replaces the
+                // whole nav path (see AppRouter.navigateToCategories), tearing this view down
+                // instantly. An earlier version made this same decision synchronously right here
+                // with nothing async in between, which left no window for that race - awaiting the
+                // interstitial below reopens it, so the button is explicitly held disabled for the
+                // duration instead.
+                isResolvingPostRoundOverlay = true
+                Task { @MainActor in
+                    if !subscriptionManager.isPremium {
+                        await AdMobService.shared.showInterstitial()
+                        // Small buffer so the ad's own dismissal transition fully finishes before
+                        // potentially presenting a sheet on top of it.
+                        try? await Task.sleep(nanoseconds: 300_000_000)
+                    }
+                    resolvePostRoundOverlay()
+                    isResolvingPostRoundOverlay = false
                 }
             }
+        }
+    }
+
+    /// Survey beats paywall beats rate-us - never stack two overlays on the same round. Runs once
+    /// the ad (if any) has finished, but is otherwise the exact decision this sequence always made.
+    private func resolvePostRoundOverlay() {
+        if SurveyService.recordCompletedGameAndCheckEligibility() {
+            // Highest priority for this round: skips both the paywall and the
+            // rate-us prompt so the survey doesn't compete with another overlay.
+            showPostGameSurvey = true
+        } else if subscriptionManager.isEligibleForPostGamePaywall {
+            // Skip the native rate-us prompt this time - it's a system-level overlay that
+            // can render on top of our own .sheet if both fire close together, and the
+            // paywall is the higher-priority ask for this cohort. RateUsService has its
+            // own cooldown/eligibility, so it'll simply get another chance later.
+            showPostGamePaywall = true
+        } else {
+            RateUsService.requestReviewAfterFirstGameIfNeeded()
         }
     }
 }

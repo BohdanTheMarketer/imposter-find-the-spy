@@ -24,8 +24,38 @@ class SubscriptionManager: ObservableObject {
     private var profileCancellable: AnyCancellable?
     private var lastEntitlementState: AnalyticsService.SubscriptionEntitlementState?
 
-    @Published var isPremium: Bool {
-        didSet { keychainWrite(key: isPremiumKey, value: isPremium) }
+    @Published private var storedIsPremium: Bool {
+        didSet { keychainWrite(key: isPremiumKey, value: storedIsPremium) }
+    }
+
+    /// QA-only override that makes `isPremium` report a fixed value regardless of the real
+    /// entitlement - lets a tester force premium on (without buying) or force it off (on a device
+    /// with a genuine active subscription, to preview the free-user paywall/ad flows) without
+    /// touching Apple's sandbox account state. Set via the `admin_premium_on`/`admin_premium_off`
+    /// commands in `PlayerOptionsSheet` (works in TestFlight/Release builds too, since fighting
+    /// Apple's sandbox subscription-management UI isn't always possible there). Empty string means
+    /// no override - `@AppStorage` doesn't support optional/enum values directly.
+    @AppStorage("qaPremiumOverride") var qaPremiumOverrideRaw: String = ""
+
+    var isPremium: Bool {
+        get {
+            switch qaPremiumOverrideRaw {
+            case "on": return true
+            case "off": return false
+            default: return storedIsPremium
+            }
+        }
+        set { storedIsPremium = newValue }
+    }
+
+    /// `true`/`false` force the QA override on/off; `nil` clears it, reverting `isPremium` to the
+    /// real entitlement.
+    func setQAPremiumOverride(_ forcedValue: Bool?) {
+        switch forcedValue {
+        case .some(true): qaPremiumOverrideRaw = "on"
+        case .some(false): qaPremiumOverrideRaw = "off"
+        case .none: qaPremiumOverrideRaw = ""
+        }
     }
     @Published var isPurchasing = false
     @Published var isRestoring = false
@@ -53,23 +83,51 @@ class SubscriptionManager: ObservableObject {
     @AppStorage("hasDeclinedOnboardingPaywall") var hasDeclinedOnboardingPaywall: Bool = false
     @AppStorage("hasShownPostGamePaywall") var hasShownPostGamePaywall: Bool = false
 
+    /// QA-only override: while `true`, `isEligibleForPostGamePaywall` reports `true` unconditionally
+    /// and `markPostGamePaywallShown()` doesn't consume the real "shown once" flag - so a tester
+    /// sees the offer on every single "Play Again" without it getting silently re-blocked by
+    /// incidental gameplay (e.g. tapping into a locked category resets `hasSeenCategoryPaywallThisSession`
+    /// right back to `true` after a one-time `admin_reset_offer`). Set via `admin_offer_on`/
+    /// `admin_offer_off` in `PlayerOptionsSheet`.
+    @AppStorage("qaForceOfferEligible") var qaForceOfferEligible: Bool = false
+
     /// Post-game soft paywall targets only users who saw and declined the onboarding paywall,
     /// haven't purchased, have never been shown this specific paywall before, and haven't ALSO
     /// seen the category paywall in this same sitting - avoids stacking a third pitch on someone
     /// who just declined the category paywall (which converts better than onboarding in practice).
     var isEligibleForPostGamePaywall: Bool {
-        hasDeclinedOnboardingPaywall && !isPremium && !hasShownPostGamePaywall && !hasSeenCategoryPaywallThisSession
+        if qaForceOfferEligible { return true }
+        return hasDeclinedOnboardingPaywall && !isPremium && !hasShownPostGamePaywall && !hasSeenCategoryPaywallThisSession
+    }
+
+    /// Human-readable dump of every flag `isEligibleForPostGamePaywall` depends on - surfaced via
+    /// the `admin_debug_status` QA command so a tester can see WHY the offer isn't showing instead
+    /// of guessing blind.
+    var qaDiagnosticSummary: String {
+        """
+        isPremium (effective) = \(isPremium)
+        premium override = \(qaPremiumOverrideRaw.isEmpty ? "none" : qaPremiumOverrideRaw)
+        raw entitlement = \(storedIsPremium)
+        hasDeclinedOnboardingPaywall = \(hasDeclinedOnboardingPaywall)
+        hasShownPostGamePaywall = \(hasShownPostGamePaywall)
+        hasSeenCategoryPaywallThisSession = \(hasSeenCategoryPaywallThisSession)
+        qaForceOfferEligible = \(qaForceOfferEligible)
+        isEligibleForPostGamePaywall = \(isEligibleForPostGamePaywall)
+        """
     }
 
     @discardableResult
     func markPostGamePaywallShown() -> Bool {
         guard isEligibleForPostGamePaywall else { return false }
+        // Don't consume the real one-time flag while QA is forcing eligibility - keeps the offer
+        // repeatable across every "Play Again" during a test session.
+        guard !qaForceOfferEligible else { return true }
         hasShownPostGamePaywall = true
         return true
     }
 
     init() {
-        self.isPremium = Self.keychainReadStatic(key: "com.imposter.isPremium")
+        self.storedIsPremium = Self.keychainReadStatic(key: "com.imposter.isPremium")
         // lastEntitlementState intentionally left nil - guessing a specific plan here (it used to
         // hardcode .activeYearly) meant weekly subscribers got a spurious "yearly -> weekly"
         // entitlement_state_changed logged on every single cold launch. Leaving it unresolved lets

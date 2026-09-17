@@ -19,6 +19,11 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         Messaging.messaging().delegate = self
         PushNotificationService.migratePromptVersionIfNeeded()
 
+        // Every install subscribes to this topic, so you can send a test push from
+        // Firebase Console → Messaging → New campaign → target "Topic" → "all_devices",
+        // with no device token needed at all.
+        Messaging.messaging().subscribe(toTopic: "all_devices")
+
         Task {
             await PushNotificationService.registerForRemoteNotificationsIfAuthorized()
         }
@@ -52,6 +57,9 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         #if DEBUG
         print("[FCM] registration token: \(fcmToken)")
         #endif
+        // Copies the token to the clipboard on-device so it can be pasted into Notes/Messages
+        // and grabbed for Firebase Console's "send to device" test flow without a Mac connection.
+        UIPasteboard.general.string = fcmToken
     }
 
     func userNotificationCenter(

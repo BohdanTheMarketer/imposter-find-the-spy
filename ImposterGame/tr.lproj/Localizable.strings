@@ -158,6 +158,7 @@
 "custom_pack.error_unauthorized"              = "Yapay zeka oluşturma doğru yapılandırılmadı. Lütfen daha sonra tekrar deneyin.";
 "custom_pack.error_rate_limited"              = "Şu anda çok fazla istek var. Lütfen biraz sonra tekrar deneyin.";
 "custom_pack.error_generation_failed"         = "Bu açıklamadan paket oluşturulamadı. Farklı bir ifade deneyin.";
+"custom_pack.policy_notice"                   = "Oluşturulan içerik App Store kurallarına uygun olmalıdır — uygunsuz istekler filtrelenecektir.";
 
 /* Loader */
 "loader.tagline"                              = "BUL  •  SUÇLA  •  HAYATTA KAL";
