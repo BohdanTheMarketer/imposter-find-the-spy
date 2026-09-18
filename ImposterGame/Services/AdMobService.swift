@@ -17,9 +17,16 @@ final class AdMobService: NSObject {
     /// ... testDeviceIdentifiers = [ \"XXXXXXXX\" ]") before testing with this real ad unit on it.
     private let testDeviceIdentifiers: [String] = []
 
+    /// Per-app-launch cap - resets on relaunch, not persisted, matching "session" as used
+    /// elsewhere (e.g. `AnalyticsService`'s session-scoped properties).
+    private let maxInterstitialsPerSession = 10
+    private let minIntervalBetweenInterstitials: TimeInterval = 120
+
     private var interstitial: InterstitialAd?
     private var isLoadingInterstitial = false
     private var dismissContinuation: CheckedContinuation<Void, Never>?
+    private var sessionInterstitialCount = 0
+    private var lastInterstitialShownDate: Date?
 
     /// Surfaced via the `admin_debug_status` QA command - `InterstitialAd.load` failures (no
     /// fill, network, app-ads.txt/verification-related serving limits, etc.) otherwise only ever
@@ -32,6 +39,8 @@ final class AdMobService: NSObject {
         interstitial ready = \(interstitial != nil)
         last load attempt = \(lastLoadAttemptDate.map { "\($0)" } ?? "never")
         last load error = \(lastLoadErrorDescription ?? "none")
+        session interstitials shown = \(sessionInterstitialCount)/\(maxInterstitialsPerSession)
+        last interstitial shown = \(lastInterstitialShownDate.map { "\($0)" } ?? "never")
         """
     }
 
@@ -46,19 +55,30 @@ final class AdMobService: NSObject {
     }
 
     /// Presents the preloaded interstitial and suspends until it's dismissed (or failed to
-    /// present), so callers can sequence what happens next. If nothing is ready yet, returns
-    /// immediately - after kicking off a background load for next time - rather than blocking the
-    /// caller on a network fetch.
-    func showInterstitial() async {
+    /// present), so callers can sequence what happens next. Returns `false` without presenting -
+    /// never blocking the caller on a network fetch or an ad that isn't allowed to show - when:
+    /// the per-session cap has been reached, we're still inside the minimum spacing window since
+    /// the last ad, or nothing is ready yet (a background load is kicked off for next time in
+    /// that last case).
+    @discardableResult
+    func showInterstitial() async -> Bool {
+        guard sessionInterstitialCount < maxInterstitialsPerSession else { return false }
+        if let lastShown = lastInterstitialShownDate,
+           Date().timeIntervalSince(lastShown) < minIntervalBetweenInterstitials {
+            return false
+        }
         guard let interstitial, let presenter = Self.topViewController() else {
             Task { await loadInterstitial() }
-            return
+            return false
         }
         self.interstitial = nil
+        sessionInterstitialCount += 1
+        lastInterstitialShownDate = Date()
         await withCheckedContinuation { continuation in
             dismissContinuation = continuation
             interstitial.present(from: presenter)
         }
+        return true
     }
 
     private func loadInterstitial() async {

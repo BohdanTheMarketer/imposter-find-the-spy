@@ -10,20 +10,23 @@ enum RateUsService {
     /// Minimum spacing between prompt attempts (~4 months, aligned with Apple's ~3×/year cap).
     private static let minimumMonthsBetweenPrompts = 4
 
-    /// Call when a round finishes. Shows the review prompt once, after the first completed game.
-    static func requestReviewAfterFirstGameIfNeeded() {
+    /// Call once per completed round. Records the round towards eligibility and returns whether
+    /// the review prompt should be requested this round (after the 1st completed game only).
+    /// Split from the actual presentation so callers can know this in advance - e.g. to skip a
+    /// competing interstitial ad this round - before deciding to call `presentReview()`.
+    static func recordCompletedGameAndCheckEligibility() -> Bool {
         let completedGames = recordCompletedGame()
-        guard completedGames == 1 else { return }
-        requestReviewIfNeeded(context: "first_game_completed")
+        guard completedGames == 1 else { return false }
+        migrateLegacyFlagIfNeeded()
+        return isEligibleForPrompt
     }
 
-    private static func requestReviewIfNeeded(context: String) {
-        migrateLegacyFlagIfNeeded()
-        guard isEligibleForPrompt else { return }
-
+    /// Actually presents the native App Store review prompt. Call only after
+    /// `recordCompletedGameAndCheckEligibility()` returned true for this round.
+    static func presentReview() {
         recordPromptAttempt()
         AnalyticsService.logEvent("rate_us_requested", parameters: [
-            "context": context
+            "context": "first_game_completed"
         ])
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.65) {

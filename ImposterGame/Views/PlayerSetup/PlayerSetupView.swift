@@ -615,7 +615,9 @@ struct PlayerOptionsSheet: View {
     /// Hidden QA entry point: typing `admin_premium_on`/`admin_premium_off` here forces the
     /// premium state without a real purchase, or forces it off on a device with a genuine active
     /// subscription so testers can preview the free-user paywall/ad flows - without fighting
-    /// Apple's sandbox subscription-management UI. Works in TestFlight/Release builds too.
+    /// Apple's sandbox subscription-management UI. Also handles `admin_offer_on`/`admin_offer_off`
+    /// and `admin_survey_on` for the post-game paywall and survey. Works in TestFlight/Release
+    /// builds too.
     private var adminCommandRow: some View {
         TextField("", text: $adminCommandText)
             .textInputAutocapitalization(.never)
@@ -665,6 +667,12 @@ struct PlayerOptionsSheet: View {
             subscriptionManager.qaForceOfferEligible = false
             HapticsManager.notification(.warning)
             showToast(message: "Post-game offer: forced mode OFF")
+        case "admin_survey_on":
+            // Makes the very next completed game trip the post-game survey, regardless of how
+            // many rounds this device has actually played or whether it was shown before.
+            SurveyService.forceEligibleForQA()
+            HapticsManager.notification(.success)
+            showToast(message: "Post-game survey: will show next game")
         case "admin_reset_review":
             // Resets our own "first game"/cooldown bookkeeping - iOS itself still caps the actual
             // system review dialog to ~3x/year per Apple ID, so it may still not visibly appear.
@@ -677,6 +685,8 @@ struct PlayerOptionsSheet: View {
                 + RateUsService.qaDiagnosticSummary
                 + "\n\n"
                 + AdMobService.shared.qaDiagnosticSummary
+                + "\n\n"
+                + SurveyService.qaDiagnosticSummary
             showDebugStatusAlert = true
         default:
             break

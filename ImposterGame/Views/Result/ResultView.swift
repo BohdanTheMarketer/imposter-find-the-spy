@@ -410,14 +410,32 @@ struct ResultView: View {
                 // interstitial below reopens it, so the button is explicitly held disabled for the
                 // duration instead.
                 isResolvingPostRoundOverlay = true
+                // Decide survey/paywall/rate-us eligibility up front, before the ad. Survey and
+                // rate-us both carry one-time side effects (their underlying "games played"
+                // counters), so each must be computed exactly once per round - not re-derived
+                // after the ad runs.
+                let surveyEligible = SurveyService.recordCompletedGameAndCheckEligibility()
+                let isPaywallEligible = subscriptionManager.isEligibleForPostGamePaywall
+                let rateUsEligible = !surveyEligible && !isPaywallEligible
+                    && RateUsService.recordCompletedGameAndCheckEligibility()
+                // Survey and the native rate-us prompt are engagement asks, not monetization -
+                // stacking either behind a full-screen ad would tank response rates, so both skip
+                // the ad entirely this round. The paywall is itself a monetization ask, so it
+                // keeps following the ad as before.
+                let skipAdForEngagementOverlay = surveyEligible || rateUsEligible
+
                 Task { @MainActor in
-                    if !subscriptionManager.isPremium {
+                    if !subscriptionManager.isPremium && !skipAdForEngagementOverlay {
                         await AdMobService.shared.showInterstitial()
                         // Small buffer so the ad's own dismissal transition fully finishes before
                         // potentially presenting a sheet on top of it.
                         try? await Task.sleep(nanoseconds: 300_000_000)
                     }
-                    resolvePostRoundOverlay()
+                    resolvePostRoundOverlay(
+                        surveyEligible: surveyEligible,
+                        isPaywallEligible: isPaywallEligible,
+                        rateUsEligible: rateUsEligible
+                    )
                     isResolvingPostRoundOverlay = false
                 }
             }
@@ -425,20 +443,21 @@ struct ResultView: View {
     }
 
     /// Survey beats paywall beats rate-us - never stack two overlays on the same round. Runs once
-    /// the ad (if any) has finished, but is otherwise the exact decision this sequence always made.
-    private func resolvePostRoundOverlay() {
-        if SurveyService.recordCompletedGameAndCheckEligibility() {
+    /// the ad (if any) has finished. Eligibility for all three was already decided, before the ad,
+    /// by the caller - this just acts on it, so it must not re-derive any of it here.
+    private func resolvePostRoundOverlay(surveyEligible: Bool, isPaywallEligible: Bool, rateUsEligible: Bool) {
+        if surveyEligible {
             // Highest priority for this round: skips both the paywall and the
             // rate-us prompt so the survey doesn't compete with another overlay.
             showPostGameSurvey = true
-        } else if subscriptionManager.isEligibleForPostGamePaywall {
+        } else if isPaywallEligible {
             // Skip the native rate-us prompt this time - it's a system-level overlay that
             // can render on top of our own .sheet if both fire close together, and the
             // paywall is the higher-priority ask for this cohort. RateUsService has its
             // own cooldown/eligibility, so it'll simply get another chance later.
             showPostGamePaywall = true
-        } else {
-            RateUsService.requestReviewAfterFirstGameIfNeeded()
+        } else if rateUsEligible {
+            RateUsService.presentReview()
         }
     }
 }
