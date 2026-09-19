@@ -213,6 +213,9 @@ struct CategoriesView: View {
                         )
                         .shadow(color: Color.appAccent.opacity(0.45), radius: 12, x: 0, y: 6)
                 }
+                    // Without this the default style fades the whole label - background included -
+                    // while held, and the category list scrolling underneath shows through it.
+                    .buttonStyle(.plain)
                     .opacity(selectedCategoryID == nil ? 0.85 : 1.0)
                 }
             }

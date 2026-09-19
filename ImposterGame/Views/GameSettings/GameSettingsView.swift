@@ -73,6 +73,9 @@ struct GameSettingsView: View {
                 )
                 .shadow(color: Color.appAccent.opacity(0.45), radius: 12, x: 0, y: 6)
             }
+            // Without this the default style fades the whole label - background included - while
+            // held, and the settings content scrolling underneath shows through it.
+            .buttonStyle(.plain)
             .padding(.horizontal, 20)
             .padding(.bottom, 10)
         }

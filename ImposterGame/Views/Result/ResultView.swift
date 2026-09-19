@@ -12,6 +12,13 @@ struct ResultView: View {
     @State private var outcomeCardAppeared = false
     @State private var showPostGamePaywall = false
     @State private var showPostGameSurvey = false
+    /// Set when this round's rate-us prompt claimed the result screen, so the offer has to wait
+    /// rather than stack on top of it. It's spent on the next "Play Again" tap - never on a flag
+    /// some other screen watches, which would fire the moment it flipped, while this screen (and
+    /// the review prompt) is still in front of the player.
+    @State private var isPaywallDeferredToPlayAgain = false
+    /// True while "Play Again" is waiting on that deferred offer: closing it resumes the tap.
+    @State private var isPlayAgainWaitingOnPaywall = false
     /// Guards against a spurious repeat `.onAppear` (observed after presenting the AdMob
     /// interstitial) re-running the reset + intrigue sequence mid-flow, which briefly flashed the
     /// purple "moment of truth" screen again right before the post-game overlay appeared. Only a
@@ -88,7 +95,11 @@ struct ResultView: View {
         }
         .navigationBarHidden(true)
         .navigationBarBackButtonHidden(true)
-        .sheet(isPresented: $showPostGamePaywall) {
+        .fullScreenCover(isPresented: $showPostGamePaywall, onDismiss: {
+            guard isPlayAgainWaitingOnPaywall else { return }
+            isPlayAgainWaitingOnPaywall = false
+            startNewRound()
+        }) {
             PostGamePaywallView()
         }
         .sheet(isPresented: $showPostGameSurvey) {
@@ -247,8 +258,15 @@ struct ResultView: View {
                             guard !isResolvingPostRoundOverlay else { return }
                             HapticsManager.impact(.medium)
                             AnalyticsService.logResultPlayAgainTapped()
-                            gameSession.resetForNewRound()
-                            router.navigateToCategories()
+                            // The offer this round deferred goes in front of the tap, not instead
+                            // of it - dismissing it resumes the new round from `onDismiss` above.
+                            if isPaywallDeferredToPlayAgain {
+                                isPaywallDeferredToPlayAgain = false
+                                isPlayAgainWaitingOnPaywall = true
+                                showPostGamePaywall = true
+                                return
+                            }
+                            startNewRound()
                         }) {
                             HStack(spacing: 10) {
                                 Text("result.play_again")
@@ -415,13 +433,15 @@ struct ResultView: View {
                 // counters), so each must be computed exactly once per round - not re-derived
                 // after the ad runs.
                 let surveyEligible = SurveyService.recordCompletedGameAndCheckEligibility()
-                let isPaywallEligible = subscriptionManager.isEligibleForPostGamePaywall
-                let rateUsEligible = !surveyEligible && !isPaywallEligible
-                    && RateUsService.recordCompletedGameAndCheckEligibility()
+                // Recorded on its own line, never folded into the `&&` chain below: `&&`
+                // short-circuits, so a round claimed by the survey would skip this call entirely
+                // and its "games played" counter would stop tracking actual rounds.
+                let rateUsRoundEligible = RateUsService.recordCompletedGameAndCheckEligibility()
+                let rateUsEligible = !surveyEligible && rateUsRoundEligible
+                let paywallEligible = subscriptionManager.isEligibleForPostGamePaywall
                 // Survey and the native rate-us prompt are engagement asks, not monetization -
                 // stacking either behind a full-screen ad would tank response rates, so both skip
-                // the ad entirely this round. The paywall is itself a monetization ask, so it
-                // keeps following the ad as before.
+                // the ad entirely this round.
                 let skipAdForEngagementOverlay = surveyEligible || rateUsEligible
 
                 Task { @MainActor in
@@ -433,7 +453,7 @@ struct ResultView: View {
                     }
                     resolvePostRoundOverlay(
                         surveyEligible: surveyEligible,
-                        isPaywallEligible: isPaywallEligible,
+                        paywallEligible: paywallEligible,
                         rateUsEligible: rateUsEligible
                     )
                     isResolvingPostRoundOverlay = false
@@ -442,23 +462,28 @@ struct ResultView: View {
         }
     }
 
-    /// Survey beats paywall beats rate-us - never stack two overlays on the same round. Runs once
-    /// the ad (if any) has finished. Eligibility for all three was already decided, before the ad,
-    /// by the caller - this just acts on it, so it must not re-derive any of it here.
-    private func resolvePostRoundOverlay(surveyEligible: Bool, isPaywallEligible: Bool, rateUsEligible: Bool) {
+    /// Runs once the ad (if any) has finished. Eligibility for all three was already decided,
+    /// before the ad, by the caller - this just acts on it, so it must not re-derive any of it here.
+    ///
+    /// The survey and the rate-us prompt each take the result screen for their round - they're the
+    /// rarer asks and the ones most easily poisoned by a competing overlay. Neither cancels the
+    /// offer though, only defers it: it resurfaces in front of that round's "Play Again" tap.
+    /// Every other round shows the paywall right here, once the ad is done.
+    private func resolvePostRoundOverlay(surveyEligible: Bool, paywallEligible: Bool, rateUsEligible: Bool) {
         if surveyEligible {
-            // Highest priority for this round: skips both the paywall and the
-            // rate-us prompt so the survey doesn't compete with another overlay.
             showPostGameSurvey = true
-        } else if isPaywallEligible {
-            // Skip the native rate-us prompt this time - it's a system-level overlay that
-            // can render on top of our own .sheet if both fire close together, and the
-            // paywall is the higher-priority ask for this cohort. RateUsService has its
-            // own cooldown/eligibility, so it'll simply get another chance later.
-            showPostGamePaywall = true
+            isPaywallDeferredToPlayAgain = paywallEligible
         } else if rateUsEligible {
             RateUsService.presentReview()
+            isPaywallDeferredToPlayAgain = paywallEligible
+        } else if paywallEligible {
+            showPostGamePaywall = true
         }
+    }
+
+    private func startNewRound() {
+        gameSession.resetForNewRound()
+        router.navigateToCategories()
     }
 }
 

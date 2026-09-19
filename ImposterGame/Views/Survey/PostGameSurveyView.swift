@@ -2,7 +2,8 @@ import SwiftUI
 
 /// One-time pulse survey shown after the user's 2nd completed game, gauging session quality
 /// and collecting optional free-text feedback and an email for follow-up. Presented as a
-/// `.sheet`, takes priority over the post-game paywall and rate-us prompt for that round.
+/// `.sheet` sized to its own content, closed only by its X. It takes the result screen for its
+/// round, which pushes that round's post-game offer to the following "Play Again" tap.
 struct PostGameSurveyView: View {
     @Environment(\.dismiss) private var dismiss
 
@@ -10,6 +11,10 @@ struct PostGameSurveyView: View {
     @State private var selectedChoice: SurveyService.Choice?
     @State private var openText = ""
     @State private var email = ""
+    /// Drives the sheet's detent so it fits whatever the current step needs - the choice step is
+    /// three buttons tall, the details step several times that, and a fixed detent would strand
+    /// one of them under a screen of dead space.
+    @State private var contentHeight: CGFloat = 0
     private let documentID = UUID().uuidString
 
     private enum Step {
@@ -28,7 +33,7 @@ struct PostGameSurveyView: View {
     }
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .topTrailing) {
             LinearGradient.appPurpleGradient
                 .ignoresSafeArea()
                 .overlay(
@@ -37,17 +42,40 @@ struct PostGameSurveyView: View {
                 )
 
             surveyScrollView
+
+            closeButton
         }
-        .presentationDetents([.large])
-        .presentationDragIndicator(.visible)
+        // Falls back to `.medium` for the single frame before the content reports its height -
+        // a `.height(0)` detent would collapse the sheet to nothing on first presentation.
+        .presentationDetents(contentHeight > 0 ? [.height(contentHeight)] : [.medium])
+        .presentationDragIndicator(.hidden)
+        // The X is the only way out: one detent means nothing to drag between, and swipe-to-dismiss
+        // is off, so the survey can't be flicked away by accident mid-answer.
+        .interactiveDismissDisabled()
         .onAppear {
             SurveyService.markShown()
         }
     }
 
+    private var closeButton: some View {
+        Button(action: handleSkip) {
+            Image(systemName: "xmark")
+                .font(.system(size: 14, weight: .bold))
+                .foregroundColor(.white.opacity(0.9))
+                .frame(width: 32, height: 32)
+                .background(Color.white.opacity(0.15))
+                .clipShape(Circle())
+        }
+        .padding(.top, 14)
+        .padding(.trailing, 16)
+    }
+
     /// Disables rubber-band bounce when content is shorter than the sheet: without it, the
     /// ScrollView's overscroll and the sheet's own drag-to-resize gesture fight over every tap
     /// near the top of the content, producing a visible jitter on each interaction.
+    ///
+    /// Still a ScrollView rather than a plain VStack because the detent is capped: a long
+    /// localization, or the keyboard on the details step, can outgrow the room the sheet gets.
     private var surveyScrollView: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 22) {
@@ -59,10 +87,25 @@ struct PostGameSurveyView: View {
                 }
             }
             .padding(.horizontal, 20)
-            .padding(.top, 24)
+            // Clears the close button, which floats over this content in the top-trailing corner.
+            .padding(.top, 52)
             .padding(.bottom, 24)
+            .background(
+                GeometryReader { proxy in
+                    Color.clear.preference(
+                        key: SurveyContentHeightKey.self,
+                        value: proxy.size.height
+                    )
+                }
+            )
         }
         .survey_scrollBounceIfAvailable()
+        .onPreferenceChange(SurveyContentHeightKey.self) { height in
+            guard height > 0 else { return }
+            withAnimation(.spring(response: 0.42, dampingFraction: 0.92)) {
+                contentHeight = min(height, UIScreen.main.bounds.height * 0.9)
+            }
+        }
     }
 
     private var choiceStep: some View {
@@ -173,6 +216,14 @@ struct PostGameSurveyView: View {
 
     private func handleSkip() {
         dismiss()
+    }
+}
+
+private struct SurveyContentHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
     }
 }
 

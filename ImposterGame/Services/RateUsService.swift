@@ -11,12 +11,18 @@ enum RateUsService {
     private static let minimumMonthsBetweenPrompts = 4
 
     /// Call once per completed round. Records the round towards eligibility and returns whether
-    /// the review prompt should be requested this round (after the 1st completed game only).
-    /// Split from the actual presentation so callers can know this in advance - e.g. to skip a
-    /// competing interstitial ad this round - before deciding to call `presentReview()`.
+    /// the review prompt should be requested this round (from the 1st completed game on, subject
+    /// to the cooldown below). Split from the actual presentation so callers can know this in
+    /// advance - e.g. to skip a competing interstitial ad this round - before deciding to call
+    /// `presentReview()`.
+    ///
+    /// The game count is a `>=` floor, not an exact match: a round that clears it but loses to the
+    /// cooldown - which is every legacy user's first round here, since `migrateLegacyFlagIfNeeded`
+    /// stamps their baseline date on it - has to stay eligible for later rounds, or the 4-month
+    /// cycle that baseline exists to start could never fire.
     static func recordCompletedGameAndCheckEligibility() -> Bool {
         let completedGames = recordCompletedGame()
-        guard completedGames == 1 else { return false }
+        guard completedGames >= 1 else { return false }
         migrateLegacyFlagIfNeeded()
         return isEligibleForPrompt
     }

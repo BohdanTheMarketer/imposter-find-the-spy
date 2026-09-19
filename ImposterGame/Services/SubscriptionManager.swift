@@ -81,23 +81,16 @@ class SubscriptionManager: ObservableObject {
     @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding: Bool = false
     @AppStorage("hasSeenPaywall") var hasSeenPaywall: Bool = false
     @AppStorage("hasDeclinedOnboardingPaywall") var hasDeclinedOnboardingPaywall: Bool = false
-    @AppStorage("hasShownPostGamePaywall") var hasShownPostGamePaywall: Bool = false
 
-    /// QA-only override: while `true`, `isEligibleForPostGamePaywall` reports `true` unconditionally
-    /// and `markPostGamePaywallShown()` doesn't consume the real "shown once" flag - so a tester
-    /// sees the offer on every single "Play Again" without it getting silently re-blocked by
-    /// incidental gameplay (e.g. tapping into a locked category resets `hasSeenCategoryPaywallThisSession`
-    /// right back to `true` after a one-time `admin_reset_offer`). Set via `admin_offer_on`/
-    /// `admin_offer_off` in `PlayerOptionsSheet`.
+    /// QA-only override: while `true`, `isEligibleForPostGamePaywall` reports `true` even for a
+    /// tester running with a forced-premium override, which is otherwise the one state that
+    /// suppresses the offer. Set via `admin_offer_on`/`admin_offer_off` in `PlayerOptionsSheet`.
     @AppStorage("qaForceOfferEligible") var qaForceOfferEligible: Bool = false
 
-    /// Post-game soft paywall targets only users who saw and declined the onboarding paywall,
-    /// haven't purchased, have never been shown this specific paywall before, and haven't ALSO
-    /// seen the category paywall in this same sitting - avoids stacking a third pitch on someone
-    /// who just declined the category paywall (which converts better than onboarding in practice).
+    /// The post-game offer follows every completed round for anyone who hasn't bought - how it's
+    /// sequenced against the interstitial, the survey and the rate-us prompt is `ResultView`'s call.
     var isEligibleForPostGamePaywall: Bool {
-        if qaForceOfferEligible { return true }
-        return hasDeclinedOnboardingPaywall && !isPremium && !hasShownPostGamePaywall && !hasSeenCategoryPaywallThisSession
+        qaForceOfferEligible || !isPremium
     }
 
     /// Human-readable dump of every flag `isEligibleForPostGamePaywall` depends on - surfaced via
@@ -109,21 +102,10 @@ class SubscriptionManager: ObservableObject {
         premium override = \(qaPremiumOverrideRaw.isEmpty ? "none" : qaPremiumOverrideRaw)
         raw entitlement = \(storedIsPremium)
         hasDeclinedOnboardingPaywall = \(hasDeclinedOnboardingPaywall)
-        hasShownPostGamePaywall = \(hasShownPostGamePaywall)
         hasSeenCategoryPaywallThisSession = \(hasSeenCategoryPaywallThisSession)
         qaForceOfferEligible = \(qaForceOfferEligible)
         isEligibleForPostGamePaywall = \(isEligibleForPostGamePaywall)
         """
-    }
-
-    @discardableResult
-    func markPostGamePaywallShown() -> Bool {
-        guard isEligibleForPostGamePaywall else { return false }
-        // Don't consume the real one-time flag while QA is forcing eligibility - keeps the offer
-        // repeatable across every "Play Again" during a test session.
-        guard !qaForceOfferEligible else { return true }
-        hasShownPostGamePaywall = true
-        return true
     }
 
     init() {

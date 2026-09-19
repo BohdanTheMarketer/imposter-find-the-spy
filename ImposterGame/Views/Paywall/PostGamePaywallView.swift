@@ -2,9 +2,13 @@ import Adapty
 import AdaptyUI
 import SwiftUI
 
-/// Soft, dismissible paywall shown once, right after a user's first completed game -
-/// only to users who saw and declined the onboarding paywall and haven't purchased.
-/// Presented as a `.sheet`, not a router push, so it never blocks the game flow.
+/// Soft, dismissible paywall shown to non-premium players after every completed game - on the
+/// result screen itself, or, when that round's rate-us prompt got there first, in front of the
+/// next "Play Again" tap (see `ResultView.resolvePostRoundOverlay`).
+/// Presented as a `.fullScreenCover`, not a router push, so it reads as a full-page offer
+/// (like the onboarding paywall) while still returning to the result screen on dismissal.
+/// Note there's no swipe-to-dismiss at this presentation size - the flow's own close control
+/// is the way out, which is why `handleAction` below treats dismissal so defensively.
 ///
 /// Thin wrapper around the Adapty Flow for the `post_game` placement - see
 /// `OnboardingPaywallView` for the general shape.
@@ -20,9 +24,6 @@ struct PostGamePaywallView: View {
 
     var body: some View {
         ZStack {
-            LinearGradient.appPurpleGradient
-                .ignoresSafeArea()
-
             if let flowConfiguration {
                 AdaptyFlowView(
                     flowConfiguration: flowConfiguration,
@@ -46,11 +47,8 @@ struct PostGamePaywallView: View {
                 Color.clear.onAppear { finish(reason: .skip) }
             } else {
                 ProgressView()
-                    .tint(.white)
             }
         }
-        .presentationDetents([.fraction(0.45), .large])
-        .presentationDragIndicator(.visible)
         .onAppear {
             Task { await loadFlow() }
         }
@@ -66,17 +64,14 @@ struct PostGamePaywallView: View {
         }
     }
 
-    /// The "shown" bookkeeping lives here, not in `onAppear`: this paywall is once-per-lifetime,
-    /// and marking it shown before the flow actually loads would burn it permanently for a user
-    /// who was offline and never saw anything. Same reason `paywall_viewed` is logged here - it
-    /// would otherwise count spinners that got dismissed, deflating every conversion rate.
+    /// `paywall_viewed` is logged here rather than in `onAppear` because that would count spinners
+    /// that got dismissed before the flow ever rendered, deflating every conversion rate.
     private func loadFlow() async {
         do {
             let flow = try await Adapty.getFlow(placementId: AppConstants.AdaptyPlacement.postGame)
             try? await Adapty.logShowFlow(flow)
             flowConfiguration = try await AdaptyUI.getFlowConfiguration(forFlow: flow)
 
-            subscriptionManager.markPostGamePaywallShown()
             if !didLogPaywallViewed {
                 didLogPaywallViewed = true
                 AnalyticsService.logPaywallViewed(context: .postGame)
