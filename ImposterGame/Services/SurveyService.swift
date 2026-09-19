@@ -96,6 +96,25 @@ enum SurveyService {
         ])
     }
 
+    /// Non-DEBUG-gated QA override wired to the `admin_survey_on` command in `PlayerOptionsSheet`
+    /// (PlayerSetupView.swift) - mirrors `simulateEligibleForQA()` below but must also work in
+    /// TestFlight/Release builds, where `#if DEBUG` helpers are compiled out.
+    static func forceEligibleForQA() {
+        let defaults = UserDefaults.standard
+        defaults.set(1, forKey: gamesPlayedCountKey)
+        defaults.set(false, forKey: hasShownSurveyKey)
+    }
+
+    /// Human-readable dump of the flags `recordCompletedGameAndCheckEligibility` depends on,
+    /// surfaced via the `admin_debug_status` QA command alongside the other services' summaries.
+    static var qaDiagnosticSummary: String {
+        let defaults = UserDefaults.standard
+        return """
+        surveyGamesPlayedCount = \(defaults.integer(forKey: gamesPlayedCountKey))
+        hasShownPostGameSurvey = \(defaults.bool(forKey: hasShownSurveyKey))
+        """
+    }
+
     #if DEBUG
     static func resetSurveyForQA() {
         let defaults = UserDefaults.standard
