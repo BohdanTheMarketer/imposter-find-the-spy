@@ -647,12 +647,8 @@ struct PlayerOptionsSheet: View {
             HapticsManager.notification(.warning)
             showToast(message: "Premium: OFF")
         case "admin_reset_offer":
-            // Forces EVERY condition `isEligibleForPostGamePaywall` checks, not just the "shown
-            // once" flag - guarantees the offer will actually appear on the next completed game
-            // regardless of onboarding/category-paywall/premium state on this device.
-            subscriptionManager.hasShownPostGamePaywall = false
-            subscriptionManager.hasDeclinedOnboardingPaywall = true
-            subscriptionManager.hasSeenCategoryPaywallThisSession = false
+            // Clears the one thing that suppresses the offer - a premium override - so the next
+            // completed game shows it on this device.
             subscriptionManager.setQAPremiumOverride(false)
             HapticsManager.notification(.success)
             showToast(message: "Post-game offer: reset")

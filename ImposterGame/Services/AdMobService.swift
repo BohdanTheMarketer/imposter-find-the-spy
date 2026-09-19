@@ -22,6 +22,10 @@ final class AdMobService: NSObject {
     private let maxInterstitialsPerSession = 10
     private let minIntervalBetweenInterstitials: TimeInterval = 120
 
+    /// Completed rounds a new player gets ad-free before the first interstitial is allowed -
+    /// a full-screen ad during someone's first games costs more in early retention than it earns.
+    private let adFreeCompletedGames = 2
+
     private var interstitial: InterstitialAd?
     private var isLoadingInterstitial = false
     private var dismissContinuation: CheckedContinuation<Void, Never>?
@@ -39,6 +43,7 @@ final class AdMobService: NSObject {
         interstitial ready = \(interstitial != nil)
         last load attempt = \(lastLoadAttemptDate.map { "\($0)" } ?? "never")
         last load error = \(lastLoadErrorDescription ?? "none")
+        completed games = \(AnalyticsService.totalGamesPlayed) (ads start above \(adFreeCompletedGames))
         session interstitials shown = \(sessionInterstitialCount)/\(maxInterstitialsPerSession)
         last interstitial shown = \(lastInterstitialShownDate.map { "\($0)" } ?? "never")
         """
@@ -50,27 +55,37 @@ final class AdMobService: NSObject {
         if !testDeviceIdentifiers.isEmpty {
             MobileAds.shared.requestConfiguration.testDeviceIdentifiers = testDeviceIdentifiers
         }
-        MobileAds.shared.start(completionHandler: nil)
-        Task { await loadInterstitial() }
+        // The first load has to wait for the SDK to report itself initialized. Firing it
+        // alongside `start` instead raced that initialization and came back empty, and since the
+        // opening ad-free rounds never call `showInterstitial`, nothing retried until the first
+        // eligible round - which then had no ad to present and only kicked off a load for the next.
+        MobileAds.shared.start { _ in
+            Task { @MainActor in await self.loadInterstitial() }
+        }
     }
 
     /// Presents the preloaded interstitial and suspends until it's dismissed (or failed to
     /// present), so callers can sequence what happens next. Returns `false` without presenting -
     /// never blocking the caller on a network fetch or an ad that isn't allowed to show - when:
-    /// the per-session cap has been reached, we're still inside the minimum spacing window since
-    /// the last ad, or nothing is ready yet (a background load is kicked off for next time in
-    /// that last case).
+    /// the player is still inside their ad-free opening games, the per-session cap has been
+    /// reached, we're still inside the minimum spacing window since the last ad, or nothing is
+    /// ready yet. Every one of those cases still tops the slot back up for the next round.
     @discardableResult
     func showInterstitial() async -> Bool {
+        // Refill first, whichever gate below turns this particular call away - so a round that
+        // isn't allowed to present still leaves the next one with something ready.
+        if interstitial == nil {
+            Task { await loadInterstitial() }
+        }
+        // `totalGamesPlayed` already counts the round that just ended - ResultView bumps it when
+        // the result screen appears, before it gets here.
+        guard AnalyticsService.totalGamesPlayed > adFreeCompletedGames else { return false }
         guard sessionInterstitialCount < maxInterstitialsPerSession else { return false }
         if let lastShown = lastInterstitialShownDate,
            Date().timeIntervalSince(lastShown) < minIntervalBetweenInterstitials {
             return false
         }
-        guard let interstitial, let presenter = Self.topViewController() else {
-            Task { await loadInterstitial() }
-            return false
-        }
+        guard let interstitial, let presenter = Self.topViewController() else { return false }
         self.interstitial = nil
         sessionInterstitialCount += 1
         lastInterstitialShownDate = Date()
