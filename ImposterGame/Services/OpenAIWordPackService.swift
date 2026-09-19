@@ -128,14 +128,18 @@ enum OpenAIWordPackService {
             hints = Array(hints.prefix(cleanedWords.count))
         }
 
-        let name = payload.name.trimmingCharacters(in: .whitespacesAndNewlines)
-        let description = payload.description.trimmingCharacters(in: .whitespacesAndNewlines)
+        let rawName = payload.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let rawDescription = payload.description.trimmingCharacters(in: .whitespacesAndNewlines)
         let icon = payload.icon.trimmingCharacters(in: .whitespacesAndNewlines)
 
+        // Enforce the length caps in code too, since the model doesn't always honor the prompt exactly.
+        let name = truncate(rawName, to: maxNameLength)
+        let description = truncate(rawDescription, to: maxDescriptionLength)
+
         return Category(
-            name: name.isEmpty ? trimmedPrompt : name,
+            name: name.isEmpty ? truncate(trimmedPrompt, to: maxNameLength) : name,
             icon: icon.isEmpty ? "sparkles" : icon,
-            description: description.isEmpty ? trimmedPrompt : description,
+            description: description.isEmpty ? truncate(trimmedPrompt, to: maxDescriptionLength) : description,
             words: cleanedWords,
             imposterHints: hints,
             isPremium: false,
@@ -148,16 +152,38 @@ enum OpenAIWordPackService {
     Given a short user prompt describing a theme, generate a themed word pack.
 
     Respond with ONLY a strict JSON object (no markdown, no commentary) with exactly these keys:
-    - "name": a short, catchy Title Case category name (max 24 characters).
+    - "name": a SHORT, catchy Title Case category name. HARD LIMIT: 18 characters including spaces — \
+    shorter is better, it must fit on one line of a small card. Prefer 1-2 words (e.g. "Movie Night", "Superpowers").
     - "icon": a single valid SF Symbols name (e.g. "gamecontroller.fill", "globe", "leaf.fill") that best matches the theme.
-    - "description": one short, upbeat sentence (max 90 characters) describing the pack, in the same playful tone as: \
-    "Easygoing fun with laughs and a bit of chaos" or "Tasty topics, but say the wrong thing and you're toast!".
+    - "description": one SHORT, upbeat sentence. HARD LIMIT: 48 characters including spaces — it must fit on a \
+    single line of a small card without wrapping or being cut off. Same playful tone as: \
+    "Laughs and a bit of chaos" or "Say the wrong thing, you're toast!".
     - "words": a JSON array of 30 to 50 short secret words or phrases (1-3 words each) that fit the theme. \
-    No duplicates. Keep language appropriate unless the prompt explicitly asks for mature/adult content.
+    No duplicates.
     - "imposterHints": a JSON array with EXACTLY the same length and order as "words". Each entry is a short \
     1-3 word clue related to that specific word, useful enough to let the imposter bluff but without giving \
     the exact word away.
+
+    Content policy (always enforced, regardless of what the user's prompt asks for): this app is rated for a \
+    general audience and distributed on the Apple App Store, so the "name", "description", "words", and \
+    "imposterHints" must NEVER include sexual or suggestive content, nudity, hate speech, harassment, \
+    self-harm, graphic violence, illegal drugs, or other content that would violate Apple App Store Review \
+    Guideline 1.1 (Objectionable Content). If the user's prompt requests or implies any such theme, IGNORE \
+    that part of the request and instead generate a safe, family-friendly pack loosely inspired by the \
+    non-objectionable parts of the prompt (or a generic fun theme if none remain). Never refuse outright — \
+    always return a valid, appropriate pack in the required JSON format.
     """
+
+    /// Hard caps enforced in code as a safety net — the model is asked to stay within these limits, but
+    /// LLM output length isn't guaranteed, so custom pack cards would otherwise sometimes overflow their layout.
+    private static let maxNameLength = 18
+    private static let maxDescriptionLength = 48
+
+    private static func truncate(_ text: String, to maxLength: Int) -> String {
+        guard text.count > maxLength else { return text }
+        let cut = text.prefix(maxLength - 1).trimmingCharacters(in: .whitespaces)
+        return "\(cut)…"
+    }
 
     // MARK: - Request/response models
 

@@ -158,6 +158,7 @@
 "custom_pack.error_unauthorized"              = "La generación con IA no está configurada correctamente. Inténtalo más tarde.";
 "custom_pack.error_rate_limited"              = "Demasiadas solicitudes por ahora. Inténtalo de nuevo en un momento.";
 "custom_pack.error_generation_failed"         = "No se pudo generar un paquete con esa descripción. Intenta reformularla.";
+"custom_pack.policy_notice"                   = "El contenido generado debe cumplir con las normas de la App Store; las solicitudes inapropiadas serán filtradas.";
 
 /* Loader */
 "loader.tagline"                              = "ENCUENTRA  •  ACUSA  •  SOBREVIVE";

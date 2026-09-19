@@ -168,6 +168,7 @@
 "custom_pack.error_unauthorized"              = "AI generation isn't configured correctly. Please try again later.";
 "custom_pack.error_rate_limited"              = "Too many requests right now. Please try again in a moment.";
 "custom_pack.error_generation_failed"         = "Couldn't generate a pack from that prompt. Try rephrasing it.";
+"custom_pack.policy_notice"                   = "Generated content must follow Apple's App Store guidelines — inappropriate prompts will be filtered.";
 
 /* Loader */
 "loader.tagline"                              = "FIND  •  ACCUSE  •  SURVIVE";
