@@ -64,4 +64,13 @@ enum AmplitudeManager {
         identify.set(property: key, value: value)
         shared.identify(identify: identify)
     }
+
+    /// Sets several user properties in a single Identify call, so they land together.
+    static func setUserProperties(_ properties: [String: Any]) {
+        let identify = Identify()
+        for (key, value) in properties {
+            identify.set(property: key, value: value)
+        }
+        shared.identify(identify: identify)
+    }
 }
