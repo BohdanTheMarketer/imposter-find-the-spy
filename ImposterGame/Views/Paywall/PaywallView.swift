@@ -68,7 +68,12 @@ struct OnboardingPaywallView: View {
     /// until the flow has actually rendered. On a failed load the user only ever saw a spinner.
     private func loadFlow() async {
         do {
-            let flow = try await Adapty.getFlow(placementId: AppConstants.AdaptyPlacement.onboarding)
+            // Decided before `markPaywallShown()` below flips the flag for the next paywall.
+            let placementId = AppConstants.AdaptyPlacement.premiumPaywall(
+                firstShowPlacement: AppConstants.AdaptyPlacement.onboarding,
+                hasSeenPaywall: subscriptionManager.hasSeenPaywall
+            )
+            let flow = try await Adapty.getFlow(placementId: placementId)
             try? await Adapty.logShowFlow(flow)
             flowConfiguration = try await AdaptyUI.getFlowConfiguration(forFlow: flow)
 
