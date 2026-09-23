@@ -15,6 +15,10 @@ packages:
   GoogleMobileAds:
     url: https://github.com/googleads/swift-package-manager-google-mobile-ads.git
     from: 12.0.0
+  OneSignal:
+    # Pinned to the OneSignal iOS "Stable" track (https://onesignal.github.io/sdk-releases/releases.json).
+    url: https://github.com/OneSignal/OneSignal-XCFramework
+    exactVersion: 5.5.1
 options:
   bundleIdPrefix: com.imposter
   deploymentTarget:
@@ -76,6 +80,12 @@ targets:
     platform: iOS
     entitlements:
       path: ImposterGame/ImposterGame.entitlements
+      # Declared here (not only in the .entitlements file) because `xcodegen generate`
+      # rewrites that file from these properties — a hand-edited aps-environment was wiped before.
+      properties:
+        aps-environment: $(APS_ENVIRONMENT)
+        com.apple.security.application-groups:
+          - group.com.danetka.Danetka.onesignal
     info:
       path: ImposterGame/Info.plist
       properties:
@@ -161,6 +171,12 @@ targets:
         product: AdaptyUI
       - package: GoogleMobileAds
         product: GoogleMobileAds
+      - package: OneSignal
+        product: OneSignalFramework
+      - package: OneSignal
+        product: OneSignalInAppMessages
+      # Embeds the .appex into the app (Embed Foundation Extensions).
+      - target: OneSignalNotificationServiceExtension
     preBuildScripts:
       - name: Generate Secrets
         basedOnDependencyAnalysis: false
@@ -247,3 +263,45 @@ targets:
         Release:
           APS_ENVIRONMENT: production
           DEBUG_INFORMATION_FORMAT: dwarf-with-dsym
+
+  # Notification Service Extension — required by OneSignal for Confirmed Delivery,
+  # images / action buttons and badge counts. Shares the App Group with the main app.
+  OneSignalNotificationServiceExtension:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: OneSignalNotificationServiceExtension
+        excludes:
+          - "Info.plist"
+          - "*.entitlements"
+    info:
+      path: OneSignalNotificationServiceExtension/Info.plist
+      properties:
+        CFBundleDisplayName: OneSignalNotificationServiceExtension
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.usernotifications.service
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).NotificationService
+    entitlements:
+      path: OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.danetka.Danetka.onesignal
+    dependencies:
+      - package: OneSignal
+        product: OneSignalExtension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.danetka.Danetka.OneSignalNotificationServiceExtension
+        DEVELOPMENT_TEAM: Q35PSLMDJH
+        TARGETED_DEVICE_FAMILY: "1,2"
+        # Use the explicit Info.plist above; the project-wide INFOPLIST_KEY_* values
+        # (fonts, launch screen, background modes) belong to the app, not the extension.
+        GENERATE_INFOPLIST_FILE: NO
+        SKIP_INSTALL: YES
+        LD_RUNPATH_SEARCH_PATHS:
+          - $(inherited)
+          - "@executable_path/Frameworks"
+          - "@executable_path/../../Frameworks"

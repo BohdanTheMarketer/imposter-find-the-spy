@@ -12,6 +12,9 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         // Initialize Amplitude Analytics + Session Replay once, on-device, at launch.
         AmplitudeManager.start()
 
+        // OneSignal push + in-app messaging (all SDK calls live in OneSignalManager).
+        OneSignalManager.shared.initialize(launchOptions: launchOptions)
+
         // One-time Apple Search Ads attribution fetch (free, on-device, no MMP).
         SearchAdsAttributionService.fetchAttributionIfNeeded()
 

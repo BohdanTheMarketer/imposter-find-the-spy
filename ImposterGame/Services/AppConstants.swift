@@ -2,6 +2,8 @@ import Foundation
 
 enum AppConstants {
     static let adaptyPublicKey = "public_live_t8Qkdro6.63hlbbIDrHjSlZcT5Hnn"
+    /// OneSignal App ID (public identifier, not a secret — the REST API key must never ship in the app).
+    static let oneSignalAppId = "51e3d64e-0236-4de2-a369-f8b991f6a85a"
     static let adaptyAccessLevelId = "premium"
 
     enum AdaptyPlacement {

@@ -25,6 +25,8 @@
 		240DAE1A3A70BDC99736862E /* player_1.png in Resources */ = {isa = PBXBuildFile; fileRef = 7F57D7649FC2034A996AD10D /* player_1.png */; };
 		24AB6D1CF11A6B2DA84440AB /* PlayerSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48266F11CC4F53FB03C3EBC0 /* PlayerSetupView.swift */; };
 		2626AD2F0432D2C93E2977B7 /* category_music_note.png in Resources */ = {isa = PBXBuildFile; fileRef = 3BFD2329ECB01023B95A324A /* category_music_note.png */; };
+		270E20D27A2CEA39D6B29EF3 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59604B85D4748CD03AC7B93C /* NotificationService.swift */; };
+		323816D2E9BE97B3278DF262 /* OneSignalFramework in Frameworks */ = {isa = PBXBuildFile; productRef = 6A6F16432D5ED29B57A72253 /* OneSignalFramework */; };
 		328E366D25C5378182D638A7 /* Evolventa-Oblique.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3F1B2F734BDF9341EDBBF170 /* Evolventa-Oblique.ttf */; };
 		351FBBBC08B6A20228879799 /* category_fork_knife.png in Resources */ = {isa = PBXBuildFile; fileRef = 13B5C558F99CCFDBA2EFE8E4 /* category_fork_knife.png */; };
 		38471FC49617009646E32980 /* category_bolt_fill.png in Resources */ = {isa = PBXBuildFile; fileRef = 59D6E6DDD49C2175CD72FDF4 /* category_bolt_fill.png */; };
@@ -76,9 +78,11 @@
 		945C09356C69A267387783B4 /* small_player_3.png in Resources */ = {isa = PBXBuildFile; fileRef = 8A669C0D633336957A04ADED /* small_player_3.png */; };
 		969D14932E0D9A372E9CCE7F /* LibreBaskerville-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E0F994C343BFA3DD367F1EFA /* LibreBaskerville-Italic.ttf */; };
 		97971494481F8B745B8EF99F /* GameSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2FEAFC938D219B05704FA71 /* GameSettings.swift */; };
+		981C64B0D610468329D8FDE0 /* OneSignalNotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = FDD50E6084A876928C965220 /* OneSignalNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		984FBAE3917B6C7E93E2221D /* small_player_12.png in Resources */ = {isa = PBXBuildFile; fileRef = 32666DF2B0BD9B1C5D707138 /* small_player_12.png */; };
 		992C9D49D1521BAEB70C88A2 /* LibreBaskerville-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C1B762503015166BBA74FA0F /* LibreBaskerville-SemiBoldItalic.ttf */; };
 		9B0D6747F1029BF4D8B6A438 /* player_2.png in Resources */ = {isa = PBXBuildFile; fileRef = BED795672AEE4610BC3321F0 /* player_2.png */; };
+		9C1B2BE1D65DB2C5AE7C835D /* OneSignalManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DD0910645106581B8B5D6DC /* OneSignalManager.swift */; };
 		9CBB7F75EDD513A07A07F03A /* category_bag_fill.png in Resources */ = {isa = PBXBuildFile; fileRef = 4BD66F514EFCB5A50DAC0413 /* category_bag_fill.png */; };
 		9E6C49E880BEF67AEF6D2A06 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9E4FD5E37DE7F6EC24F1019 /* PaywallView.swift */; };
 		A5BAA2BA8431C97984DF78DA /* player_6.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BCF7E76BA12D6882B6FDE2B /* player_6.png */; };
@@ -96,11 +100,13 @@
 		C29E200FE2E3452CB3D81667 /* VotingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A0840B6E8D6C2FAC494C35B /* VotingView.swift */; };
 		C4E0B565DA8454D32AA95F6C /* small_player_10.png in Resources */ = {isa = PBXBuildFile; fileRef = 90DEDF8DE2E05CA042C13513 /* small_player_10.png */; };
 		CAF979ABFEDEDEE4BD79799C /* player_9.png in Resources */ = {isa = PBXBuildFile; fileRef = B3994337DD61345DBD6B6D7C /* player_9.png */; };
+		CBAE05F6785C5064AEB19135 /* OneSignalInAppMessages in Frameworks */ = {isa = PBXBuildFile; productRef = E71517B1D275B99A6B3F0F4A /* OneSignalInAppMessages */; };
 		CBDDD1A5D6252BD8501EFF63 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = A07314160D6C5EA1AAB20FD6 /* FirebaseCrashlytics */; };
 		CCE0AC97429EC563552E771A /* category_desktopcomputer.png in Resources */ = {isa = PBXBuildFile; fileRef = 0494CB01BA87AC9B95AB538B /* category_desktopcomputer.png */; };
 		CD8B7BC930D87519E9F7416C /* GeneratedSecrets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92E40866037A36099F8B4D18 /* GeneratedSecrets.swift */; };
 		CE5A07D3A2B72274EAB8A922 /* category_sportscourt_fill.png in Resources */ = {isa = PBXBuildFile; fileRef = F1CBC0EF96B0B7AECBE21200 /* category_sportscourt_fill.png */; };
 		CF9E7A8BDF5FE91D7734042C /* ResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A85D01792F87215E545F74 /* ResultView.swift */; };
+		D0B558DACE255102B5685E94 /* OneSignalExtension in Frameworks */ = {isa = PBXBuildFile; productRef = 777BBA906E13E26B85BCAD9F /* OneSignalExtension */; };
 		D30C38FA2FA41820DC03CF34 /* LocalizationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C61F1BBC6120C344AE0D25 /* LocalizationService.swift */; };
 		D411B5229D8588E498B21961 /* RateUsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6734472499752AFA4872AA9D /* RateUsService.swift */; };
 		E073E44FA49C705E2CF762C5 /* Evolventa-BoldOblique.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2430B72FB2A58CD075E91F4D /* Evolventa-BoldOblique.ttf */; };
@@ -123,6 +129,30 @@
 		FEDD643230CD1B9D84C79192 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = AA18741BEA45BBF37BAB5DD9 /* FirebaseAnalytics */; };
 		FF05AD2D94FF799645C2EF7F /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 80BAC2D4715941FB008225F5 /* FirebaseFirestore */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2D0DBFF19C85DEDE6DA434B0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 42D23C0ECEAE4BEEDACA428A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 676AA2ACBE3B207D28E05780;
+			remoteInfo = OneSignalNotificationServiceExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8ECE8FA98492EB5E61A1F812 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				981C64B0D610468329D8FDE0 /* OneSignalNotificationServiceExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0014E12B1193C34A72CFC8DA /* RoleRevealView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoleRevealView.swift; sourceTree = "<group>"; };
@@ -174,6 +204,7 @@
 		57B1A59DC496A37029B24E08 /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
 		57BC9CB184283EAE65342ACE /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
 		57C61F1BBC6120C344AE0D25 /* LocalizationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationService.swift; sourceTree = "<group>"; };
+		59604B85D4748CD03AC7B93C /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		59D6E6DDD49C2175CD72FDF4 /* category_bolt_fill.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_bolt_fill.png; sourceTree = "<group>"; };
 		5A119C731D260729D61FD1B3 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5A3D39D79EBFEE259F695500 /* ImposterGame.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ImposterGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -200,6 +231,7 @@
 		90DEDF8DE2E05CA042C13513 /* small_player_10.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_player_10.png; sourceTree = "<group>"; };
 		92E40866037A36099F8B4D18 /* GeneratedSecrets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneratedSecrets.swift; sourceTree = "<group>"; };
 		9B8B4755C749B0A1468CA233 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		9DD0910645106581B8B5D6DC /* OneSignalManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneSignalManager.swift; sourceTree = "<group>"; };
 		A1B45AA5EC7D3A5D540E227C /* small_player_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_player_2.png; sourceTree = "<group>"; };
 		A377BEB2DDC8A0578C6B2763 /* LibreBaskerville-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "LibreBaskerville-Medium.ttf"; sourceTree = "<group>"; };
 		A4DC534C6EB33EAE4F7246E6 /* fr.lproj */ = {isa = PBXFileReference; path = fr.lproj; sourceTree = "<group>"; };
@@ -248,9 +280,18 @@
 		F92676F4326A652D8BB04B42 /* category_paintpalette_fill.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_paintpalette_fill.png; sourceTree = "<group>"; };
 		FB41651CAAFA80CFD091161B /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
 		FD1ABE2004688D24ED8ECC5A /* LibreBaskerville-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "LibreBaskerville-BoldItalic.ttf"; sourceTree = "<group>"; };
+		FDD50E6084A876928C965220 /* OneSignalNotificationServiceExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = OneSignalNotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		099CBE3085006EC7DC9F4550 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D0B558DACE255102B5685E94 /* OneSignalExtension in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A3ADC9DD969E41C415A76E19 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -265,6 +306,8 @@
 				5B0F228CDC4C8183A05A7E95 /* Adapty in Frameworks */,
 				0685E15E6968C1DB2932DFA9 /* AdaptyUI in Frameworks */,
 				67B5A4A34C418EDE3A4768E3 /* GoogleMobileAds in Frameworks */,
+				323816D2E9BE97B3278DF262 /* OneSignalFramework in Frameworks */,
+				CBAE05F6785C5064AEB19135 /* OneSignalInAppMessages in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -294,6 +337,7 @@
 			isa = PBXGroup;
 			children = (
 				5A3D39D79EBFEE259F695500 /* ImposterGame.app */,
+				FDD50E6084A876928C965220 /* OneSignalNotificationServiceExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -323,6 +367,7 @@
 				1FD3B1E2BC3F96DBDE54AA2D /* HapticsManager.swift */,
 				57C61F1BBC6120C344AE0D25 /* LocalizationService.swift */,
 				B58272799A36548E83628AFE /* LocalizedBundle.swift */,
+				9DD0910645106581B8B5D6DC /* OneSignalManager.swift */,
 				B05829AE18F7DE4460431C5E /* OpenAIWordPackService.swift */,
 				B9FE14D16A4336B40FB70F5E /* PushNotificationService.swift */,
 				6734472499752AFA4872AA9D /* RateUsService.swift */,
@@ -367,6 +412,14 @@
 				731CAB5E36F09A1BAF486BD5 /* Voting */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		6013F97A1BAB3ABFC338215A /* OneSignalNotificationServiceExtension */ = {
+			isa = PBXGroup;
+			children = (
+				59604B85D4748CD03AC7B93C /* NotificationService.swift */,
+			);
+			path = OneSignalNotificationServiceExtension;
 			sourceTree = "<group>";
 		};
 		622494B8AE6D874736411B20 /* Resources */ = {
@@ -457,6 +510,7 @@
 			isa = PBXGroup;
 			children = (
 				D86FEAB09CBD68154E2C6FE4 /* ImposterGame */,
+				6013F97A1BAB3ABFC338215A /* OneSignalNotificationServiceExtension */,
 				1C713422ED53F1EAFCABCC00 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -603,6 +657,25 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		676AA2ACBE3B207D28E05780 /* OneSignalNotificationServiceExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1C2171D1E589B4B84764B9F3 /* Build configuration list for PBXNativeTarget "OneSignalNotificationServiceExtension" */;
+			buildPhases = (
+				910DEF5967BBBFC1EEB16C31 /* Sources */,
+				099CBE3085006EC7DC9F4550 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = OneSignalNotificationServiceExtension;
+			packageProductDependencies = (
+				777BBA906E13E26B85BCAD9F /* OneSignalExtension */,
+			);
+			productName = OneSignalNotificationServiceExtension;
+			productReference = FDD50E6084A876928C965220 /* OneSignalNotificationServiceExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		B6913A3367D83BA331917518 /* ImposterGame */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = BBC3AAC26A940F47A80DB1C2 /* Build configuration list for PBXNativeTarget "ImposterGame" */;
@@ -611,12 +684,14 @@
 				989347082AB233D0A24B91F3 /* Sources */,
 				19A1FD2294326343A407CA3D /* Resources */,
 				A3ADC9DD969E41C415A76E19 /* Frameworks */,
+				8ECE8FA98492EB5E61A1F812 /* Embed Foundation Extensions */,
 				E5E10B163418802BD6150D41 /* Copy WordPacks (preserve directory structure) */,
 				F26A2B4929645EF85FE186F0 /* Firebase Crashlytics */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				5419AE6695BED053D005A433 /* PBXTargetDependency */,
 			);
 			name = ImposterGame;
 			packageProductDependencies = (
@@ -630,6 +705,8 @@
 				9C84549999AE5C304F569060 /* Adapty */,
 				C15F6E19FC2BD7AD39759C52 /* AdaptyUI */,
 				352B998F1BFAC4A95E3B7026 /* GoogleMobileAds */,
+				6A6F16432D5ED29B57A72253 /* OneSignalFramework */,
+				E71517B1D275B99A6B3F0F4A /* OneSignalInAppMessages */,
 			);
 			productName = ImposterGame;
 			productReference = 5A3D39D79EBFEE259F695500 /* ImposterGame.app */;
@@ -644,6 +721,9 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
+					676AA2ACBE3B207D28E05780 = {
+						DevelopmentTeam = Q35PSLMDJH;
+					};
 					B6913A3367D83BA331917518 = {
 						DevelopmentTeam = Q35PSLMDJH;
 					};
@@ -668,6 +748,7 @@
 				9CC73A844AD1E0DD09F7D1D8 /* XCRemoteSwiftPackageReference "AmplitudeSessionReplay-iOS" */,
 				2A4396BBF0F911E44E2769CC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				298BEA8887DCF921786814A0 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+				A1F71FE8960AF90793AE38C8 /* XCRemoteSwiftPackageReference "OneSignal-XCFramework" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1C713422ED53F1EAFCABCC00 /* Products */;
@@ -675,6 +756,7 @@
 			projectRoot = "";
 			targets = (
 				B6913A3367D83BA331917518 /* ImposterGame */,
+				676AA2ACBE3B207D28E05780 /* OneSignalNotificationServiceExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -814,6 +896,14 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		910DEF5967BBBFC1EEB16C31 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				270E20D27A2CEA39D6B29EF3 /* NotificationService.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		989347082AB233D0A24B91F3 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -847,6 +937,7 @@
 				D30C38FA2FA41820DC03CF34 /* LocalizationService.swift in Sources */,
 				B428C844F36DA4DA75FC6011 /* LocalizedBundle.swift in Sources */,
 				0B85C8105B10AB8074B2EC96 /* OnboardingView.swift in Sources */,
+				9C1B2BE1D65DB2C5AE7C835D /* OneSignalManager.swift in Sources */,
 				0459BAD358674BFF5CD2F1FA /* OpenAIWordPackService.swift in Sources */,
 				9E6C49E880BEF67AEF6D2A06 /* PaywallView.swift in Sources */,
 				55BE5F5AC83E295982878890 /* Player.swift in Sources */,
@@ -866,6 +957,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		5419AE6695BED053D005A433 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 676AA2ACBE3B207D28E05780 /* OneSignalNotificationServiceExtension */;
+			targetProxy = 2D0DBFF19C85DEDE6DA434B0 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		4CBBB8A089F4C73E2541FEB7 /* Localizable.strings */ = {
@@ -1064,6 +1163,26 @@
 			};
 			name = Debug;
 		};
+		17B5EB8DE56B7CA6F08FBAD1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
+				DEVELOPMENT_TEAM = Q35PSLMDJH;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.danetka.Danetka.OneSignalNotificationServiceExtension;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		1DB3EA977DCA23342B6A6829 /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = DBE64024BB1BC9283FFE1012 /* Secrets.xcconfig */;
@@ -1129,9 +1248,38 @@
 			};
 			name = Debug;
 		};
+		3B67E31726F3425EA7F6A397 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = OneSignalNotificationServiceExtension/OneSignalNotificationServiceExtension.entitlements;
+				DEVELOPMENT_TEAM = Q35PSLMDJH;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = OneSignalNotificationServiceExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.danetka.Danetka.OneSignalNotificationServiceExtension;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		1C2171D1E589B4B84764B9F3 /* Build configuration list for PBXNativeTarget "OneSignalNotificationServiceExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				17B5EB8DE56B7CA6F08FBAD1 /* Debug */,
+				3B67E31726F3425EA7F6A397 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		97E264728EAC9BC18F364366 /* Build configuration list for PBXProject "ImposterGame" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1185,6 +1333,14 @@
 				minimumVersion = 0.12.0;
 			};
 		};
+		A1F71FE8960AF90793AE38C8 /* XCRemoteSwiftPackageReference "OneSignal-XCFramework" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/OneSignal/OneSignal-XCFramework";
+			requirement = {
+				kind = exactVersion;
+				version = 5.5.1;
+			};
+		};
 		DEC5583B9C7546DE81E3FA11 /* XCRemoteSwiftPackageReference "Amplitude-Swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/amplitude/Amplitude-Swift";
@@ -1211,10 +1367,20 @@
 			package = 9CC73A844AD1E0DD09F7D1D8 /* XCRemoteSwiftPackageReference "AmplitudeSessionReplay-iOS" */;
 			productName = AmplitudeSwiftSessionReplayPlugin;
 		};
+		6A6F16432D5ED29B57A72253 /* OneSignalFramework */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1F71FE8960AF90793AE38C8 /* XCRemoteSwiftPackageReference "OneSignal-XCFramework" */;
+			productName = OneSignalFramework;
+		};
 		706047C26E961DBED30EA12B /* FirebaseMessaging */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2A4396BBF0F911E44E2769CC /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
+		};
+		777BBA906E13E26B85BCAD9F /* OneSignalExtension */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1F71FE8960AF90793AE38C8 /* XCRemoteSwiftPackageReference "OneSignal-XCFramework" */;
+			productName = OneSignalExtension;
 		};
 		80BAC2D4715941FB008225F5 /* FirebaseFirestore */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -1245,6 +1411,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 7B54457264DD39175A63284E /* XCRemoteSwiftPackageReference "AdaptySDK-iOS" */;
 			productName = AdaptyUI;
+		};
+		E71517B1D275B99A6B3F0F4A /* OneSignalInAppMessages */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1F71FE8960AF90793AE38C8 /* XCRemoteSwiftPackageReference "OneSignal-XCFramework" */;
+			productName = OneSignalInAppMessages;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
