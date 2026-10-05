@@ -59,10 +59,11 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         guard let fcmToken else { return }
         #if DEBUG
         print("[FCM] registration token: \(fcmToken)")
-        #endif
         // Copies the token to the clipboard on-device so it can be pasted into Notes/Messages
         // and grabbed for Firebase Console's "send to device" test flow without a Mac connection.
+        // Debug-only: in production this would overwrite the user's clipboard on every token refresh.
         UIPasteboard.general.string = fcmToken
+        #endif
     }
 
     func userNotificationCenter(
@@ -70,6 +71,25 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
+        Messaging.messaging().appDidReceiveMessage(notification.request.content.userInfo)
         completionHandler([.banner, .badge, .sound])
+    }
+
+    // Explicit tap handler: Firebase's swizzling isn't reliable behind SwiftUI's
+    // @UIApplicationDelegateAdaptor, and without this call `notification_open` never reaches
+    // Analytics, so campaign "Opens" stay at zero.
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        let userInfo = response.notification.request.content.userInfo
+        Messaging.messaging().appDidReceiveMessage(userInfo)
+        // Mirrors the open to Amplitude, which doesn't see Firebase's notification_open.
+        AnalyticsService.logEvent("push_opened", parameters: [
+            "campaign_id": userInfo["google.c.a.c_id"] as? String ?? "",
+            "campaign_name": userInfo["google.c.a.c_l"] as? String ?? ""
+        ])
+        completionHandler()
     }
 }
