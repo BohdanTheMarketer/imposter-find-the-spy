@@ -26,6 +26,9 @@ enum AmplitudeManager {
         amplitude.add(plugin: AmplitudeSwiftSessionReplayPlugin(sampleRate: 1.0))
         #endif
 
+        // Same id as GA4 and the BigQuery warehouse, so Amplitude data can be joined while it lives.
+        amplitude.setUserId(userId: UserIdentity.id)
+
         return amplitude
     }()
 
