@@ -21,6 +21,8 @@ struct SeasonalEvent {
     let excludedRegions: Set<String>
     /// Shown on the imposter's role card while this pack is played, instead of the spy.
     let imposterEmoji: String
+    /// Adds `View.seasonalDecoration()` (cobwebs) to the game screens while active.
+    let decoratesScreens: Bool
 
     static let halloween2026 = SeasonalEvent(
         slug: "halloween",
@@ -32,7 +34,8 @@ struct SeasonalEvent {
             "TR", "SA", "AE", "QA", "KW", "BH", "OM", "IR", "IQ", "PK", "AF",
             "EG", "DZ", "MA", "TN", "LY", "JO", "ID", "MY", "BD"
         ],
-        imposterEmoji: "🎃"
+        imposterEmoji: "🎃",
+        decoratesScreens: true
     )
 
     /// Every event the app knows about; active ones are pinned above the regular packs, in this order.

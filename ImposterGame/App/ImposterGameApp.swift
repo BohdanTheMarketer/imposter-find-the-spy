@@ -76,18 +76,24 @@ private struct AppRootView: View {
                         CategoryPaywallView()
                     case .playerSetup:
                         PlayerSetupView()
+                            .seasonalDecoration()
                     case .categories:
                         CategoriesView()
+                            .seasonalDecoration()
                     case .gameSettings:
                         GameSettingsView()
+                            .seasonalDecoration()
                     case .roleReveal:
                         RoleRevealView()
                     case .gameTimer:
                         GameTimerView()
+                            .seasonalDecoration()
                     case .voting:
                         VotingView()
+                            .seasonalDecoration()
                     case .result:
                         ResultView()
+                            .seasonalDecoration()
                     case .customWordPackCreator:
                         CustomWordPackGeneratorView()
                     }
