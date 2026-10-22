@@ -148,6 +148,7 @@
 "categories.custom_pack_unlock_premium"       = "Unlock with Premium";
 "categories.premium_banner_title"             = "Go Premium ✨";
 "categories.premium_banner_subtitle"          = "Unlock every pack, AI packs & more";
+"categories.event_badge"                      = "LIMITED";
 
 "custom_pack.title"                           = "AI Word Pack";
 "custom_pack.prompt_label"                    = "What should this pack be about?";

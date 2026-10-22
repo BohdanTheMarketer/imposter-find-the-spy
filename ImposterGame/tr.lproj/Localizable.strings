@@ -138,6 +138,7 @@
 "categories.custom_pack_unlock_premium"       = "Premium ile kilidini aç";
 "categories.premium_banner_title"             = "Premium'a Geç ✨";
 "categories.premium_banner_subtitle"          = "Tüm paketlerin, yapay zeka paketlerinin kilidini aç ve daha fazlası";
+"categories.event_badge"                      = "SINIRLI";
 
 "custom_pack.title"                           = "Yapay Zeka Kelime Paketi";
 "custom_pack.prompt_label"                    = "Bu paket ne hakkında olmalı?";

@@ -12,6 +12,11 @@ struct Category: Identifiable, Codable, Hashable {
     var isCustom: Bool = false
     /// Timestamp used to order custom packs (most recent first). Unused for bundled packs.
     var createdAt: Date = Date()
+    /// Slug of the `SeasonalEvent` this pack belongs to; `nil` for regular and custom packs.
+    /// Optional so custom packs persisted before this field shipped still decode.
+    var eventSlug: String? = nil
+
+    var isEvent: Bool { eventSlug != nil }
 
     init(
         id: UUID = UUID(),

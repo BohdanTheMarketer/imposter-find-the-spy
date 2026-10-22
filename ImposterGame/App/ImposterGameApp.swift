@@ -15,6 +15,7 @@ struct ImposterGameApp: App {
         FirebaseApp.configure()
         AnalyticsService.setInstallWeekIfNeeded()
         AnalyticsService.setAppLanguage(LocalizationService.shared.currentLocaleCode)
+        SeasonalEvent.reportEligibility()
         SurveyService.migrateExistingUsersIfNeeded()
         AdMobService.shared.start()
 

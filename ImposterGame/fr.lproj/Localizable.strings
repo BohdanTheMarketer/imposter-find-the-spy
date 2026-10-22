@@ -138,6 +138,7 @@
 "categories.custom_pack_unlock_premium"       = "Débloquer avec Premium";
 "categories.premium_banner_title"             = "Passer à Premium ✨";
 "categories.premium_banner_subtitle"          = "Débloquez tous les packs, les packs IA et plus";
+"categories.event_badge"                      = "LIMITÉ";
 
 "custom_pack.title"                           = "Pack de mots IA";
 "custom_pack.prompt_label"                    = "De quoi ce pack doit-il parler ?";

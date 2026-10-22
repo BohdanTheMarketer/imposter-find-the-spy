@@ -50,6 +50,12 @@ extension Color {
     static let gameplaySurface = Color.appSurface
     static let gameplayButtonPrimary = Color.appAccent
     static let gameplayButtonSecondary = Color.appSurface2
+
+    // MARK: - Seasonal
+    // Event pack card (`CategoryCard` when `category.isEvent`). Retune per event; currently Halloween.
+    static let seasonalAccent = Color(red: 1.0, green: 0.478, blue: 0.102) // #FF7A1A
+    static let seasonalSurfaceTop = Color(red: 0.169, green: 0.071, blue: 0.251) // #2B1240
+    static let seasonalSurfaceBottom = Color(red: 0.102, green: 0.059, blue: 0.180) // #1A0F2E
 }
 
 // MARK: - Gradients
