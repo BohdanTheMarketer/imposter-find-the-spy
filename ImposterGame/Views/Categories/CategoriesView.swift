@@ -18,7 +18,8 @@ private enum CategoryIconLoader {
         "desktopcomputer": "category_desktopcomputer",
         "bolt.fill": "category_bolt_fill",
         "music.note": "category_music_note",
-        "map.fill": "category_map_fill"
+        "map.fill": "category_map_fill",
+        "pumpkin": "category_pumpkin"
     ]
 
     static func uiImage(for icon: String) -> UIImage? {
