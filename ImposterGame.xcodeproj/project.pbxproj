@@ -20,6 +20,7 @@
 		1726A0556A03ABEB076EED82 /* category_map_fill.png in Resources */ = {isa = PBXBuildFile; fileRef = 3A00F28C07BE24603E2E8DD8 /* category_map_fill.png */; };
 		1E686607DFEAE0DC0C1EF8AC /* GameEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA27ACED2644C163A72FD40E /* GameEngine.swift */; };
 		1F7AA1A64325D91A0D4416DE /* LibreBaskerville-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A377BEB2DDC8A0578C6B2763 /* LibreBaskerville-Medium.ttf */; };
+		A1E0C7F1B2D34E5F6A7B8C93 /* category_pumpkin.png in Resources */ = {isa = PBXBuildFile; fileRef = A1E0C7F1B2D34E5F6A7B8C94 /* category_pumpkin.png */; };
 		2314992580E7386FA8C6203D /* category_flame_fill.png in Resources */ = {isa = PBXBuildFile; fileRef = 465400B09F1789F21938AB8C /* category_flame_fill.png */; };
 		23B5B5E6AECC686FCF506E42 /* CategoryLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52B4C73F586F99F9FD593FA9 /* CategoryLoader.swift */; };
 		240DAE1A3A70BDC99736862E /* player_1.png in Resources */ = {isa = PBXBuildFile; fileRef = 7F57D7649FC2034A996AD10D /* player_1.png */; };
@@ -89,6 +90,7 @@
 		AA15A141C41971E4D6E7EF70 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57BC9CB184283EAE65342ACE /* Category.swift */; };
 		ACC4866899B846DF8C050C45 /* FirebaseInstallations in Frameworks */ = {isa = PBXBuildFile; productRef = A2462B968BD5F03BCFEAF2FD /* FirebaseInstallations */; };
 		B22BB31D59734BB4CF87708E /* small_player_9.png in Resources */ = {isa = PBXBuildFile; fileRef = B2E3DA10CBB708CD6E3D550E /* small_player_9.png */; };
+		A1E0C7F1B2D34E5F6A7B8C91 /* SeasonalEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1E0C7F1B2D34E5F6A7B8C92 /* SeasonalEvent.swift */; };
 		B4215ECEAA88AEC8CF12DE62 /* SurveyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 240315C481034976E9881785 /* SurveyService.swift */; };
 		B428C844F36DA4DA75FC6011 /* LocalizedBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B58272799A36548E83628AFE /* LocalizedBundle.swift */; };
 		B6B8B90417B7852993ED99F1 /* GameSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB66DCED769F6CE62338D5CF /* GameSettingsView.swift */; };
@@ -173,6 +175,7 @@
 		1D49E6F6D50A2C78B1A3DE8F /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "pt-BR"; path = "pt-BR.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
 		1FD3B1E2BC3F96DBDE54AA2D /* HapticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticsManager.swift; sourceTree = "<group>"; };
 		2283F75A3920742284B725D3 /* NanumMyeongjo-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NanumMyeongjo-Regular.ttf"; sourceTree = "<group>"; };
+		A1E0C7F1B2D34E5F6A7B8C92 /* SeasonalEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeasonalEvent.swift; sourceTree = "<group>"; };
 		240315C481034976E9881785 /* SurveyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SurveyService.swift; sourceTree = "<group>"; };
 		2430B72FB2A58CD075E91F4D /* Evolventa-BoldOblique.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Evolventa-BoldOblique.ttf"; sourceTree = "<group>"; };
 		24EE87908C6DD0FD963B9F82 /* NanumMyeongjo-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "NanumMyeongjo-ExtraBold.ttf"; sourceTree = "<group>"; };
@@ -193,6 +196,7 @@
 		3F1984A30E17C8D6F4C4A606 /* AdMobService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdMobService.swift; sourceTree = "<group>"; };
 		3F1B2F734BDF9341EDBBF170 /* Evolventa-Oblique.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Evolventa-Oblique.ttf"; sourceTree = "<group>"; };
 		403B857D35559CE5EB17557C /* CustomWordPackGeneratorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomWordPackGeneratorView.swift; sourceTree = "<group>"; };
+		A1E0C7F1B2D34E5F6A7B8C94 /* category_pumpkin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_pumpkin.png; sourceTree = "<group>"; };
 		465400B09F1789F21938AB8C /* category_flame_fill.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_flame_fill.png; sourceTree = "<group>"; };
 		48266F11CC4F53FB03C3EBC0 /* PlayerSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerSetupView.swift; sourceTree = "<group>"; };
 		4BD66F514EFCB5A50DAC0413 /* category_bag_fill.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_bag_fill.png; sourceTree = "<group>"; };
@@ -373,6 +377,7 @@
 				6734472499752AFA4872AA9D /* RateUsService.swift */,
 				CEFAD6915FD21BC7545C20CB /* SearchAdsAttributionService.swift */,
 				57B1A59DC496A37029B24E08 /* SubscriptionManager.swift */,
+				A1E0C7F1B2D34E5F6A7B8C92 /* SeasonalEvent.swift */,
 				240315C481034976E9881785 /* SurveyService.swift */,
 			);
 			path = Services;
@@ -625,6 +630,7 @@
 				E87A881DF097B261F1747FA7 /* category_briefcase_fill.png */,
 				0494CB01BA87AC9B95AB538B /* category_desktopcomputer.png */,
 				CF8DDF4ED263B824675B7838 /* category_film_fill.png */,
+				A1E0C7F1B2D34E5F6A7B8C94 /* category_pumpkin.png */,
 				465400B09F1789F21938AB8C /* category_flame_fill.png */,
 				13B5C558F99CCFDBA2EFE8E4 /* category_fork_knife.png */,
 				BE439385A528B4689F8144C1 /* category_house_fill.png */,
@@ -794,6 +800,7 @@
 				86C38EF17DF8A5EC795352CD /* category_briefcase_fill.png in Resources */,
 				CCE0AC97429EC563552E771A /* category_desktopcomputer.png in Resources */,
 				4E2A4D29676E08D801E8C5D7 /* category_film_fill.png in Resources */,
+				A1E0C7F1B2D34E5F6A7B8C93 /* category_pumpkin.png in Resources */,
 				2314992580E7386FA8C6203D /* category_flame_fill.png in Resources */,
 				351FBBBC08B6A20228879799 /* category_fork_knife.png in Resources */,
 				6E3F31D3B4CF2C27307F4FC0 /* category_house_fill.png in Resources */,
@@ -950,6 +957,7 @@
 				5BF897FD703C7DDC14F783D2 /* RoleRevealView.swift in Sources */,
 				E3A40FB5A3ACD9A0C5472326 /* SearchAdsAttributionService.swift in Sources */,
 				F6C9306608A448B5BF1E69C8 /* SubscriptionManager.swift in Sources */,
+				A1E0C7F1B2D34E5F6A7B8C91 /* SeasonalEvent.swift in Sources */,
 				B4215ECEAA88AEC8CF12DE62 /* SurveyService.swift in Sources */,
 				939997AE04A69DD73D940A50 /* UIImage+PortraitBackdrop.swift in Sources */,
 				C29E200FE2E3452CB3D81667 /* VotingView.swift in Sources */,

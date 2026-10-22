@@ -8,6 +8,8 @@ REQUIRED_LOCALES=(en pt-BR fr es-MX tr)
 REQUIRED_PACKS=(
   party_time world_cup food celebrities hobbies family school sports
   travel work_life movies shopping tech superpowers music places
+  # Seasonal packs (SeasonalEvent.swift) — remove together with the event.
+  halloween
 )
 
 errors=0

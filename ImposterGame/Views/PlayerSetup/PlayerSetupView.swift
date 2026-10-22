@@ -616,8 +616,9 @@ struct PlayerOptionsSheet: View {
     /// premium state without a real purchase, or forces it off on a device with a genuine active
     /// subscription so testers can preview the free-user paywall/ad flows - without fighting
     /// Apple's sandbox subscription-management UI. Also handles `admin_offer_on`/`admin_offer_off`
-    /// and `admin_survey_on` for the post-game paywall and survey. Works in TestFlight/Release
-    /// builds too.
+    /// and `admin_survey_on` for the post-game paywall and survey, and
+    /// `admin_event_on`/`admin_event_off`/`admin_event_auto` for seasonal packs. Works in
+    /// TestFlight/Release builds too.
     private var adminCommandRow: some View {
         TextField("", text: $adminCommandText)
             .textInputAutocapitalization(.never)
@@ -669,6 +670,19 @@ struct PlayerOptionsSheet: View {
             SurveyService.forceEligibleForQA()
             HapticsManager.notification(.success)
             showToast(message: "Post-game survey: will show next game")
+        case "admin_event_on":
+            // Shows every seasonal pack regardless of dates and device region.
+            SeasonalEvent.qaOverride = true
+            HapticsManager.notification(.success)
+            showToast(message: "Seasonal event: FORCED ON")
+        case "admin_event_off":
+            SeasonalEvent.qaOverride = false
+            HapticsManager.notification(.warning)
+            showToast(message: "Seasonal event: FORCED OFF")
+        case "admin_event_auto":
+            SeasonalEvent.qaOverride = nil
+            HapticsManager.notification(.success)
+            showToast(message: "Seasonal event: schedule")
         case "admin_reset_review":
             // Resets our own "first game"/cooldown bookkeeping - iOS itself still caps the actual
             // system review dialog to ~3x/year per Apple ID, so it may still not visibly appear.
@@ -683,6 +697,8 @@ struct PlayerOptionsSheet: View {
                 + AdMobService.shared.qaDiagnosticSummary
                 + "\n\n"
                 + SurveyService.qaDiagnosticSummary
+                + "\n\n"
+                + SeasonalEvent.qaDiagnosticSummary
             showDebugStatusAlert = true
         default:
             break

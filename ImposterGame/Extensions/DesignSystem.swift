@@ -50,6 +50,67 @@ extension Color {
     static let gameplaySurface = Color.appSurface
     static let gameplayButtonPrimary = Color.appAccent
     static let gameplayButtonSecondary = Color.appSurface2
+
+    // MARK: - Seasonal
+    // Event pack card (`CategoryCard` when `category.isEvent`). Retune per event; currently Halloween.
+    static let seasonalAccent = Color(red: 1.0, green: 0.478, blue: 0.102) // #FF7A1A
+    static let seasonalSurfaceTop = Color(red: 0.169, green: 0.071, blue: 0.251) // #2B1240
+    static let seasonalSurfaceBottom = Color(red: 0.102, green: 0.059, blue: 0.180) // #1A0F2E
+}
+
+// MARK: - Seasonal decoration
+
+extension View {
+    /// Cobwebs in the top corners while an event with `decoratesScreens` is active (`SeasonalEvent`).
+    /// Purely decorative: never intercepts taps. Keep it off onboarding and paywalls.
+    func seasonalDecoration() -> some View {
+        overlay(alignment: .top) {
+            if SeasonalEvent.active.contains(where: \.decoratesScreens) {
+                HStack(alignment: .top) {
+                    CornerCobweb()
+                        .frame(width: 120, height: 120)
+                    Spacer()
+                    CornerCobweb()
+                        .frame(width: 92, height: 92)
+                        .scaleEffect(x: -1, y: 1)
+                }
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+            }
+        }
+    }
+}
+
+/// Quarter-circle web anchored at the top-leading corner: radial spokes plus threads that sag
+/// toward the corner between neighbouring spokes.
+private struct CornerCobweb: View {
+    private let spokeCount = 5
+    private let ringCount = 4
+
+    var body: some View {
+        Canvas { context, size in
+            let radius = min(size.width, size.height)
+            let angles = (0..<spokeCount).map { Double($0) / Double(spokeCount - 1) * (.pi / 2) }
+            func point(_ angle: Double, _ r: CGFloat) -> CGPoint {
+                CGPoint(x: r * CGFloat(cos(angle)), y: r * CGFloat(sin(angle)))
+            }
+
+            var web = Path()
+            for angle in angles {
+                web.move(to: .zero)
+                web.addLine(to: point(angle, radius))
+            }
+            for ring in 1...ringCount {
+                let r = radius * CGFloat(ring) / CGFloat(ringCount + 1) * 1.15
+                web.move(to: point(angles[0], r))
+                for (from, to) in zip(angles, angles.dropFirst()) {
+                    web.addQuadCurve(to: point(to, r), control: point((from + to) / 2, r * 0.82))
+                }
+            }
+            context.stroke(web, with: .color(.white.opacity(0.22)), lineWidth: 0.8)
+        }
+    }
 }
 
 // MARK: - Gradients

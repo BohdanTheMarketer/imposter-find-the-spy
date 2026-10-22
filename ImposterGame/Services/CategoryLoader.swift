@@ -65,25 +65,26 @@ enum CategoryLoader {
         "places"
     ]
 
-    /// Event packs hidden automatically after this date (start of day, UTC).
-    private static let eventPackExpiry: [String: Date] = [:]
-
     static func loadCategories() -> [Category] {
         let localeFolders = resolvedLocaleFolders()
         var categories: [Category] = []
-        let now = Date()
+
+        // Active seasonal packs are pinned above the regular ones; see `SeasonalEvent`.
+        for event in SeasonalEvent.active {
+            if var category = loadCategory(fileName: event.slug, localeFolders: localeFolders) {
+                category.eventSlug = event.slug
+                categories.append(category)
+            }
+        }
 
         for fileName in fileNames {
-            if let expiry = eventPackExpiry[fileName], now >= expiry {
-                continue
-            }
             if let category = loadCategory(fileName: fileName, localeFolders: localeFolders) {
                 categories.append(category)
             }
         }
 
-        if categories.isEmpty {
-            categories = defaultCategories()
+        if !categories.contains(where: { !$0.isEvent }) {
+            categories += defaultCategories()
         }
 
         return categories

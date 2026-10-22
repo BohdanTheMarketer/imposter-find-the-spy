@@ -18,7 +18,8 @@ private enum CategoryIconLoader {
         "desktopcomputer": "category_desktopcomputer",
         "bolt.fill": "category_bolt_fill",
         "music.note": "category_music_note",
-        "map.fill": "category_map_fill"
+        "map.fill": "category_map_fill",
+        "pumpkin": "category_pumpkin"
     ]
 
     static func uiImage(for icon: String) -> UIImage? {
@@ -456,6 +457,8 @@ struct CategoryCard: View {
                             proChip
                         } else if category.isCustom {
                             aiChip
+                        } else if category.isEvent {
+                            eventChip
                         }
                     }
 
@@ -473,16 +476,16 @@ struct CategoryCard: View {
             .padding(.vertical, 16)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.appSurface)
+                    .fill(cardFill)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
                     .stroke(
-                        isSelected ? Color.appAccent : Color.white.opacity(0.07),
+                        isSelected ? accent : (category.isEvent ? accent.opacity(0.45) : Color.white.opacity(0.07)),
                         lineWidth: isSelected ? 1.5 : 1
                     )
             )
-            .shadow(color: Color.appAccent.opacity(isSelected ? 0.25 : 0.0), radius: 20, x: 0, y: 0)
+            .shadow(color: accent.opacity(isSelected ? 0.25 : (category.isEvent ? 0.18 : 0.0)), radius: 20, x: 0, y: 0)
         }
         .buttonStyle(.plain)
         .overlay(alignment: .topTrailing) {
@@ -499,6 +502,37 @@ struct CategoryCard: View {
                 .padding(8)
             }
         }
+    }
+
+    /// Seasonal packs swap the pink accent for the event palette (`// MARK: - Seasonal` in DesignSystem.swift).
+    private var accent: Color {
+        category.isEvent ? .seasonalAccent : .appAccent
+    }
+
+    private var cardFill: AnyShapeStyle {
+        guard category.isEvent else { return AnyShapeStyle(Color.appSurface) }
+        return AnyShapeStyle(LinearGradient(
+            colors: [Color.seasonalSurfaceTop, Color.seasonalSurfaceBottom],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        ))
+    }
+
+    /// "Limited time" pill on seasonal packs when not selected (mirrors `proChip` styling).
+    private var eventChip: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "clock.fill")
+                .font(.evolventa(size: 10, weight: .bold))
+            Text("categories.event_badge")
+                .font(.evolventa(size: 11, weight: .bold))
+        }
+        .foregroundColor(.appTextOnAccent)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 3)
+        .background(
+            RoundedRectangle(cornerRadius: 9)
+                .fill(Color.seasonalAccent)
+        )
     }
 
     /// "AI" pill shown on generated custom packs when not selected/locked (mirrors `proChip` styling).
@@ -529,7 +563,7 @@ struct CategoryCard: View {
             .foregroundColor(.appTextOnAccent)
             .padding(.horizontal, 8)
             .padding(.vertical, 3)
-            .background(Capsule().fill(Color.appAccent))
+            .background(Capsule().fill(accent))
     }
 
     /// Locked "PRO" pill (mock 2c).

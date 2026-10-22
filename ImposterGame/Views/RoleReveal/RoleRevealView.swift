@@ -70,7 +70,9 @@ struct RoleRevealView: View {
 
                         VStack(spacing: 18) {
                             if currentPlayer.isImposter {
-                                ImposterRevealBrandMark()
+                                ImposterRevealBrandMark(
+                                    emoji: SeasonalEvent.event(slug: gameSession.selectedCategory?.eventSlug)?.imposterEmoji ?? "🕵️"
+                                )
 
                                 VStack(spacing: 6) {
                                     Text("role_reveal.imposter_lead_in")
@@ -315,6 +317,9 @@ struct RoleRevealView: View {
 
 /// Vector mark for the imposter role — not a player photo; reads as a disguise / hidden identity.
 private struct ImposterRevealBrandMark: View {
+    /// Spy by default; seasonal packs swap it (e.g. a pumpkin for Halloween).
+    var emoji: String = "🕵️"
+
     private let fillGradient = LinearGradient(
         colors: [
             Color(red: 1.0, green: 0.28, blue: 0.32),
@@ -347,7 +352,7 @@ private struct ImposterRevealBrandMark: View {
                 )
 
             // Spy emoji mark.
-            Text(verbatim: "🕵️")
+            Text(verbatim: emoji)
                 .font(.system(size: 66))
         }
         .accessibilityLabel(Text("role_reveal.imposter_label"))
