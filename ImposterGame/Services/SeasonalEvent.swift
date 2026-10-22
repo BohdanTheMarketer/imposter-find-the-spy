@@ -2,7 +2,9 @@ import Foundation
 
 /// Time-boxed, optionally region-gated word pack (Halloween, Christmas, ...). The single place
 /// to switch an event on or off: the pack shows only inside `start..<end` and only for device
-/// regions in `regions`, so it disappears on its own after `end` without a new release.
+/// regions allowed by `regions`/`excludedRegions`, so it disappears on its own after `end`
+/// without a new release. Languages without a localized pack fall back to `en` (see
+/// `CategoryLoader.resolvedLocaleFolders`).
 ///
 /// Cleanup once an event is over: drop it from `all`, delete `WordPacks/*/<slug>.json`, its
 /// colors in DesignSystem.swift (`// MARK: - Seasonal`) and its strings.
@@ -15,6 +17,8 @@ struct SeasonalEvent {
     let end: Date
     /// ISO 3166-1 alpha-2 device regions that see the event. `nil` = every region.
     let regions: Set<String>?
+    /// Regions that never see the event, even when `regions` is `nil`.
+    let excludedRegions: Set<String>
     /// Shown on the imposter's role card while this pack is played, instead of the spy.
     let imposterEmoji: String
 
@@ -22,7 +26,12 @@ struct SeasonalEvent {
         slug: "halloween",
         start: utcDate(2026, 10, 20),
         end: utcDate(2026, 11, 3), // keeps Día de Muertos (Nov 1–2) for MX
-        regions: ["US", "CA", "GB", "IE", "AU", "NZ", "MX", "BR"],
+        regions: nil,
+        // Turkey and Muslim-majority markets, where a Halloween pack risks negative reviews.
+        excludedRegions: [
+            "TR", "SA", "AE", "QA", "KW", "BH", "OM", "IR", "IQ", "PK", "AF",
+            "EG", "DZ", "MA", "TN", "LY", "JO", "ID", "MY", "BD"
+        ],
         imposterEmoji: "🎃"
     )
 
@@ -45,6 +54,7 @@ struct SeasonalEvent {
     /// Real schedule and region check, ignoring the QA override.
     func isScheduled(now: Date = Date(), region: String? = Locale.current.region?.identifier) -> Bool {
         guard now >= start, now < end else { return false }
+        if let region, excludedRegions.contains(region) { return false }
         guard let regions else { return true }
         guard let region else { return false }
         return regions.contains(region)
