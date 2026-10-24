@@ -83,9 +83,15 @@ enum SearchAdsAttributionService {
         }
     }
 
+    /// Writes every field as a `search_ads_*` user property (so installs, trials and purchases -
+    /// including Adapty's server-side revenue events - can all be grouped by campaign/keyword)
+    /// and fires one event so the install itself is countable per campaign.
     private static func applyAttribution(_ json: [String: Any]) {
+        var properties: [String: Any] = [:]
         for (key, value) in json {
-            AmplitudeManager.setUserProperty(String(describing: value), for: "search_ads_\(key)")
+            properties["search_ads_\(key)"] = String(describing: value)
         }
+        AmplitudeManager.setUserProperties(properties)
+        AmplitudeManager.track("search_ads_attribution_resolved", properties: properties)
     }
 }
