@@ -101,11 +101,13 @@
 		BBB9D5FCDADC50F5DF743A8A /* category_airplane.png in Resources */ = {isa = PBXBuildFile; fileRef = 552657DA397ED635CC90E560 /* category_airplane.png */; };
 		C29E200FE2E3452CB3D81667 /* VotingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A0840B6E8D6C2FAC494C35B /* VotingView.swift */; };
 		C4E0B565DA8454D32AA95F6C /* small_player_10.png in Resources */ = {isa = PBXBuildFile; fileRef = 90DEDF8DE2E05CA042C13513 /* small_player_10.png */; };
+		C7FB3C181F7F0E7085ED77D0 /* WarehouseUploader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F282338295302D4B6A9B4BB /* WarehouseUploader.swift */; };
 		CAF979ABFEDEDEE4BD79799C /* player_9.png in Resources */ = {isa = PBXBuildFile; fileRef = B3994337DD61345DBD6B6D7C /* player_9.png */; };
 		CBAE05F6785C5064AEB19135 /* OneSignalInAppMessages in Frameworks */ = {isa = PBXBuildFile; productRef = E71517B1D275B99A6B3F0F4A /* OneSignalInAppMessages */; };
 		CBDDD1A5D6252BD8501EFF63 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = A07314160D6C5EA1AAB20FD6 /* FirebaseCrashlytics */; };
 		CCE0AC97429EC563552E771A /* category_desktopcomputer.png in Resources */ = {isa = PBXBuildFile; fileRef = 0494CB01BA87AC9B95AB538B /* category_desktopcomputer.png */; };
 		CD8B7BC930D87519E9F7416C /* GeneratedSecrets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92E40866037A36099F8B4D18 /* GeneratedSecrets.swift */; };
+		CDC090A6C9F0C3B222132A31 /* UserIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 599BF5248116C3C5CDC8B300 /* UserIdentity.swift */; };
 		CE5A07D3A2B72274EAB8A922 /* category_sportscourt_fill.png in Resources */ = {isa = PBXBuildFile; fileRef = F1CBC0EF96B0B7AECBE21200 /* category_sportscourt_fill.png */; };
 		CF9E7A8BDF5FE91D7734042C /* ResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A85D01792F87215E545F74 /* ResultView.swift */; };
 		D0B558DACE255102B5685E94 /* OneSignalExtension in Frameworks */ = {isa = PBXBuildFile; productRef = 777BBA906E13E26B85BCAD9F /* OneSignalExtension */; };
@@ -185,6 +187,7 @@
 		2BCF7E76BA12D6882B6FDE2B /* player_6.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = player_6.png; sourceTree = "<group>"; };
 		2CAD177C28FC242CF21117D4 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2E95748812162945A69AD6C5 /* PostGameSurveyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostGameSurveyView.swift; sourceTree = "<group>"; };
+		2F282338295302D4B6A9B4BB /* WarehouseUploader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarehouseUploader.swift; sourceTree = "<group>"; };
 		2F602BD702C8BCF51C1222C7 /* LanguagePickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguagePickerSheet.swift; sourceTree = "<group>"; };
 		323A1F4BCCF2D068A2FA5207 /* small_player_5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_player_5.png; sourceTree = "<group>"; };
 		32666DF2B0BD9B1C5D707138 /* small_player_12.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = small_player_12.png; sourceTree = "<group>"; };
@@ -209,6 +212,7 @@
 		57BC9CB184283EAE65342ACE /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
 		57C61F1BBC6120C344AE0D25 /* LocalizationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalizationService.swift; sourceTree = "<group>"; };
 		59604B85D4748CD03AC7B93C /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		599BF5248116C3C5CDC8B300 /* UserIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserIdentity.swift; sourceTree = "<group>"; };
 		59D6E6DDD49C2175CD72FDF4 /* category_bolt_fill.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = category_bolt_fill.png; sourceTree = "<group>"; };
 		5A119C731D260729D61FD1B3 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5A3D39D79EBFEE259F695500 /* ImposterGame.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = ImposterGame.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -379,6 +383,8 @@
 				57B1A59DC496A37029B24E08 /* SubscriptionManager.swift */,
 				A1E0C7F1B2D34E5F6A7B8C92 /* SeasonalEvent.swift */,
 				240315C481034976E9881785 /* SurveyService.swift */,
+				599BF5248116C3C5CDC8B300 /* UserIdentity.swift */,
+				2F282338295302D4B6A9B4BB /* WarehouseUploader.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -960,7 +966,9 @@
 				A1E0C7F1B2D34E5F6A7B8C91 /* SeasonalEvent.swift in Sources */,
 				B4215ECEAA88AEC8CF12DE62 /* SurveyService.swift in Sources */,
 				939997AE04A69DD73D940A50 /* UIImage+PortraitBackdrop.swift in Sources */,
+				CDC090A6C9F0C3B222132A31 /* UserIdentity.swift in Sources */,
 				C29E200FE2E3452CB3D81667 /* VotingView.swift in Sources */,
+				C7FB3C181F7F0E7085ED77D0 /* WarehouseUploader.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

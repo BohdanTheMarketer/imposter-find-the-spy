@@ -2,6 +2,7 @@ import Adapty
 import AdaptyUI
 import FirebaseAnalytics
 import FirebaseCore
+import FirebaseCrashlytics
 import FirebaseInstallations
 import SwiftUI
 
@@ -13,6 +14,10 @@ struct ImposterGameApp: App {
     init() {
         AppFontRegistrar.registerAppFonts()
         FirebaseApp.configure()
+        // One id across GA4, Crashlytics, Amplitude, Adapty/Apple and the BigQuery warehouse.
+        Analytics.setUserID(UserIdentity.id)
+        Crashlytics.crashlytics().setUserID(UserIdentity.id)
+        WarehouseUploader.start()
         AnalyticsService.setInstallWeekIfNeeded()
         AnalyticsService.setAppLanguage(LocalizationService.shared.currentLocaleCode)
         SeasonalEvent.reportEligibility()
@@ -27,8 +32,11 @@ struct ImposterGameApp: App {
         Task {
             try await Adapty.activate(with: config)
             try await AdaptyUI.activate()
+            // customerUserId stays the Firebase Installation ID so existing Adapty profiles are
+            // untouched; the appAccountToken is what Apple echoes back in server notifications,
+            // which is how the warehouse ties every payment to `UserIdentity`.
             if let installationId = try? await Installations.installations().installationID() {
-                try? await Adapty.identify(installationId)
+                try? await Adapty.identify(installationId, withAppAccountToken: UserIdentity.uuid)
             }
 
             // Amplitude + Firebase/GA integrations (Adapty Dashboard -> Integrations) need these
