@@ -3,6 +3,8 @@
 //   appstoreNotifications — App Store Server Notifications v2, які пересилає Adapty
 //                           («URL for forwarding raw Apple events»)
 //   load*                 — щоденні лоадери ASC / Apple Ads / FX (src/loaders.ts)
+//   revenueForecast       — щоранку прогноз net на день у Telegram (src/forecast.ts)
+export { revenueForecast } from "./forecast";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { onRequest } from "firebase-functions/v2/https";
