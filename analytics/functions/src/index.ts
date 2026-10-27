@@ -2,14 +2,18 @@
 //   ingest                — застосунок: /app/install, /app/attribution, /app/txmap
 //   appstoreNotifications — App Store Server Notifications v2, які пересилає Adapty
 //                           («URL for forwarding raw Apple events»)
+//   load*                 — щоденні лоадери ASC / Apple Ads / FX (src/loaders.ts)
 //   revenueForecast       — щоранку прогноз net на день у Telegram (src/forecast.ts)
 export { revenueForecast } from "./forecast";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { onRequest } from "firebase-functions/v2/https";
+import { onSchedule } from "firebase-functions/v2/scheduler";
+import { defineSecret } from "firebase-functions/params";
 import { logger } from "firebase-functions/v2";
 import { BigQuery } from "@google-cloud/bigquery";
 import { Environment, SignedDataVerifier } from "@apple/app-store-server-library";
+import { lastDays, loadAppleAds, loadAscSales, loadAscSubscriber, loadFx } from "./loaders";
 
 const REGION = "us-central1";
 const BUNDLE_ID = "com.danetka.Danetka";
@@ -175,3 +179,30 @@ export const appstoreNotifications = onRequest({ region: REGION, maxInstances: 5
     res.status(500).end();   // Apple / Adapty повторять
   }
 });
+
+// ─────────────────────────────────────────────────────────────
+// Щоденні лоадери (замість ручного analytics/loaders/README.md)
+// ─────────────────────────────────────────────────────────────
+// Вміст AuthKey_69AVX6PM25.p8 і apple-ads-private.pem — у Secret Manager, не в репо.
+const ascKey = defineSecret("ASC_API_KEY");
+const appleAdsKey = defineSecret("APPLE_ADS_PRIVATE_KEY");
+
+// Apple переписує свіжі дні (ASC — пізні звіти, Apple Ads — атрибуція), тож щодня беремо тиждень.
+const LOOKBACK_DAYS = 7;
+const daily = (schedule: string, secrets: ReturnType<typeof defineSecret>[] = []) => ({
+  region: REGION, schedule, timeZone: "UTC", retryCount: 2,
+  timeoutSeconds: 540, memory: "512MiB" as const, maxInstances: 1, secrets,
+});
+
+// ASC daily-звіти за вчора з'являються ~8:00 PT; 404 за день не стирає наявні рядки.
+export const loadAscSalesDaily = onSchedule(daily("0 17 * * *", [ascKey]),
+  async () => loadAscSales(ascKey.value(), lastDays(LOOKBACK_DAYS)));
+
+export const loadAscSubscriberDaily = onSchedule(daily("15 17 * * *", [ascKey]),
+  async () => loadAscSubscriber(ascKey.value(), lastDays(LOOKBACK_DAYS)));
+
+export const loadAppleAdsDaily = onSchedule(daily("0 7 * * *", [appleAdsKey]),
+  async () => loadAppleAds(appleAdsKey.value(), lastDays(LOOKBACK_DAYS)));
+
+export const loadFxDaily = onSchedule(daily("0 6 * * *"),
+  async () => loadFx(lastDays(LOOKBACK_DAYS)));

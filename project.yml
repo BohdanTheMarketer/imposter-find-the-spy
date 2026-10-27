@@ -51,8 +51,8 @@ settings:
     # Catches user-facing strings that were never localized - this app ships 5 languages.
     CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED: YES
     STRING_CATALOG_GENERATE_SYMBOLS: YES
-    MARKETING_VERSION: "1.1.0"
-    CURRENT_PROJECT_VERSION: "4"
+    MARKETING_VERSION: "2.3.0"
+    CURRENT_PROJECT_VERSION: "1"
     GENERATE_INFOPLIST_FILE: YES
     INFOPLIST_KEY_UIAppFonts:
       - LibreBaskerville-Regular.ttf
@@ -214,6 +214,10 @@ targets:
       - path: ImposterGame/Assets.xcassets
         buildPhase: resources
       - path: ImposterGame/Resources/Onboarding
+        buildPhase: resources
+      - path: ImposterGame/Resources/Splash
+        buildPhase: resources
+      - path: ImposterGame/Resources/Videos
         buildPhase: resources
       - path: ImposterGame/Resources/PlayerAvatars
         buildPhase: resources

@@ -1,4 +1,7 @@
-# Loaders (ручний бекфіл; основа для майбутніх Cloud Functions)
+# Loaders (ручний бекфіл)
+
+Щодня таблиці оновлюють функції `load*Daily` — див. `analytics/functions/README.md`.
+Ці скрипти + `bq load --replace` перезаписують таблицю повністю; для бекфілу краще `analytics/functions/lib/backfill.js`.
 
 Залежності: `python3 -m venv .venv && .venv/bin/pip install pyjwt cryptography requests`.
 Ключі — `~/.secrets/imposter/` (не в репо).

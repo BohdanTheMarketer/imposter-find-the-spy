@@ -88,7 +88,7 @@ class SubscriptionManager: ObservableObject {
     @AppStorage("qaForceOfferEligible") var qaForceOfferEligible: Bool = false
 
     /// The post-game offer follows every completed round for anyone who hasn't bought - how it's
-    /// sequenced against the interstitial, the survey and the rate-us prompt is `ResultView`'s call.
+    /// sequenced against the interstitial and the rate-us prompt is `ResultView`'s call.
     var isEligibleForPostGamePaywall: Bool {
         qaForceOfferEligible || !isPremium
     }

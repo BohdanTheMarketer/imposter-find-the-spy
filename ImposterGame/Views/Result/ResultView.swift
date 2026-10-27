@@ -1,4 +1,5 @@
 import SwiftUI
+import AVFoundation
 
 struct ResultView: View {
     @EnvironmentObject var router: AppRouter
@@ -11,7 +12,6 @@ struct ResultView: View {
     @State private var headerReveal = false
     @State private var outcomeCardAppeared = false
     @State private var showPostGamePaywall = false
-    @State private var showPostGameSurvey = false
     /// Set when this round's rate-us prompt claimed the result screen, so the offer has to wait
     /// rather than stack on top of it. It's spent on the next "Play Again" tap - never on a flag
     /// some other screen watches, which would fire the moment it flipped, while this screen (and
@@ -24,12 +24,15 @@ struct ResultView: View {
     /// purple "moment of truth" screen again right before the post-game overlay appeared. Only a
     /// genuinely new `ResultView` instance (next game) should ever run this once more.
     @State private var hasInitializedForThisGame = false
-    /// True while the ad-then-overlay decision for this round is in flight. "Play Again" is
-    /// disabled during this window - otherwise a fast tap races the async ad await and reaches
-    /// `navigateToCategories()` (tearing this view down) before the survey/paywall/rate-us
-    /// decision below ever runs, silently losing that round's eligibility the same way the
-    /// nav-race bug this sequence used to have did.
-    @State private var isResolvingPostRoundOverlay = false
+    /// True from the "Play Again" tap until the new round starts - the interstitial is awaited in
+    /// between, and a second tap must not queue up another ad or navigation.
+    @State private var isStartingNewRound = false
+    /// The round that asked for a review skips its interstitial: an ad right after the native
+    /// rate-us prompt would poison the answer.
+    @State private var skipsInterstitialThisRound = false
+    /// Plays the "Moment of Truth" video in place of the word-by-word text. English only: the
+    /// words are baked into the video, so other locales keep the localized text sequence.
+    @State private var intriguePlayer: AVPlayer?
 
     enum ResultPhase {
         case intrigue
@@ -44,6 +47,10 @@ struct ResultView: View {
     ]
     /// Keep the "Moment of Truth" sequence intentionally dramatic and slow.
     private let intrigueSpeedMultiplier: Double = 4.0
+    /// When "TRUTH" lands in `moment_of_truth.mp4`, for the matching haptic.
+    private let intrigueVideoTruthTime: Double = 2.6
+    /// Reveal anyway if the video stalls or never reports its end.
+    private let intrigueVideoFallbackDelay: Double = 7.0
 
     private var didPlayersWin: Bool {
         gameSession.gameResult == .playersWin
@@ -102,9 +109,6 @@ struct ResultView: View {
         }) {
             PostGamePaywallView()
         }
-        .sheet(isPresented: $showPostGameSurvey) {
-            PostGameSurveyView()
-        }
         .onAppear {
             guard !hasInitializedForThisGame else { return }
             hasInitializedForThisGame = true
@@ -128,11 +132,28 @@ struct ResultView: View {
             }
             startIntrigueSequence()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .AVPlayerItemDidPlayToEndTime)) { note in
+            guard let item = note.object as? AVPlayerItem, item === intriguePlayer?.currentItem else { return }
+            revealResult()
+        }
     }
 
     // MARK: - Intrigue View
 
     private var intrigueView: some View {
+        ZStack {
+            if let intriguePlayer {
+                Color.black
+                    .ignoresSafeArea()
+                FullScreenVideoPlayer(player: intriguePlayer)
+                    .ignoresSafeArea()
+            } else {
+                intrigueTextView
+            }
+        }
+    }
+
+    private var intrigueTextView: some View {
         ZStack {
             LinearGradient.gameplayBackground
                 .ignoresSafeArea()
@@ -255,7 +276,7 @@ struct ResultView: View {
                 Group {
                     if showActionButtons {
                         Button(action: {
-                            guard !isResolvingPostRoundOverlay else { return }
+                            guard !isStartingNewRound else { return }
                             HapticsManager.impact(.medium)
                             AnalyticsService.logResultPlayAgainTapped()
                             // The offer this round deferred goes in front of the tap, not instead
@@ -371,6 +392,22 @@ struct ResultView: View {
     // MARK: - Intrigue Sequence
 
     private func startIntrigueSequence() {
+        if LocalizationService.shared.currentLocaleCode.hasPrefix("en"),
+           let url = Bundle.main.url(forResource: "moment_of_truth", withExtension: "mp4") {
+            let player = AVPlayer(url: url)
+            player.isMuted = true
+            intriguePlayer = player
+            player.play()
+            DispatchQueue.main.asyncAfter(deadline: .now() + intrigueVideoTruthTime) {
+                guard phase == .intrigue else { return }
+                HapticsManager.impact(.medium)
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + intrigueVideoFallbackDelay) {
+                revealResult()
+            }
+            return
+        }
+
         let wordStep = 0.26 * intrigueSpeedMultiplier
         for i in 0..<intrigueKeys.count {
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * wordStep) {
@@ -385,95 +422,67 @@ struct ResultView: View {
         let revealDelay = lastWordDelay + (0.28 * intrigueSpeedMultiplier)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + revealDelay) {
-            withAnimation(.easeInOut(duration: 0.42)) {
-                phase = .reveal
-            }
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
-                withAnimation(.spring(response: 0.56, dampingFraction: 0.9)) {
-                    headerReveal = true
-                }
-            }
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.24) {
-                if let result = gameSession.gameResult {
-                    switch result {
-                    case .playersWin:
-                        HapticsManager.notification(.success)
-                    case .imposterWins:
-                        HapticsManager.notification(.warning)
-                    }
-                }
-                withAnimation(.spring(response: 0.62, dampingFraction: 0.9)) {
-                    showOutcomeSection = true
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
-                    withAnimation(.spring(response: 0.56, dampingFraction: 0.92)) {
-                        outcomeCardAppeared = true
-                    }
-                }
-            }
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.56) {
-                withAnimation(.spring(response: 0.58, dampingFraction: 0.9)) {
-                    showActionButtons = true
-                }
-                HapticsManager.selection()
-                // Disabled in the same tick as `showActionButtons = true` above (see
-                // `isResolvingPostRoundOverlay`'s own doc comment for why): the "Play Again"
-                // button becomes visible at that exact moment, and a fast tap on it replaces the
-                // whole nav path (see AppRouter.navigateToCategories), tearing this view down
-                // instantly. An earlier version made this same decision synchronously right here
-                // with nothing async in between, which left no window for that race - awaiting the
-                // interstitial below reopens it, so the button is explicitly held disabled for the
-                // duration instead.
-                isResolvingPostRoundOverlay = true
-                // Decide survey/paywall/rate-us eligibility up front, before the ad. Survey and
-                // rate-us both carry one-time side effects (their underlying "games played"
-                // counters), so each must be computed exactly once per round - not re-derived
-                // after the ad runs.
-                let surveyEligible = SurveyService.recordCompletedGameAndCheckEligibility()
-                // Recorded on its own line, never folded into the `&&` chain below: `&&`
-                // short-circuits, so a round claimed by the survey would skip this call entirely
-                // and its "games played" counter would stop tracking actual rounds.
-                let rateUsRoundEligible = RateUsService.recordCompletedGameAndCheckEligibility()
-                let rateUsEligible = !surveyEligible && rateUsRoundEligible
-                let paywallEligible = subscriptionManager.isEligibleForPostGamePaywall
-                // Survey and the native rate-us prompt are engagement asks, not monetization -
-                // stacking either behind a full-screen ad would tank response rates, so both skip
-                // the ad entirely this round.
-                let skipAdForEngagementOverlay = surveyEligible || rateUsEligible
-
-                Task { @MainActor in
-                    if !subscriptionManager.isPremium && !skipAdForEngagementOverlay {
-                        await AdMobService.shared.showInterstitial()
-                        // Small buffer so the ad's own dismissal transition fully finishes before
-                        // potentially presenting a sheet on top of it.
-                        try? await Task.sleep(nanoseconds: 300_000_000)
-                    }
-                    resolvePostRoundOverlay(
-                        surveyEligible: surveyEligible,
-                        paywallEligible: paywallEligible,
-                        rateUsEligible: rateUsEligible
-                    )
-                    isResolvingPostRoundOverlay = false
-                }
-            }
+            revealResult()
         }
     }
 
-    /// Runs once the ad (if any) has finished. Eligibility for all three was already decided,
-    /// before the ad, by the caller - this just acts on it, so it must not re-derive any of it here.
+    /// Switches from the intrigue phase to the result. Runs once: the video path reaches it both
+    /// from its end notification and from the fallback timer.
+    private func revealResult() {
+        guard phase == .intrigue else { return }
+        withAnimation(.easeInOut(duration: 0.42)) {
+            phase = .reveal
+        }
+        intriguePlayer?.pause()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
+            withAnimation(.spring(response: 0.56, dampingFraction: 0.9)) {
+                headerReveal = true
+            }
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.24) {
+            if let result = gameSession.gameResult {
+                switch result {
+                case .playersWin:
+                    HapticsManager.notification(.success)
+                case .imposterWins:
+                    HapticsManager.notification(.warning)
+                }
+            }
+            withAnimation(.spring(response: 0.62, dampingFraction: 0.9)) {
+                showOutcomeSection = true
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
+                withAnimation(.spring(response: 0.56, dampingFraction: 0.92)) {
+                    outcomeCardAppeared = true
+                }
+            }
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.56) {
+            withAnimation(.spring(response: 0.58, dampingFraction: 0.9)) {
+                showActionButtons = true
+            }
+            HapticsManager.selection()
+            // Eligibility is decided exactly once per round: rate-us carries a one-time side
+            // effect (its "games played" counter). No ad here - the interstitial only ever runs
+            // after "Play Again" (see `startNewRound`).
+            let rateUsEligible = RateUsService.recordCompletedGameAndCheckEligibility()
+            let paywallEligible = subscriptionManager.isEligibleForPostGamePaywall
+            skipsInterstitialThisRound = rateUsEligible
+            resolvePostRoundOverlay(paywallEligible: paywallEligible, rateUsEligible: rateUsEligible)
+        }
+    }
+
+    /// Acts on eligibility the caller already decided - it must not re-derive any of it here.
     ///
-    /// The survey and the rate-us prompt each take the result screen for their round - they're the
-    /// rarer asks and the ones most easily poisoned by a competing overlay. Neither cancels the
-    /// offer though, only defers it: it resurfaces in front of that round's "Play Again" tap.
-    /// Every other round shows the paywall right here, once the ad is done.
-    private func resolvePostRoundOverlay(surveyEligible: Bool, paywallEligible: Bool, rateUsEligible: Bool) {
-        if surveyEligible {
-            showPostGameSurvey = true
-            isPaywallDeferredToPlayAgain = paywallEligible
-        } else if rateUsEligible {
+    /// The rate-us prompt takes the result screen for its round - it's the rarer ask and the one
+    /// most easily poisoned by a competing overlay. It doesn't cancel the offer though, only
+    /// defers it: it resurfaces in front of that round's "Play Again" tap. Every other round shows
+    /// the paywall right here, as soon as the result is revealed.
+    private func resolvePostRoundOverlay(paywallEligible: Bool, rateUsEligible: Bool) {
+        if rateUsEligible {
             RateUsService.presentReview()
             isPaywallDeferredToPlayAgain = paywallEligible
         } else if paywallEligible {
@@ -481,9 +490,18 @@ struct ResultView: View {
         }
     }
 
+    /// The only place the interstitial runs: after "Play Again" (and after the deferred offer, if
+    /// this round had one), right before leaving for the next round.
     private func startNewRound() {
-        gameSession.resetForNewRound()
-        router.navigateToCategories()
+        guard !isStartingNewRound else { return }
+        isStartingNewRound = true
+        Task { @MainActor in
+            if !subscriptionManager.isPremium && !skipsInterstitialThisRound {
+                await AdMobService.shared.showInterstitial()
+            }
+            gameSession.resetForNewRound()
+            router.navigateToCategories()
+        }
     }
 }
 
