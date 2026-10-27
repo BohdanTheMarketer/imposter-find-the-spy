@@ -1,4 +1,5 @@
 import SwiftUI
+import AVFoundation
 
 struct ResultView: View {
     @EnvironmentObject var router: AppRouter
@@ -30,6 +31,9 @@ struct ResultView: View {
     /// decision below ever runs, silently losing that round's eligibility the same way the
     /// nav-race bug this sequence used to have did.
     @State private var isResolvingPostRoundOverlay = false
+    /// Plays the "Moment of Truth" video in place of the word-by-word text. English only: the
+    /// words are baked into the video, so other locales keep the localized text sequence.
+    @State private var intriguePlayer: AVPlayer?
 
     enum ResultPhase {
         case intrigue
@@ -44,6 +48,10 @@ struct ResultView: View {
     ]
     /// Keep the "Moment of Truth" sequence intentionally dramatic and slow.
     private let intrigueSpeedMultiplier: Double = 4.0
+    /// When "TRUTH" lands in `moment_of_truth.mp4`, for the matching haptic.
+    private let intrigueVideoTruthTime: Double = 2.6
+    /// Reveal anyway if the video stalls or never reports its end.
+    private let intrigueVideoFallbackDelay: Double = 7.0
 
     private var didPlayersWin: Bool {
         gameSession.gameResult == .playersWin
@@ -128,11 +136,28 @@ struct ResultView: View {
             }
             startIntrigueSequence()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .AVPlayerItemDidPlayToEndTime)) { note in
+            guard let item = note.object as? AVPlayerItem, item === intriguePlayer?.currentItem else { return }
+            revealResult()
+        }
     }
 
     // MARK: - Intrigue View
 
     private var intrigueView: some View {
+        ZStack {
+            if let intriguePlayer {
+                Color.black
+                    .ignoresSafeArea()
+                FullScreenVideoPlayer(player: intriguePlayer)
+                    .ignoresSafeArea()
+            } else {
+                intrigueTextView
+            }
+        }
+    }
+
+    private var intrigueTextView: some View {
         ZStack {
             LinearGradient.gameplayBackground
                 .ignoresSafeArea()
@@ -371,6 +396,22 @@ struct ResultView: View {
     // MARK: - Intrigue Sequence
 
     private func startIntrigueSequence() {
+        if LocalizationService.shared.currentLocaleCode.hasPrefix("en"),
+           let url = Bundle.main.url(forResource: "moment_of_truth", withExtension: "mp4") {
+            let player = AVPlayer(url: url)
+            player.isMuted = true
+            intriguePlayer = player
+            player.play()
+            DispatchQueue.main.asyncAfter(deadline: .now() + intrigueVideoTruthTime) {
+                guard phase == .intrigue else { return }
+                HapticsManager.impact(.medium)
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + intrigueVideoFallbackDelay) {
+                revealResult()
+            }
+            return
+        }
+
         let wordStep = 0.26 * intrigueSpeedMultiplier
         for i in 0..<intrigueKeys.count {
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * wordStep) {
@@ -385,79 +426,87 @@ struct ResultView: View {
         let revealDelay = lastWordDelay + (0.28 * intrigueSpeedMultiplier)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + revealDelay) {
-            withAnimation(.easeInOut(duration: 0.42)) {
-                phase = .reveal
-            }
+            revealResult()
+        }
+    }
 
+    /// Switches from the intrigue phase to the result. Runs once: the video path reaches it both
+    /// from its end notification and from the fallback timer.
+    private func revealResult() {
+        guard phase == .intrigue else { return }
+        withAnimation(.easeInOut(duration: 0.42)) {
+            phase = .reveal
+        }
+        intriguePlayer?.pause()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
+            withAnimation(.spring(response: 0.56, dampingFraction: 0.9)) {
+                headerReveal = true
+            }
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.24) {
+            if let result = gameSession.gameResult {
+                switch result {
+                case .playersWin:
+                    HapticsManager.notification(.success)
+                case .imposterWins:
+                    HapticsManager.notification(.warning)
+                }
+            }
+            withAnimation(.spring(response: 0.62, dampingFraction: 0.9)) {
+                showOutcomeSection = true
+            }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
-                withAnimation(.spring(response: 0.56, dampingFraction: 0.9)) {
-                    headerReveal = true
+                withAnimation(.spring(response: 0.56, dampingFraction: 0.92)) {
+                    outcomeCardAppeared = true
                 }
             }
+        }
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.24) {
-                if let result = gameSession.gameResult {
-                    switch result {
-                    case .playersWin:
-                        HapticsManager.notification(.success)
-                    case .imposterWins:
-                        HapticsManager.notification(.warning)
-                    }
-                }
-                withAnimation(.spring(response: 0.62, dampingFraction: 0.9)) {
-                    showOutcomeSection = true
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
-                    withAnimation(.spring(response: 0.56, dampingFraction: 0.92)) {
-                        outcomeCardAppeared = true
-                    }
-                }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.56) {
+            withAnimation(.spring(response: 0.58, dampingFraction: 0.9)) {
+                showActionButtons = true
             }
+            HapticsManager.selection()
+            // Disabled in the same tick as `showActionButtons = true` above (see
+            // `isResolvingPostRoundOverlay`'s own doc comment for why): the "Play Again"
+            // button becomes visible at that exact moment, and a fast tap on it replaces the
+            // whole nav path (see AppRouter.navigateToCategories), tearing this view down
+            // instantly. An earlier version made this same decision synchronously right here
+            // with nothing async in between, which left no window for that race - awaiting the
+            // interstitial below reopens it, so the button is explicitly held disabled for the
+            // duration instead.
+            isResolvingPostRoundOverlay = true
+            // Decide survey/paywall/rate-us eligibility up front, before the ad. Survey and
+            // rate-us both carry one-time side effects (their underlying "games played"
+            // counters), so each must be computed exactly once per round - not re-derived
+            // after the ad runs.
+            let surveyEligible = SurveyService.recordCompletedGameAndCheckEligibility()
+            // Recorded on its own line, never folded into the `&&` chain below: `&&`
+            // short-circuits, so a round claimed by the survey would skip this call entirely
+            // and its "games played" counter would stop tracking actual rounds.
+            let rateUsRoundEligible = RateUsService.recordCompletedGameAndCheckEligibility()
+            let rateUsEligible = !surveyEligible && rateUsRoundEligible
+            let paywallEligible = subscriptionManager.isEligibleForPostGamePaywall
+            // Survey and the native rate-us prompt are engagement asks, not monetization -
+            // stacking either behind a full-screen ad would tank response rates, so both skip
+            // the ad entirely this round.
+            let skipAdForEngagementOverlay = surveyEligible || rateUsEligible
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.56) {
-                withAnimation(.spring(response: 0.58, dampingFraction: 0.9)) {
-                    showActionButtons = true
+            Task { @MainActor in
+                if !subscriptionManager.isPremium && !skipAdForEngagementOverlay {
+                    await AdMobService.shared.showInterstitial()
+                    // Small buffer so the ad's own dismissal transition fully finishes before
+                    // potentially presenting a sheet on top of it.
+                    try? await Task.sleep(nanoseconds: 300_000_000)
                 }
-                HapticsManager.selection()
-                // Disabled in the same tick as `showActionButtons = true` above (see
-                // `isResolvingPostRoundOverlay`'s own doc comment for why): the "Play Again"
-                // button becomes visible at that exact moment, and a fast tap on it replaces the
-                // whole nav path (see AppRouter.navigateToCategories), tearing this view down
-                // instantly. An earlier version made this same decision synchronously right here
-                // with nothing async in between, which left no window for that race - awaiting the
-                // interstitial below reopens it, so the button is explicitly held disabled for the
-                // duration instead.
-                isResolvingPostRoundOverlay = true
-                // Decide survey/paywall/rate-us eligibility up front, before the ad. Survey and
-                // rate-us both carry one-time side effects (their underlying "games played"
-                // counters), so each must be computed exactly once per round - not re-derived
-                // after the ad runs.
-                let surveyEligible = SurveyService.recordCompletedGameAndCheckEligibility()
-                // Recorded on its own line, never folded into the `&&` chain below: `&&`
-                // short-circuits, so a round claimed by the survey would skip this call entirely
-                // and its "games played" counter would stop tracking actual rounds.
-                let rateUsRoundEligible = RateUsService.recordCompletedGameAndCheckEligibility()
-                let rateUsEligible = !surveyEligible && rateUsRoundEligible
-                let paywallEligible = subscriptionManager.isEligibleForPostGamePaywall
-                // Survey and the native rate-us prompt are engagement asks, not monetization -
-                // stacking either behind a full-screen ad would tank response rates, so both skip
-                // the ad entirely this round.
-                let skipAdForEngagementOverlay = surveyEligible || rateUsEligible
-
-                Task { @MainActor in
-                    if !subscriptionManager.isPremium && !skipAdForEngagementOverlay {
-                        await AdMobService.shared.showInterstitial()
-                        // Small buffer so the ad's own dismissal transition fully finishes before
-                        // potentially presenting a sheet on top of it.
-                        try? await Task.sleep(nanoseconds: 300_000_000)
-                    }
-                    resolvePostRoundOverlay(
-                        surveyEligible: surveyEligible,
-                        paywallEligible: paywallEligible,
-                        rateUsEligible: rateUsEligible
-                    )
-                    isResolvingPostRoundOverlay = false
-                }
+                resolvePostRoundOverlay(
+                    surveyEligible: surveyEligible,
+                    paywallEligible: paywallEligible,
+                    rateUsEligible: rateUsEligible
+                )
+                isResolvingPostRoundOverlay = false
             }
         }
     }

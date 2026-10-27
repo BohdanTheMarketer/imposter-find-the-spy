@@ -22,7 +22,7 @@ struct LoaderView: View {
         ZStack {
             Color.black
             if let player {
-                SplashVideoPlayer(player: player)
+                FullScreenVideoPlayer(player: player)
             }
         }
         .ignoresSafeArea()
@@ -72,10 +72,10 @@ struct LoaderView: View {
     }
 }
 
-// MARK: - SplashVideoPlayer
+// MARK: - FullScreenVideoPlayer
 
 /// Bare `AVPlayerLayer` host — no playback controls, aspect-fill to the screen edges.
-private struct SplashVideoPlayer: UIViewRepresentable {
+struct FullScreenVideoPlayer: UIViewRepresentable {
     let player: AVPlayer
 
     func makeUIView(context: Context) -> PlayerView {

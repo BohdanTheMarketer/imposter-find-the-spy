@@ -217,6 +217,8 @@ targets:
         buildPhase: resources
       - path: ImposterGame/Resources/Splash
         buildPhase: resources
+      - path: ImposterGame/Resources/Videos
+        buildPhase: resources
       - path: ImposterGame/Resources/PlayerAvatars
         buildPhase: resources
       - path: ImposterGame/Resources/CategoryIcons
