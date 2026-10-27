@@ -21,7 +21,6 @@ struct ImposterGameApp: App {
         AnalyticsService.setInstallWeekIfNeeded()
         AnalyticsService.setAppLanguage(LocalizationService.shared.currentLocaleCode)
         SeasonalEvent.reportEligibility()
-        SurveyService.migrateExistingUsersIfNeeded()
         AdMobService.shared.start()
 
         let config = AdaptyConfiguration
