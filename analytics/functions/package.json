@@ -2,7 +2,7 @@
   "name": "imposter-warehouse-functions",
   "private": true,
   "main": "lib/index.js",
-  "engines": { "node": "20" },
+  "engines": { "node": "22" },
   "scripts": {
     "build": "tsc",
     "deploy": "npm run build && npx firebase-tools deploy --only functions:warehouse --project imposter-who-s-the-spy"

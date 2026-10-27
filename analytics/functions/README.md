@@ -6,6 +6,11 @@
 | `ingest` `POST /app/attribution` | застосунок, після AdServices | `raw.app_attribution` |
 | `ingest` `POST /app/txmap` | застосунок, `Transaction.currentEntitlements` | `raw.app_transactions_map` |
 | `appstoreNotifications` | Adapty («URL for forwarding raw Apple events») | `raw.appstore_notifications` |
+| `revenueForecast` | Cloud Scheduler, щодня 09:00 Europe/Kiev | Telegram (читає `mart.renewals_due`) |
+
+Секрети `revenueForecast` (Secret Manager): `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` —
+`npx firebase-tools functions:secrets:set TELEGRAM_BOT_TOKEN --project imposter-who-s-the-spy`.
+Ручний запуск: `gcloud scheduler jobs run firebase-schedule-revenueForecast-us-central1 --location us-central1`.
 
 ASSN перевіряються підписом Apple (`certs/AppleRootCA-G3.cer`, SHA-256 `63:34:3A:BF:…:91:79`), Sandbox теж пишеться — фільтр у `mart.notifications`.
 

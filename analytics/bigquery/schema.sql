@@ -347,6 +347,156 @@ FROM agg
 JOIN last USING (original_transaction_id)
 LEFT JOIN money USING (original_transaction_id);
 
+-- Один рядок на trial: день старту (UTC) і поточний статус — для графіка «тріали по днях старту».
+-- not_cancelled = ще в тріалі з auto-renew, вже сконвертився або в billing retry.
+-- Повні дані з 2026-10-25: раніше Adapty ще не форвардив нотифікації.
+CREATE OR REPLACE VIEW mart.trials AS
+WITH e AS (SELECT * FROM mart.subscription_events),
+start AS (
+  SELECT original_transaction_id, user_id, product_id, storefront,
+         purchase_date AS trial_started_at, expires_date AS trial_ends_at
+  FROM e
+  WHERE event = 'trial_started'
+  QUALIFY ROW_NUMBER() OVER (PARTITION BY original_transaction_id ORDER BY purchase_date) = 1
+),
+agg AS (
+  SELECT original_transaction_id,
+    MAX(user_id)                                       AS user_id,
+    MIN(IF(event = 'trial_cancelled', event_at, NULL)) AS trial_cancelled_at,
+    MIN(IF(event = 'trial_converted', event_at, NULL)) AS trial_converted_at,
+    COUNTIF(event = 'refund') > 0                      AS refunded
+  FROM e GROUP BY 1
+),
+last AS (
+  SELECT original_transaction_id, auto_renew_status, is_in_billing_retry
+  FROM e
+  QUALIFY ROW_NUMBER() OVER (PARTITION BY original_transaction_id ORDER BY event_at DESC) = 1
+),
+t AS (
+  SELECT
+    s.original_transaction_id,
+    COALESCE(agg.user_id, s.user_id) AS user_id,
+    s.product_id,
+    DATE(s.trial_started_at)         AS trial_date,
+    s.trial_started_at, s.trial_ends_at,
+    agg.trial_cancelled_at, agg.trial_converted_at,
+    COALESCE(st.country, s.storefront) AS country,
+    CASE
+      WHEN agg.refunded                         THEN 'refunded'
+      WHEN agg.trial_converted_at IS NOT NULL   THEN 'converted'
+      WHEN last.is_in_billing_retry             THEN 'billing_issue'
+      WHEN last.auto_renew_status = 0           THEN 'cancelled'
+      WHEN s.trial_ends_at > CURRENT_TIMESTAMP() THEN 'in_trial'
+      ELSE 'expired'
+    END AS status
+  FROM start s
+  JOIN agg USING (original_transaction_id)
+  JOIN last USING (original_transaction_id)
+  LEFT JOIN ref.storefront st ON st.storefront = s.storefront
+)
+SELECT t.*,
+  t.status IN ('in_trial', 'converted', 'billing_issue') AS not_cancelled,
+  u.is_apple_ads, u.campaign_id, u.keyword_id
+FROM t
+LEFT JOIN mart.users u USING (user_id);
+
+-- Один рядок на платіжний період, що закінчується (trial або тиждень підписки): чи оплачено продовження
+-- і скільки чекаємо net. Читає функція revenueForecast (щоденний прогноз у Telegram).
+CREATE OR REPLACE VIEW mart.renewals_due AS
+WITH renewal AS (
+  -- renewalPrice є тільки в payload: скільки Apple спише наступного разу (валюта покупця × 1000).
+  SELECT notification_uuid,
+    SAFE_CAST(JSON_VALUE(payload, '$.renewal.renewalPrice') AS INT64) AS renewal_price_milli,
+    JSON_VALUE(payload, '$.renewal.currency')                         AS renewal_currency
+  FROM raw.appstore_notifications
+  QUALIFY ROW_NUMBER() OVER (PARTITION BY notification_uuid ORDER BY received_at) = 1
+),
+n AS (
+  SELECT n.*, r.renewal_price_milli, r.renewal_currency
+  FROM mart.notifications n JOIN renewal r USING (notification_uuid)
+),
+-- Період = транзакція. З будь-якої нотифікації, не лише SUBSCRIBED/DID_RENEW: так видно й періоди
+-- старих підписників, оплачені до старту форвардингу (2026-10-24).
+periods AS (
+  SELECT original_transaction_id, transaction_id,
+    ANY_VALUE(user_id) AS user_id, ANY_VALUE(product_id) AS product_id,
+    ANY_VALUE(storefront) AS storefront, ANY_VALUE(currency) AS currency,
+    ANY_VALUE(price_milli) AS price_milli, ANY_VALUE(offer_discount_type) AS offer_discount_type,
+    ANY_VALUE(transaction_reason) AS transaction_reason,
+    ANY_VALUE(purchase_date) AS purchase_date, ANY_VALUE(expires_date) AS expires_date
+  FROM n
+  WHERE transaction_id IS NOT NULL AND expires_date IS NOT NULL AND notification_type != 'REFUND'
+  GROUP BY 1, 2
+),
+latest AS (
+  SELECT original_transaction_id, auto_renew_status, is_in_billing_retry,
+    LAST_VALUE(renewal_price_milli IGNORE NULLS) OVER w AS renewal_price_milli,
+    LAST_VALUE(renewal_currency IGNORE NULLS)    OVER w AS renewal_currency
+  FROM n
+  QUALIFY ROW_NUMBER() OVER (PARTITION BY original_transaction_id ORDER BY signed_date DESC) = 1
+  WINDOW w AS (PARTITION BY original_transaction_id ORDER BY signed_date
+               ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)
+),
+-- Оплата за період: наступна транзакція ланцюжка. Вчасне продовження стартує рівно в expires_date.
+paid AS (
+  SELECT p.transaction_id,
+    ARRAY_AGG(STRUCT(x.transaction_id, x.purchase_date, x.price_milli, x.currency)
+              ORDER BY x.purchase_date LIMIT 1)[OFFSET(0)] AS nx
+  FROM periods p
+  JOIN periods x
+    ON x.original_transaction_id = p.original_transaction_id
+   AND x.purchase_date >= TIMESTAMP_SUB(p.expires_date, INTERVAL 1 MINUTE)
+   AND x.transaction_id != p.transaction_id
+  GROUP BY 1
+),
+fx AS (
+  -- ref.fx_daily оновлюється вручну — беремо останній відомий курс.
+  SELECT currency, usd_per_unit FROM ref.fx_daily
+  QUALIFY ROW_NUMBER() OVER (PARTITION BY currency ORDER BY date DESC) = 1
+),
+d AS (
+  SELECT
+    p.original_transaction_id, p.transaction_id, p.user_id, p.product_id, p.storefront,
+    IF(p.offer_discount_type = 'FREE_TRIAL', 'trial', 'renewal') AS kind,
+    p.expires_date AS due_at,
+    CASE
+      WHEN pd.nx.purchase_date <= TIMESTAMP_ADD(p.expires_date, INTERVAL 1 MINUTE) THEN 'paid'
+      WHEN pd.nx.transaction_id IS NOT NULL      THEN 'paid_late'      -- billing recovery
+      WHEN l.is_in_billing_retry                 THEN 'billing_retry'
+      WHEN l.auto_renew_status = 0               THEN 'cancelled'
+      WHEN p.expires_date > CURRENT_TIMESTAMP()  THEN 'pending'
+      ELSE 'lapsed'
+    END AS state,
+    pd.nx.purchase_date      AS paid_at,
+    pd.nx.price_milli / 1000 AS paid_local,
+    pd.nx.currency           AS paid_currency,
+    COALESCE(l.renewal_price_milli, NULLIF(p.price_milli, 0)) / 1000 AS expected_local,
+    COALESCE(l.renewal_currency, p.currency)                        AS expected_currency
+  FROM periods p
+  JOIN latest l USING (original_transaction_id)
+  LEFT JOIN paid pd USING (transaction_id)
+  UNION ALL
+  -- Продовження, чий попередній період ми не бачили (оплачений до 2026-10-24): оплата сама по собі.
+  SELECT
+    x.original_transaction_id, CONCAT('prev:', x.transaction_id), x.user_id, x.product_id, x.storefront,
+    'renewal', x.purchase_date, 'paid',
+    x.purchase_date, x.price_milli / 1000, x.currency,
+    x.price_milli / 1000, x.currency
+  FROM periods x
+  WHERE x.transaction_reason = 'RENEWAL'
+    AND x.transaction_id NOT IN (SELECT nx.transaction_id FROM paid)
+)
+SELECT d.*,
+  -- net як у mart.payments: без VAT, мінус 15% Apple, у USD
+  IF(s.price_includes_tax, d.paid_local / (1 + s.vat_rate), d.paid_local) * 0.85
+    * IF(d.paid_currency = 'USD', 1, fp.usd_per_unit)                         AS paid_net_usd,
+  IF(s.price_includes_tax, d.expected_local / (1 + s.vat_rate), d.expected_local) * 0.85
+    * IF(d.expected_currency = 'USD', 1, fe.usd_per_unit)                     AS expected_net_usd
+FROM d
+LEFT JOIN ref.storefront s ON s.storefront = d.storefront
+LEFT JOIN fx fp ON fp.currency = d.paid_currency
+LEFT JOIN fx fe ON fe.currency = d.expected_currency;
+
 -- Spend по keyword × країна × день у USD.
 CREATE OR REPLACE VIEW mart.spend AS
 SELECT
