@@ -6,9 +6,10 @@
 | `ingest` `POST /app/attribution` | застосунок, після AdServices | `raw.app_attribution` |
 | `ingest` `POST /app/txmap` | застосунок, `Transaction.currentEntitlements` | `raw.app_transactions_map` |
 | `appstoreNotifications` | Adapty («URL for forwarding raw Apple events») | `raw.appstore_notifications` |
+| `refreshWarehouse` | Cloud Scheduler, щодня 06:00 Europe/Kiev | останні 7 днів (дні UTC): `raw.apple_ads_keyword_daily`, `raw.asc_subscriber_daily`, `raw.asc_sales_daily`, `ref.fx_daily` (секрети `APPLE_ADS_PRIVATE_KEY`, `ASC_API_KEY`) |
 | `revenueForecast` | Cloud Scheduler, щодня 09:00 Europe/Kiev | Telegram (читає `mart.renewals_due`) |
 
-Секрети `revenueForecast` (Secret Manager): `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` —
+Секрети `revenueForecast` (Secret Manager): `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `APPLE_ADS_PRIVATE_KEY` (spend за вчора; `--data-file ~/.secrets/imposter/apple-ads-private.pem`) —
 `npx firebase-tools functions:secrets:set TELEGRAM_BOT_TOKEN --project imposter-who-s-the-spy`.
 Ручний запуск: `gcloud scheduler jobs run firebase-schedule-revenueForecast-us-central1 --location us-central1`.
 

@@ -1,4 +1,11 @@
-# Loaders (ручний бекфіл; основа для майбутніх Cloud Functions)
+# Loaders (ручний бекфіл історії)
+
+Щоденне оновлення робить функція `refreshWarehouse` (analytics/functions/src/refresh.ts): щоранку 06:00 за Києвом
+перезаливає останні 7 днів Apple Ads, ASC SUBSCRIBER / SALES і курсів. Скрипти нижче — лише для бекфілу довших періодів.
+
+Дні в BigQuery — UTC (як в Adapty): Apple Ads тягнемо з `timeZone: UTC`, транзакції ділимо `DATE(ts)`.
+Виняток — звіти ASC SUBSCRIBER / SALES: Apple віддає їх лише за днями Pacific Time.
+Adapty (`refreshAdapty`, src/adapty.ts) увімкнеться після `functions:secrets:set ADAPTY_SECRET_KEY`.
 
 Залежності: `python3 -m venv .venv && .venv/bin/pip install pyjwt cryptography requests`.
 Ключі — `~/.secrets/imposter/` (не в репо).
@@ -29,3 +36,11 @@ cat /tmp/kw.ndjson /tmp/res.ndjson > /tmp/ads.ndjson
 bq load --replace --source_format=NEWLINE_DELIMITED_JSON raw.apple_ads_keyword_daily /tmp/ads.ndjson
 ```
 Звірка: SUM(spend) має дорівнювати spend кампаній (скрипт друкує обидві суми).
+
+# Adapty: trials / підписки / net по днях у розрізі ASA-атрибуції (keyword = attribution_creative)
+Secret key Adapty (`secret_live_…`) — у змінній оточення. API має rate limit, 12 запитів ≈ 5 хв.
+```
+ADAPTY_SECRET_KEY=secret_live_… .venv/bin/python3 adapty_metrics_fetch.py 2026-05-01 2026-10-27 /tmp/adapty.ndjson
+bq load --replace --source_format=NEWLINE_DELIMITED_JSON raw.adapty_metrics_daily /tmp/adapty.ndjson
+```
+Звірка: SUM(net_revenue) однаковий для кожної segmentation.

@@ -18,7 +18,7 @@ def windows():
 def report(path, s, e, group):
     rows,off=[],0
     while True:
-        body={"startTime":s.isoformat(),"endTime":e.isoformat(),"granularity":"DAILY","timeZone":"ORTZ",
+        body={"startTime":s.isoformat(),"endTime":e.isoformat(),"granularity":"DAILY","timeZone":"UTC",
               "selector":{"orderBy":[{"field":"localSpend","sortOrder":"DESCENDING"}],"pagination":{"offset":off,"limit":1000}},
               "groupBy":group,"returnRecordsWithNoMetrics":False,"returnRowTotals":False,"returnGrandTotals":False}
         r=requests.post(f"{API}/reports/{path}",headers=H,json=body)

@@ -3,7 +3,10 @@
 //   appstoreNotifications — App Store Server Notifications v2, які пересилає Adapty
 //                           («URL for forwarding raw Apple events»)
 //   revenueForecast       — щоранку прогноз net на день у Telegram (src/forecast.ts)
+//   refreshWarehouse      — щоранку оновлює Apple Ads spend, ASC-звіти, курси валют (src/refresh.ts)
 export { revenueForecast } from "./forecast";
+export { refreshWarehouse } from "./refresh";
+// refreshAdapty (src/adapty.ts) — експортувати після functions:secrets:set ADAPTY_SECRET_KEY, без секрету деплой падає
 import { readFileSync } from "fs";
 import { join } from "path";
 import { onRequest } from "firebase-functions/v2/https";

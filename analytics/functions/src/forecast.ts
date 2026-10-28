@@ -1,14 +1,22 @@
-// Щоранку в Telegram: прогноз net на сьогодні (дні за Києвом) з mart.renewals_due.
+// Щоранку в Telegram: прогноз net на сьогодні з mart.renewals_due.
+// День — UTC (таймзона дашборду Adapty, змінити її не можна) і оплата за purchase_date нового періоду, як у дашборді Adapty (Apple списує ~8 год раніше,
+// тож на момент звіту частина «сьогоднішніх» оплат уже пройшла).
 //   прогноз = вже оплачені періоди, що закінчуються сьогодні
 //           + ще не оплачені з auto-renew × історична частка оплат (за 30 днів, зі згладжуванням)
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import { defineSecret } from "firebase-functions/params";
 import { logger } from "firebase-functions/v2";
 import { BigQuery } from "@google-cloud/bigquery";
+import { adsHeaders, adsReport } from "./apple";
 
-const TZ = "Europe/Kiev";
+const TZ = "Europe/Kiev"; // розклад і час окремих оплат у тексті
+const DAY_TZ = "UTC";     // межі днів — як в Adapty
 const botToken = defineSecret("TELEGRAM_BOT_TOKEN");
 const chatId = defineSecret("TELEGRAM_CHAT_ID");
+const adsKey = defineSecret("APPLE_ADS_PRIVATE_KEY");
+
+// Apple Ads виставляє рахунок з українським ПДВ — справжня ціна трафіку = spend × (1 + VAT).
+const ADS_VAT = 0.2;
 
 const bq = new BigQuery();
 
@@ -18,7 +26,7 @@ const PRIOR_WEIGHT = 10;
 
 const SQL = `
 WITH due AS (
-  SELECT * FROM mart.renewals_due WHERE DATE(due_at, '${TZ}') = CURRENT_DATE('${TZ}')
+  SELECT * FROM mart.renewals_due WHERE DATE(due_at, '${DAY_TZ}') = CURRENT_DATE('${DAY_TZ}')
 ),
 hist AS (
   SELECT kind,
@@ -35,6 +43,8 @@ SELECT
   COUNT(due.kind)                                        AS total,
   COUNTIF(due.state IN ('paid', 'paid_late'))              AS paid,
   IFNULL(SUM(due.paid_net_usd), 0)                         AS paid_usd,
+  -- Adapty показує оплату лише з purchase_date, хоча Apple списав раніше
+  IFNULL(SUM(IF(due.paid_at > CURRENT_TIMESTAMP(), due.paid_net_usd, 0)), 0) AS paid_ahead_usd,
   COUNTIF(due.state = 'pending')                           AS pending,
   IFNULL(SUM(IF(due.state = 'pending', due.expected_net_usd, 0)), 0) AS pending_usd,
   COUNTIF(due.state = 'billing_retry')                     AS billing_retry,
@@ -48,37 +58,149 @@ GROUP BY k`;
 const EXTRA_SQL = `
 SELECT
   (SELECT COUNT(*) FROM mart.subscription_events
-    WHERE event = 'trial_started' AND DATE(event_at, '${TZ}') = CURRENT_DATE('${TZ}')) AS trials_today,
+    WHERE event = 'trial_started' AND DATE(event_at, '${DAY_TZ}') = CURRENT_DATE('${DAY_TZ}')) AS trials_today,
   (SELECT COUNT(*) FROM mart.renewals_due
-    WHERE paid_at IS NOT NULL AND DATE(paid_at, '${TZ}') = DATE_SUB(CURRENT_DATE('${TZ}'), INTERVAL 1 DAY)) AS paid_yesterday,
+    WHERE paid_at IS NOT NULL AND DATE(paid_at, '${DAY_TZ}') = DATE_SUB(CURRENT_DATE('${DAY_TZ}'), INTERVAL 1 DAY)) AS paid_yesterday,
   (SELECT IFNULL(SUM(paid_net_usd), 0) FROM mart.renewals_due
-    WHERE paid_at IS NOT NULL AND DATE(paid_at, '${TZ}') = DATE_SUB(CURRENT_DATE('${TZ}'), INTERVAL 1 DAY)) AS paid_yesterday_usd`;
+    WHERE paid_at IS NOT NULL AND DATE(paid_at, '${DAY_TZ}') = DATE_SUB(CURRENT_DATE('${DAY_TZ}'), INTERVAL 1 DAY)) AS paid_yesterday_usd`;
+
+// Поштучно сьогоднішні оплати, які ще не видно в Adapty: очікувані і вже списані наперед.
+// Ціна в USD gross — щоб було видно, за скільки списання (старі підписники лишились на старій ціні ~$5, нові — ~$10).
+const DETAIL_SQL = `
+WITH fx AS (
+  SELECT currency, usd_per_unit FROM ref.fx_daily
+  QUALIFY ROW_NUMBER() OVER (PARTITION BY currency ORDER BY date DESC) = 1
+),
+d AS (
+  SELECT r.*, r.state = 'pending' AS pending,
+    IF(r.state = 'pending', r.expected_local, r.paid_local)       AS price_local,
+    IF(r.state = 'pending', r.expected_currency, r.paid_currency) AS currency,
+    IF(r.state = 'pending', r.expected_net_usd, r.paid_net_usd)   AS net_usd
+  FROM mart.renewals_due r
+  WHERE DATE(r.due_at, '${DAY_TZ}') = CURRENT_DATE('${DAY_TZ}')
+    AND (r.state = 'pending' OR r.paid_at > CURRENT_TIMESTAMP())
+)
+SELECT d.kind, d.pending, COALESCE(st.country, d.storefront) AS country,
+  FORMAT_TIMESTAMP('%H:%M', d.due_at, '${TZ}') AS due_time,
+  d.price_local, d.currency, d.price_local * IF(d.currency = 'USD', 1, fx.usd_per_unit) AS price_usd, d.net_usd
+FROM d
+LEFT JOIN fx ON fx.currency = d.currency
+LEFT JOIN ref.storefront st ON st.storefront = d.storefront
+ORDER BY d.due_at`;
+
+type DetailRow = {
+  kind: "trial" | "renewal"; pending: boolean; country: string; due_time: string;
+  price_local: number; currency: string; price_usd: number | null; net_usd: number;
+};
+
+const KIND_LABEL = { trial: "тріал → підписка", renewal: "продовження" };
+
+function detail(r: DetailRow) {
+  const price = r.currency === "USD" || r.price_usd === null
+    ? `${r.price_local} ${r.currency}`
+    : `${usd(r.price_usd)} (${r.price_local} ${r.currency})`;
+  return `   • ${r.due_time} ${KIND_LABEL[r.kind]}, ${r.country}: ${price} → ${usd(r.net_usd)} net`;
+}
+
+// Тріали, що стартували вчора; «живі» — не скасовані зараз. Net першого списання — ціна підписки
+// після тріалу в країні покупця (expected_net_usd з mart.renewals_due).
+const MARKETING_SQL = `
+SELECT
+  COUNT(*)                                             AS trials,
+  COUNTIF(t.not_cancelled)                             AS live,
+  IFNULL(SUM(IF(t.not_cancelled, r.expected_net_usd, 0)), 0) AS live_net_usd
+FROM mart.trials t
+LEFT JOIN mart.renewals_due r ON r.original_transaction_id = t.original_transaction_id AND r.kind = 'trial'
+WHERE DATE(t.trial_started_at, '${DAY_TZ}') = DATE_SUB(CURRENT_DATE('${DAY_TZ}'), INTERVAL 1 DAY)`;
+
+type MarketingRow = { trials: number; live: number; live_net_usd: number };
+
+// Spend усіх кампаній за UTC-день (як тріали в Adapty), USD без VAT. Напряму з API, а не з BigQuery:
+// о 09:00 тут свіжіше, ніж у raw.apple_ads_keyword_daily після refreshWarehouse о 06:00.
+async function adsSpend(date: string): Promise<number> {
+  const rows = await adsReport(await adsHeaders(adsKey.value()), "campaigns", date, date);
+  return rows.flatMap((r) => r.granularity ?? []).reduce((s, g) => s + Number(g.localSpend?.amount ?? 0), 0);
+}
+
+function marketing(m: MarketingRow, spend: number | null) {
+  const lines = ["<b>📣 Marketing вчора</b>"];
+  if (spend === null) return [...lines, "Spend: Apple Ads не відповів, див. логи"].join("\n");
+  const cost = spend * (1 + ADS_VAT);
+  lines.push(`💸 Spend: ${usd(cost)} з VAT ${Math.round(ADS_VAT * 100)}% (${usd(spend)} без VAT)`);
+  lines.push(`🎯 CPT: ${m.trials ? usd(cost / m.trials) : "—"} (тріалів: ${m.trials}, живих: ${m.live})`);
+  lines.push(`🔮 Predicted Cohort ROAS 3d: ${cost ? `${Math.round((m.live_net_usd / cost) * 100)}%` : "—"}` +
+    ` (${m.live} × net підписки = ${usd(m.live_net_usd)} / spend з VAT)`);
+  return lines.join("\n");
+}
 
 type KindRow = {
   kind: "trial" | "renewal";
-  total: number; paid: number; paid_usd: number;
+  total: number; paid: number; paid_usd: number; paid_ahead_usd: number;
   pending: number; pending_usd: number;
   billing_retry: number; cancelled: number;
   hist_ok: number | null; hist_n: number | null;
 };
 
 const usd = (v: number) => `$${v.toFixed(2)}`;
+const round2 = (v: number) => Math.round(v * 100) / 100;
 
-function section(title: string, r: KindRow, rate: number) {
-  const expected = r.pending_usd * rate;
+const pick = <T>(xs: T[]) => xs[Math.floor(Math.random() * xs.length)];
+
+// Нульові рядки ховаємо, щоб не читати «0, 0, 0».
+function section(title: string, paidLabel: string, r: KindRow, rate: number) {
+  if (!r.total) return `<b>${title}:</b> сьогодні нікого`;
+  const lines = [`<b>${title}: ${r.total}</b>`];
+  if (r.paid) lines.push(`✅ ${paidLabel}: ${r.paid} — ${usd(r.paid_usd)}`);
+  if (r.pending) lines.push(`⏳ чекають списання: ${r.pending} (шанс оплати ${Math.round(rate * 100)}%)`);
+  if (r.billing_retry) lines.push(`🔁 billing retry: ${r.billing_retry}`);
+  if (r.cancelled) lines.push(`❌ скасували: ${r.cancelled}`);
+  return lines.join("\n");
+}
+
+// Частини рахуємо від округлених сум, щоб у повідомленні складалось до цента.
+function paidLines(already: number, ahead: number, rows: DetailRow[]) {
+  if (!ahead) return [`✅ Вже списано: ${usd(already)} net — усе вже видно в Adapty`];
   return [
-    `<b>${title}: ${r.total}</b>`,
-    `• оплатили: ${r.paid} — ${usd(r.paid_usd)}`,
-    `• чекають списання: ${r.pending} → ~${(r.pending * rate).toFixed(1)} / ${usd(expected)} (${Math.round(rate * 100)}%)`,
-    `• billing retry: ${r.billing_retry}`,
-    `• скасували: ${r.cancelled}`,
-  ].join("\n");
+    `✅ Вже списано: ${usd(already)} net`,
+    `   • в Adapty вже видно: ${usd(already - ahead)}`,
+    `   • ще ${usd(round2(already) - round2(already - ahead))} Apple вже списав, але в Adapty поки не відображається — ` +
+      `Adapty показує оплату з початку нового періоду, а Apple списує гроші ~на 8 год раніше:`,
+    ...rows.map((r) => `   ${detail(r)}`),
+  ];
+}
+
+function pendingLines(expected: number, rows: DetailRow[], rate: (k: DetailRow["kind"]) => number) {
+  if (!rows.length) return ["⏳ Більше сьогодні нічого не чекаємо"];
+  const chances = (["trial", "renewal"] as const)
+    .filter((k) => rows.some((r) => r.kind === k))
+    .map((k) => `${KIND_LABEL[k]} ${Math.round(rate(k) * 100)}%`).join(", ");
+  return [
+    `⏳ Ще чекаємо: ~${usd(expected)} net — ${rows.length} ${plural(rows.length, ["оплата", "оплати", "оплат"])} з урахуванням шансу (${chances}):`,
+    ...rows.map(detail),
+  ];
+}
+
+const plural = (n: number, [one, few, many]: string[]) =>
+  n % 10 === 1 && n % 100 !== 11 ? one : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? few : many;
+
+function verdict(forecast: number, yesterday: number) {
+  if (!yesterday) return "";
+  const d = (forecast - yesterday) / yesterday;
+  const pct = `${d >= 0 ? "+" : ""}${Math.round(d * 100)}%`;
+  if (d >= 0.15) return `📈 ${pct} до вчора — ${pick(["день обіцяє бути жирним", "Apple сьогодні щедрий", "ростемо"])}`;
+  if (d <= -0.15) return `📉 ${pct} до вчора — ${pick(["тихий день, не панікуємо", "пауза перед ривком", "вчора було краще, але ще не вечір"])}`;
+  return `➡️ ${pct} до вчора — стабільно`;
 }
 
 export async function buildForecast(): Promise<string> {
-  const [[rows], [[extra]]] = await Promise.all([
+  const yesterday = new Date(Date.now() - 86400e3).toLocaleDateString("sv-SE", { timeZone: DAY_TZ });
+  const [[rows], [details], [[extra]], [[mkt]], spend] = await Promise.all([
     bq.query({ query: SQL, location: "US" }),
+    bq.query({ query: DETAIL_SQL, location: "US" }),
     bq.query({ query: EXTRA_SQL, location: "US" }),
+    bq.query({ query: MARKETING_SQL, location: "US" }),
+    // Без spend повідомлення все одно має піти.
+    adsSpend(yesterday).catch((e) => { logger.error("apple ads spend", e); return null; }),
   ]);
   const byKind = Object.fromEntries((rows as KindRow[]).map((r) => [r.kind, r])) as Record<KindRow["kind"], KindRow>;
   const rate = (k: KindRow["kind"]) =>
@@ -86,21 +208,34 @@ export async function buildForecast(): Promise<string> {
 
   const trial = byKind.trial, renewal = byKind.renewal;
   const already = trial.paid_usd + renewal.paid_usd;
+  const ahead = trial.paid_ahead_usd + renewal.paid_ahead_usd;
   const expected = trial.pending_usd * rate("trial") + renewal.pending_usd * rate("renewal");
-  const today = new Date().toLocaleDateString("uk-UA", { timeZone: TZ, day: "2-digit", month: "2-digit" });
+  const forecast = already + expected;
+  const pendingRows = (details as DetailRow[]).filter((r) => r.pending);
+  const aheadRows = (details as DetailRow[]).filter((r) => !r.pending);
+  const today = new Date().toLocaleDateString("uk-UA", { timeZone: DAY_TZ, day: "2-digit", month: "2-digit" });
 
   return [
-    `<b>Imposter · ${today}</b>`,
-    `Прогноз net на сьогодні: <b>${usd(already + expected)}</b>`,
-    `вже прийшло ${usd(already)} · очікуємо ще ${usd(expected)}`,
+    `Шановні оунери, до вашої уваги прогноз по ревеню на сьогодні, <b>${today}</b> (день за UTC, як в Adapty; час оплат — за Києвом):`,
     "",
-    section("Тріали, що закінчуються сьогодні", trial, rate("trial")),
+    `💰 Прогноз: <b>${usd(forecast)} net</b>`,
+    verdict(forecast, extra.paid_yesterday_usd),
     "",
-    section("Продовження підписок", renewal, rate("renewal")),
+    ...paidLines(already, ahead, aheadRows),
     "",
-    `Нові тріали з 00:00: ${extra.trials_today}`,
-    `Вчора: ${usd(extra.paid_yesterday_usd)} net, оплат: ${extra.paid_yesterday}`,
-  ].join("\n");
+    ...pendingLines(expected, pendingRows, rate),
+    "",
+    section("🧪 Тріали закінчуються", "сконвертились", trial, rate("trial")),
+    "",
+    section("🔄 Продовження підписок", "продовжили", renewal, rate("renewal")),
+    "",
+    `🆕 Нові тріали з 00:00 UTC: ${extra.trials_today}`,
+    `📅 Вчора: ${usd(extra.paid_yesterday_usd)} net, оплат: ${extra.paid_yesterday}`,
+    "",
+    marketing(mkt as MarketingRow, spend),
+    "",
+    pick(["Гарного дня і жирних конверсій.", "Хай chargeback-и обходять нас стороною.", "Тримаємо курс.", "Працюємо далі."]),
+  ].filter((l, i, a) => l !== "" || a[i - 1] !== "").join("\n");
 }
 
 async function sendTelegram(text: string) {
@@ -113,7 +248,7 @@ async function sendTelegram(text: string) {
 }
 
 export const revenueForecast = onSchedule(
-  { schedule: "0 9 * * *", timeZone: TZ, region: "us-central1", secrets: [botToken, chatId], retryCount: 2 },
+  { schedule: "0 9 * * *", timeZone: TZ, region: "us-central1", secrets: [botToken, chatId, adsKey], retryCount: 2 },
   async () => {
     const text = await buildForecast();
     logger.info("revenue forecast", { text });
