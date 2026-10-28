@@ -26,7 +26,7 @@ with open(out,"w") as f:
         for s,e in windows():
             off=0
             while True:
-                body={"startTime":s.isoformat(),"endTime":e.isoformat(),"granularity":"DAILY","timeZone":"ORTZ",
+                body={"startTime":s.isoformat(),"endTime":e.isoformat(),"granularity":"DAILY","timeZone":"UTC",
                       "selector":{"orderBy":[{"field":"localSpend","sortOrder":"DESCENDING"}],"pagination":{"offset":off,"limit":1000}},
                       "groupBy":["countryOrRegion"],"returnRecordsWithNoMetrics":False,"returnRowTotals":False,"returnGrandTotals":False}
                 r=requests.post(f"{API}/reports/campaigns/{c['id']}/adgroups",headers=H,json=body)

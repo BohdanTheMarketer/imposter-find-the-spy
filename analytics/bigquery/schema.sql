@@ -156,6 +156,20 @@ CREATE TABLE IF NOT EXISTS raw.apple_ads_keyword_daily (
 -- Без партицій з тієї ж причини, що й asc_subscriber_daily (бекфіл історії spend).
 CLUSTER BY date, country_or_region, keyword_id;
 
+-- Adapty Analytics API (loaders/adapty_metrics_fetch.py): агрегати по днях у розрізі ASA-атрибуції Adapty.
+-- Без user_id; дата — дата події (trial / підписка / платіж), не інсталу. segment NULL = без атрибуції.
+-- segmentation: attribution_source / attribution_campaign / attribution_adgroup / attribution_creative (= keyword_id).
+CREATE TABLE IF NOT EXISTS raw.adapty_metrics_daily (
+  date          DATE NOT NULL,
+  chart_id      STRING NOT NULL,   -- trials_new / subscriptions_new / revenue
+  metric        STRING NOT NULL,   -- common (кількість) / revenue (gross) / proceeds / net_revenue
+  segmentation  STRING NOT NULL,
+  segment       STRING,
+  value         NUMERIC,
+  loaded_at     TIMESTAMP NOT NULL
+)
+CLUSTER BY date, segmentation;
+
 -- ─────────────────────────────────────────────────────────────
 -- 2. REF: довідники, заповнюються вручну або раз на день.
 -- ─────────────────────────────────────────────────────────────
