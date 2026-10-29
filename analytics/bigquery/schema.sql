@@ -170,6 +170,18 @@ CREATE TABLE IF NOT EXISTS raw.adapty_metrics_daily (
 )
 CLUSTER BY date, segmentation;
 
+-- Ранковий прогноз бота (functions revenueForecast): наступного дня порівнюємо з фактом і пояснюємо різницю.
+-- pending — оплати, яких на момент прогнозу ще чекали, з шансом, за яким їх порахували. Перезапуск дня дає
+-- ще один рядок — беремо останній за created_at.
+CREATE TABLE IF NOT EXISTS raw.forecast_daily (
+  date          DATE NOT NULL,     -- UTC-день прогнозу
+  forecast_usd  FLOAT64 NOT NULL,
+  already_usd   FLOAT64 NOT NULL,  -- вже списано на момент прогнозу
+  pending       ARRAY<STRUCT<original_transaction_id STRING, due_at TIMESTAMP, kind STRING, country STRING,
+                             net_usd FLOAT64, chance FLOAT64>>,
+  created_at    TIMESTAMP NOT NULL
+);
+
 -- ─────────────────────────────────────────────────────────────
 -- 2. REF: довідники, заповнюються вручну або раз на день.
 -- ─────────────────────────────────────────────────────────────
