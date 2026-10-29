@@ -306,7 +306,8 @@ export async function buildForecast() {
     "",
     section("🔄 Продовження підписок", "продовжили", renewal, rate("renewal")),
     "",
-    `🆕 Нові тріали з 00:00 UTC: ${extra.trials_today}`,
+    `🆕 Тріали сьогодні, ${today} 00:00–${new Date().toISOString().slice(11, 16)} UTC: ${extra.trials_today} ` +
+      "(за весь день — у завтрашньому Marketing)",
     `📅 Вчора: ${usd(extra.paid_yesterday_usd)} net, оплат: ${extra.paid_yesterday}`,
     "",
     ...prevReview,
