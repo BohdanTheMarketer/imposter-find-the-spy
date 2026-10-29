@@ -57,8 +57,6 @@ GROUP BY k`;
 
 const EXTRA_SQL = `
 SELECT
-  (SELECT COUNT(*) FROM mart.subscription_events
-    WHERE event = 'trial_started' AND DATE(event_at, '${DAY_TZ}') = CURRENT_DATE('${DAY_TZ}')) AS trials_today,
   (SELECT COUNT(*) FROM mart.renewals_due
     WHERE paid_at IS NOT NULL AND DATE(paid_at, '${DAY_TZ}') = DATE_SUB(CURRENT_DATE('${DAY_TZ}'), INTERVAL 1 DAY)) AS paid_yesterday,
   (SELECT IFNULL(SUM(paid_net_usd), 0) FROM mart.renewals_due
@@ -306,8 +304,6 @@ export async function buildForecast() {
     "",
     section("🔄 Продовження підписок", "продовжили", renewal, rate("renewal")),
     "",
-    `🆕 Тріали сьогодні, ${today} 00:00–${new Date().toISOString().slice(11, 16)} UTC: ${extra.trials_today} ` +
-      "(за весь день — у завтрашньому Marketing)",
     `📅 Вчора: ${usd(extra.paid_yesterday_usd)} net, оплат: ${extra.paid_yesterday}`,
     "",
     ...prevReview,
