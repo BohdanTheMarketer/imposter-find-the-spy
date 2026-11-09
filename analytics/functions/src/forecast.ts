@@ -8,6 +8,10 @@ import { defineSecret } from "firebase-functions/params";
 import { logger } from "firebase-functions/v2";
 import { BigQuery } from "@google-cloud/bigquery";
 import { adsHeaders, adsReport } from "./apple";
+import { WEEKLY_URL, WEEKLY_DAYS } from "./weekly";
+
+const weeklyDay = () => WEEKLY_DAYS.includes(
+  new Date().toLocaleDateString("en-US", { timeZone: "Europe/Kiev", weekday: "short" }));
 
 const TZ = "Europe/Kiev"; // розклад і час окремих оплат у тексті
 const DAY_TZ = "UTC";     // межі днів — як в Adapty
@@ -310,6 +314,8 @@ export async function buildForecast() {
     "",
     marketing(mkt as MarketingRow, spend),
     "",
+    // пн і чт вкладку Weekly оновлено о 08:30 — до звіту о 09:00
+    ...(weeklyDay() ? [`📊 Окупність по тижнях (оновлено сьогодні): <a href="${WEEKLY_URL}">Weekly</a>`, ""] : []),
     pick(["Гарного дня і жирних конверсій.", "Хай chargeback-и обходять нас стороною.", "Тримаємо курс.", "Працюємо далі."]),
   ].filter((l, i, a) => l !== "" || a[i - 1] !== "").join("\n");
   return { text, log };

@@ -6,7 +6,10 @@
 //   refreshWarehouse      — щоранку оновлює Apple Ads spend, ASC-звіти, курси валют (src/refresh.ts)
 export { revenueForecast } from "./forecast";
 export { refreshWarehouse } from "./refresh";
-// refreshAdapty (src/adapty.ts) — експортувати після functions:secrets:set ADAPTY_SECRET_KEY, без секрету деплой падає
+//   weeklyPayback(Check)  — пн/чт 08:30 вкладка Weekly у таблиці imposter metrics (src/weekly.ts)
+export { weeklyPayback, weeklyPaybackCheck } from "./weekly";
+//   refreshAdapty         — щоранку Adapty Analytics API → raw.adapty_metrics_daily (src/adapty.ts)
+export { refreshAdapty } from "./adapty";
 import { readFileSync } from "fs";
 import { join } from "path";
 import { onRequest } from "firebase-functions/v2/https";
